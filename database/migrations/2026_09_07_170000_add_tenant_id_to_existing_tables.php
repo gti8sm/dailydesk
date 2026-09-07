@@ -39,11 +39,19 @@ return new class extends Migration
                 });
             }
 
-            Schema::table('users', function (Blueprint $table) {
-                $table->string('tenant_id')->nullable()->after('id');
-                $table->index('tenant_id');
-                $table->unique(['tenant_id', 'email']);
-            });
+            $compositeExists = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_tenant_id_email_unique'");
+            if (empty($compositeExists)) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('tenant_id')->nullable()->after('id');
+                    $table->index('tenant_id');
+                    $table->unique(['tenant_id', 'email']);
+                });
+            } else {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('tenant_id')->nullable()->after('id');
+                    $table->index('tenant_id');
+                });
+            }
         }
 
         // Settings: drop unique on key, replace with composite (tenant_id, key)
@@ -54,9 +62,12 @@ return new class extends Migration
                     $table->dropUnique('settings_key_unique');
                 });
             }
-            Schema::table('settings', function (Blueprint $table) {
-                $table->unique(['tenant_id', 'key']);
-            });
+            $compositeExists = \DB::select("SHOW INDEX FROM settings WHERE Key_name = 'settings_tenant_id_key_unique'");
+            if (empty($compositeExists)) {
+                Schema::table('settings', function (Blueprint $table) {
+                    $table->unique(['tenant_id', 'key']);
+                });
+            }
         }
     }
 
