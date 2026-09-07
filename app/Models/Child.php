@@ -6,13 +6,14 @@ use App\Modules\Garderie\Models\GarderiePresence;
 use App\Modules\Garderie\Models\GarderieEvent;
 use App\Modules\Cantine\Models\CantinePresence;
 use App\Modules\Cantine\Models\CantineEvent;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Child extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'family_id',

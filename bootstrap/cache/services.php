@@ -32,6 +32,7 @@
     28 => 'Termwind\\Laravel\\TermwindServiceProvider',
     29 => 'Spatie\\Permission\\PermissionServiceProvider',
     30 => 'Stancl\\Tenancy\\TenancyServiceProvider',
+    31 => 'App\\Providers\\TenancyServiceProvider',
   ),
   'eager' => 
   array (
@@ -51,6 +52,7 @@
     13 => 'Termwind\\Laravel\\TermwindServiceProvider',
     14 => 'Spatie\\Permission\\PermissionServiceProvider',
     15 => 'Stancl\\Tenancy\\TenancyServiceProvider',
+    16 => 'App\\Providers\\TenancyServiceProvider',
   ),
   'deferred' => 
   array (

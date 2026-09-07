@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    use BelongsToTenant;
     protected $fillable = ['key', 'value', 'type', 'group', 'description'];
 
     public static function get($key, $default = null)

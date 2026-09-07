@@ -80,17 +80,8 @@ class TenantController extends Controller
             $domain = $validated['slug'] . '.localhost';
             $tenant->domains()->create(['domain' => $domain]);
 
-            // Créer la base de données
-            $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-            DB::connection('central')->statement("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-
-            // Créer les tables manuellement (car tenants:migrate ne fonctionne pas bien)
-            $this->createTenantTables($tenant);
-
-            // Créer l'admin du tenant
+            // En single-DB : pas de création de base, juste l'admin et les settings
             $this->createTenantAdmin($tenant, $validated);
-
-            // Seeder les settings par défaut
             $this->seedTenantSettings($tenant);
 
             return redirect()
@@ -98,12 +89,8 @@ class TenantController extends Controller
                 ->with('success', "Tenant '{$tenant->name}' créé avec succès ! Domaine : {$domain}");
 
         } catch (\Exception $e) {
-            // En cas d'erreur, supprimer le tenant si créé
             if (isset($tenant)) {
                 $tenant->delete();
-                if (isset($dbName)) {
-                    DB::connection('central')->statement("DROP DATABASE IF EXISTS `{$dbName}`");
-                }
             }
             
             return redirect()
@@ -123,29 +110,9 @@ class TenantController extends Controller
     {
         $plans = SubscriptionPlan::where('is_active', true)->get();
         
-        // Récupérer l'admin du tenant
-        $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-        config(['database.connections.tenant_temp' => [
-            'driver' => 'mysql',
-            'host' => config('database.connections.central.host'),
-            'port' => config('database.connections.central.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.central.username'),
-            'password' => config('database.connections.central.password'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-        ]]);
-        
-        DB::purge('tenant_temp');
-        
-        $admin = DB::connection('tenant_temp')
-            ->table('users')
-            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where('roles.name', 'admin')
-            ->where('model_has_roles.model_type', 'App\\Models\\User')
-            ->select('users.*')
+        // Récupérer l'admin du tenant (single-DB: filtrer par tenant_id)
+        $admin = \App\Models\User::where('tenant_id', $tenant->id)
+            ->whereHas('roles', fn($q) => $q->where('name', 'admin'))
             ->first();
         
         return view('central.tenants.edit', compact('tenant', 'plans', 'admin'));
@@ -179,7 +146,12 @@ class TenantController extends Controller
 
         // Mettre à jour le login de l'admin si fourni
         if ($request->has('admin_login')) {
-            $this->updateTenantAdminLogin($tenant, $request->input('admin_login'));
+            $admin = \App\Models\User::where('tenant_id', $tenant->id)
+                ->whereHas('roles', fn($q) => $q->where('name', 'admin'))
+                ->first();
+            if ($admin) {
+                $admin->update(['login' => $request->input('admin_login')]);
+            }
         }
 
         return redirect()
@@ -221,16 +193,26 @@ class TenantController extends Controller
         try {
             $tenantName = $tenant->name;
             
-            // Supprimer la base de données
-            $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-            DB::connection('central')->statement("DROP DATABASE IF EXISTS `{$dbName}`");
+            // Single-DB: supprimer les données du tenant
+            $tenantId = $tenant->id;
+            \App\Models\User::where('tenant_id', $tenantId)->delete();
+            \App\Models\Family::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Models\Child::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Models\ParentModel::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Models\SchoolClass::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Models\Setting::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Models\FamilyInvitation::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Modules\Garderie\Models\GarderiePresence::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Modules\Garderie\Models\GarderieEvent::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Modules\Cantine\Models\CantinePresence::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+            \App\Modules\Cantine\Models\CantineEvent::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
 
             // Supprimer le tenant (les domaines seront supprimés en cascade)
             $tenant->delete();
 
             return redirect()
                 ->route('dashboard')
-                ->with('success', "Tenant '{$tenantName}' et sa base de données ont été supprimés avec succès !");
+                ->with('success', "Tenant '{$tenantName}' supprimé avec succès !");
 
         } catch (\Exception $e) {
             return redirect()
@@ -259,212 +241,33 @@ class TenantController extends Controller
         };
     }
 
-    private function createTenantTables(Tenant $tenant)
-    {
-        $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-        
-        config(['database.connections.tenant_temp' => [
-            'driver' => 'mysql',
-            'host' => config('database.connections.central.host'),
-            'port' => config('database.connections.central.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.central.username'),
-            'password' => config('database.connections.central.password'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-        ]]);
-
-        DB::purge('tenant_temp');
-
-        $connection = DB::connection('tenant_temp');
-
-        // Table families
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `families` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `family_name` varchar(255) NOT NULL,
-                `address` varchar(255) DEFAULT NULL,
-                `postal_code` varchar(255) DEFAULT NULL,
-                `city` varchar(255) DEFAULT NULL,
-                `phone` varchar(255) DEFAULT NULL,
-                `email` varchar(255) DEFAULT NULL,
-                `is_active` tinyint(1) NOT NULL DEFAULT '1',
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                `deleted_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table children
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `children` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `family_id` bigint unsigned NOT NULL,
-                `first_name` varchar(255) NOT NULL,
-                `last_name` varchar(255) NOT NULL,
-                `birth_date` date NOT NULL,
-                `gender` enum('M','F') NOT NULL,
-                `class` varchar(255) DEFAULT NULL,
-                `medical_notes` text,
-                `is_active` tinyint(1) NOT NULL DEFAULT '1',
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                `deleted_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`),
-                KEY `children_family_id_foreign` (`family_id`),
-                CONSTRAINT `children_family_id_foreign` FOREIGN KEY (`family_id`) REFERENCES `families` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table settings
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `settings` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `key` varchar(255) NOT NULL,
-                `value` text,
-                `type` varchar(255) NOT NULL DEFAULT 'string',
-                `group` varchar(255) NOT NULL DEFAULT 'general',
-                `description` varchar(255) DEFAULT NULL,
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `settings_key_unique` (`key`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table garderie_presences
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `garderie_presences` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `child_id` bigint unsigned NOT NULL,
-                `date` date NOT NULL,
-                `arrival_time` time DEFAULT NULL,
-                `departure_time` time DEFAULT NULL,
-                `period` enum('morning','evening') NOT NULL,
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`),
-                KEY `garderie_presences_child_id_foreign` (`child_id`),
-                CONSTRAINT `garderie_presences_child_id_foreign` FOREIGN KEY (`child_id`) REFERENCES `children` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table cantine_presences
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `cantine_presences` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `child_id` bigint unsigned NOT NULL,
-                `date` date NOT NULL,
-                `present` tinyint(1) NOT NULL DEFAULT '0',
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`),
-                KEY `cantine_presences_child_id_foreign` (`child_id`),
-                CONSTRAINT `cantine_presences_child_id_foreign` FOREIGN KEY (`child_id`) REFERENCES `children` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table permissions
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `permissions` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `name` varchar(255) NOT NULL,
-                `guard_name` varchar(255) NOT NULL,
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table roles
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `roles` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `name` varchar(255) NOT NULL,
-                `guard_name` varchar(255) NOT NULL,
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table model_has_roles
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `model_has_roles` (
-                `role_id` bigint unsigned NOT NULL,
-                `model_type` varchar(255) NOT NULL,
-                `model_id` bigint unsigned NOT NULL,
-                PRIMARY KEY (`role_id`,`model_id`,`model_type`),
-                KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`),
-                CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-
-        // Table users
-        $connection->statement("
-            CREATE TABLE IF NOT EXISTS `users` (
-                `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                `name` varchar(255) NOT NULL,
-                `email` varchar(255) NOT NULL,
-                `password` varchar(255) NOT NULL,
-                `is_active` tinyint(1) NOT NULL DEFAULT '1',
-                `remember_token` varchar(100) DEFAULT NULL,
-                `created_at` timestamp NULL DEFAULT NULL,
-                `updated_at` timestamp NULL DEFAULT NULL,
-                `deleted_at` timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `users_email_unique` (`email`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-    }
+    // In single-DB mode, tables are created via migrations, not per-tenant
 
     private function createTenantAdmin(Tenant $tenant, array $data)
     {
-        $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-        
-        config(['database.connections.tenant_temp' => [
-            'driver' => 'mysql',
-            'host' => config('database.connections.central.host'),
-            'port' => config('database.connections.central.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.central.username'),
-            'password' => config('database.connections.central.password'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-        ]]);
-
-        DB::purge('tenant_temp');
-
-        // Créer l'admin
-        $adminId = DB::connection('tenant_temp')->table('users')->insertGetId([
+        // Single-DB: create user with tenant_id, assign admin role within tenant context
+        $admin = \App\Models\User::create([
             'name' => $data['admin_name'],
             'email' => $data['admin_email'],
             'login' => $data['admin_login'] ?? null,
             'password' => Hash::make($data['admin_password']),
             'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'tenant_id' => $tenant->id,
         ]);
 
-        // Créer le rôle admin
-        $adminRoleId = DB::connection('tenant_temp')->table('roles')->insertGetId([
-            'name' => 'admin',
-            'guard_name' => 'web',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Initialize tenancy to assign roles within tenant context
+        tenancy()->initialize($tenant);
+        
+        // Ensure roles and permissions exist
+        $this->seedRolesAndPermissions();
+        
+        $admin->assignRole('admin');
+        
+        tenancy()->end();
+    }
 
-        // Assigner le rôle
-        DB::connection('tenant_temp')->table('model_has_roles')->insert([
-            'role_id' => $adminRoleId,
-            'model_type' => 'App\Models\User',
-            'model_id' => $adminId,
-        ]);
-
-        // Créer les permissions
+    private function seedRolesAndPermissions(): void
+    {
         $permissions = [
             'view_garderie', 'manage_garderie',
             'view_cantine', 'manage_cantine',
@@ -473,33 +276,21 @@ class TenantController extends Controller
             'manage_settings',
         ];
 
-        foreach ($permissions as $permission) {
-            DB::connection('tenant_temp')->table('permissions')->insert([
-                'name' => $permission,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        foreach ($permissions as $perm) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
         }
+
+        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminRole->syncPermissions($permissions);
+        
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'alsh', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'cantine', 'guard_name' => 'web']);
     }
 
     private function seedTenantSettings(Tenant $tenant)
     {
-        $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-        
-        config(['database.connections.tenant_temp' => [
-            'driver' => 'mysql',
-            'host' => config('database.connections.central.host'),
-            'port' => config('database.connections.central.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.central.username'),
-            'password' => config('database.connections.central.password'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-        ]]);
-
-        DB::purge('tenant_temp');
+        tenancy()->initialize($tenant);
 
         $settings = [
             ['key' => 'app_name', 'value' => $tenant->name, 'type' => 'string', 'group' => 'general'],
@@ -510,48 +301,11 @@ class TenantController extends Controller
         ];
 
         foreach ($settings as $setting) {
-            DB::connection('tenant_temp')->table('settings')->insert(array_merge($setting, [
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]));
+            \App\Models\Setting::create($setting);
         }
+
+        tenancy()->end();
     }
 
-    private function updateTenantAdminLogin(Tenant $tenant, ?string $login)
-    {
-        $dbName = 'tenant_' . str_replace('-', '_', $tenant->id);
-        
-        config(['database.connections.tenant_temp' => [
-            'driver' => 'mysql',
-            'host' => config('database.connections.central.host'),
-            'port' => config('database.connections.central.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.central.username'),
-            'password' => config('database.connections.central.password'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-        ]]);
-
-        DB::purge('tenant_temp');
-
-        // Récupérer l'ID de l'admin
-        $adminId = DB::connection('tenant_temp')
-            ->table('users')
-            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where('roles.name', 'admin')
-            ->where('model_has_roles.model_type', 'App\\Models\\User')
-            ->value('users.id');
-
-        if ($adminId) {
-            DB::connection('tenant_temp')
-                ->table('users')
-                ->where('id', $adminId)
-                ->update([
-                    'login' => $login,
-                    'updated_at' => now(),
-                ]);
-        }
-    }
+    // updateTenantAdminLogin removed — handled inline in update() method
 }

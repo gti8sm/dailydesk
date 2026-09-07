@@ -5,8 +5,12 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Http\Request;
+use App\Providers\TenancyServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders([
+        TenancyServiceProvider::class,
+    ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
