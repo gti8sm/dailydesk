@@ -25,6 +25,11 @@ trait BelongsToTenant
         });
     }
 
+    public function initializeBelongsToTenant(): void
+    {
+        $this->fillable[] = 'tenant_id';
+    }
+
     public function tenant()
     {
         return $this->belongsTo(\App\Models\Tenant::class);
