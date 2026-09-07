@@ -195,9 +195,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/notifications', [ParentPortalController::class, 'updateNotifications'])->name('notifications.update');
     });
 
-    Route::get('/password/request', function () {
-        return view('auth.forgot-password');
-    })->name('password.request');
 });
 
 // Invitation accept (guest route)
