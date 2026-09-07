@@ -19,13 +19,13 @@ class DefaultSettingsSeeder extends Seeder
             ['key' => 'garderie_evening_start', 'value' => '16:30', 'type' => 'string', 'group' => 'garderie', 'description' => 'Heure de début de la garderie du soir', 'tenant_id' => null],
             ['key' => 'garderie_evening_end', 'value' => '18:30', 'type' => 'string', 'group' => 'garderie', 'description' => 'Heure de fin de la garderie du soir', 'tenant_id' => null],
             
-            ['key' => 'smtp_host', 'value' => '', 'type' => 'string', 'group' => 'smtp', 'description' => 'Serveur SMTP', 'tenant_id' => null],
+            ['key' => 'smtp_host', 'value' => 'mur.o2switch.net', 'type' => 'string', 'group' => 'smtp', 'description' => 'Serveur SMTP', 'tenant_id' => null],
             ['key' => 'smtp_port', 'value' => '587', 'type' => 'integer', 'group' => 'smtp', 'description' => 'Port SMTP', 'tenant_id' => null],
-            ['key' => 'smtp_username', 'value' => '', 'type' => 'string', 'group' => 'smtp', 'description' => 'Nom d\'utilisateur SMTP', 'tenant_id' => null],
-            ['key' => 'smtp_password', 'value' => '', 'type' => 'string', 'group' => 'smtp', 'description' => 'Mot de passe SMTP', 'tenant_id' => null],
+            ['key' => 'smtp_username', 'value' => 'smtp@dailydesk.fr', 'type' => 'string', 'group' => 'smtp', 'description' => 'Nom d\'utilisateur SMTP', 'tenant_id' => null],
+            ['key' => 'smtp_password', 'value' => 'Occupy-Shoplift9-Exposable', 'type' => 'string', 'group' => 'smtp', 'description' => 'Mot de passe SMTP', 'tenant_id' => null],
             ['key' => 'smtp_encryption', 'value' => 'tls', 'type' => 'string', 'group' => 'smtp', 'description' => 'Type de chiffrement', 'tenant_id' => null],
-            ['key' => 'smtp_from_address', 'value' => '', 'type' => 'string', 'group' => 'smtp', 'description' => 'Adresse email d\'expédition', 'tenant_id' => null],
-            ['key' => 'smtp_from_name', 'value' => 'Communeo', 'type' => 'string', 'group' => 'smtp', 'description' => 'Nom d\'expédition', 'tenant_id' => null],
+            ['key' => 'smtp_from_address', 'value' => 'contact@dailydesk.fr', 'type' => 'string', 'group' => 'smtp', 'description' => 'Adresse email d\'expédition', 'tenant_id' => null],
+            ['key' => 'smtp_from_name', 'value' => 'DailyDesk', 'type' => 'string', 'group' => 'smtp', 'description' => 'Nom d\'expédition', 'tenant_id' => null],
             
             ['key' => 'notify_arrival', 'value' => '0', 'type' => 'boolean', 'group' => 'notifications', 'description' => 'Notifier les parents lors d\'une arrivée', 'tenant_id' => null],
             ['key' => 'notify_departure', 'value' => '0', 'type' => 'boolean', 'group' => 'notifications', 'description' => 'Notifier les parents lors d\'un départ', 'tenant_id' => null],

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -102,5 +103,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_own_events',
             'manage_notifications',
         ]);
+
+        $superAdminUser = User::create([
+            'name' => 'Super Admin',
+            'email' => 'simonmaraval@smallwebconcept.fr',
+            'password' => 'Occupy-Shoplift9-Exposable',
+            'is_active' => true,
+            'tenant_id' => null,
+        ]);
+        $superAdminUser->assignRole('super_admin');
     }
 }
