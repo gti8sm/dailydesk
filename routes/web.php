@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\SubscriptionPlanController;
 use App\Http\Controllers\Central\ImpersonationController;
+use App\Http\Controllers\Central\ModuleController;
 use App\Http\Controllers\Central\StatisticsController;
 use App\Http\Controllers\Central\ExportController as CentralExportController;
 use App\Http\Controllers\ExportController;
@@ -63,6 +64,11 @@ Route::middleware('auth')->group(function () {
         Route::post('impersonate/{tenant}', [ImpersonationController::class, 'impersonate'])->name('impersonate');
         Route::get('do-impersonate', [ImpersonationController::class, 'doImpersonate'])->name('do-impersonate')->withoutMiddleware('auth');
         Route::get('restore-super-admin', [ImpersonationController::class, 'restoreSuperAdmin'])->name('restore-super-admin')->withoutMiddleware('auth');
+
+        Route::get('modules', [ModuleController::class, 'overview'])->name('modules.overview');
+        Route::get('modules/settings', [ModuleController::class, 'globalSettings'])->name('modules.settings');
+        Route::post('modules/settings', [ModuleController::class, 'updateGlobalSettings'])->name('modules.settings.update');
+        Route::post('modules/{tenant}/{module}/toggle', [ModuleController::class, 'toggleModule'])->name('modules.toggle');
     });
     
     // Stop impersonation - accessible from both central and tenant domains

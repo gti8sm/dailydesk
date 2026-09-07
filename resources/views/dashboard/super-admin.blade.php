@@ -411,6 +411,21 @@
 
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex items-center mb-4">
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-puzzle-piece text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="ml-3 text-lg font-semibold text-gray-900">Modules</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+                Gérer les modules par tenant et les paramètres globaux
+            </p>
+            <a href="{{ route('central.modules.overview') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center">
+                Gérer
+            </a>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center mb-4">
                 <div class="bg-purple-100 rounded-full p-3">
                     <i class="fas fa-tags text-purple-600 text-xl"></i>
                 </div>
