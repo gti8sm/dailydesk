@@ -54,6 +54,22 @@ return new class extends Migration
             });
         }
 
+        // School classes (must be created before children due to FK)
+        if (!Schema::hasTable('school_classes')) {
+            Schema::create('school_classes', function (Blueprint $table) {
+                $table->id();
+                $table->string('tenant_id');
+                $table->string('name');
+                $table->string('teacher_name')->nullable();
+                $table->string('school_year');
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+                $table->softDeletes();
+
+                $table->index(['tenant_id', 'school_year', 'is_active']);
+            });
+        }
+
         // Children
         if (!Schema::hasTable('children')) {
             Schema::create('children', function (Blueprint $table) {
@@ -78,22 +94,6 @@ return new class extends Migration
 
                 $table->index('tenant_id');
                 $table->index('family_id');
-            });
-        }
-
-        // School classes
-        if (!Schema::hasTable('school_classes')) {
-            Schema::create('school_classes', function (Blueprint $table) {
-                $table->id();
-                $table->string('tenant_id');
-                $table->string('name');
-                $table->string('teacher_name')->nullable();
-                $table->string('school_year');
-                $table->boolean('is_active')->default(true);
-                $table->timestamps();
-                $table->softDeletes();
-
-                $table->index(['tenant_id', 'school_year', 'is_active']);
             });
         }
 
