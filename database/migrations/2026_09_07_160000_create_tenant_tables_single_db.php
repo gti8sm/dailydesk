@@ -16,7 +16,7 @@ return new class extends Migration
         if (!Schema::hasTable('families')) {
             Schema::create('families', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->string('family_name');
                 $table->string('address')->nullable();
                 $table->string('postal_code', 10)->nullable();
@@ -36,7 +36,7 @@ return new class extends Migration
         if (!Schema::hasTable('parents')) {
             Schema::create('parents', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('family_id')->constrained()->onDelete('cascade');
                 $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
                 $table->string('first_name');
@@ -58,7 +58,7 @@ return new class extends Migration
         if (!Schema::hasTable('school_classes')) {
             Schema::create('school_classes', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->string('name');
                 $table->string('teacher_name')->nullable();
                 $table->string('school_year');
@@ -74,7 +74,7 @@ return new class extends Migration
         if (!Schema::hasTable('children')) {
             Schema::create('children', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('family_id')->nullable()->constrained()->onDelete('set null');
                 $table->string('first_name');
                 $table->string('last_name');
@@ -101,7 +101,7 @@ return new class extends Migration
         if (!Schema::hasTable('garderie_presences')) {
             Schema::create('garderie_presences', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('child_id')->constrained()->onDelete('cascade');
                 $table->date('date');
                 $table->time('arrival_time')->nullable();
@@ -122,7 +122,7 @@ return new class extends Migration
         if (!Schema::hasTable('garderie_events')) {
             Schema::create('garderie_events', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('child_id')->constrained()->onDelete('cascade');
                 $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
                 $table->date('event_date');
@@ -144,7 +144,7 @@ return new class extends Migration
         if (!Schema::hasTable('cantine_presences')) {
             Schema::create('cantine_presences', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('child_id')->constrained()->onDelete('cascade');
                 $table->date('date');
                 $table->enum('meal_type', ['lunch', 'snack'])->default('lunch');
@@ -163,7 +163,7 @@ return new class extends Migration
         if (!Schema::hasTable('cantine_events')) {
             Schema::create('cantine_events', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('child_id')->constrained()->onDelete('cascade');
                 $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
                 $table->date('event_date');
@@ -184,7 +184,7 @@ return new class extends Migration
         if (!Schema::hasTable('settings')) {
             Schema::create('settings', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->string('key');
                 $table->text('value')->nullable();
                 $table->string('type')->default('string');
@@ -201,7 +201,7 @@ return new class extends Migration
         if (!Schema::hasTable('family_invitations')) {
             Schema::create('family_invitations', function (Blueprint $table) {
                 $table->id();
-                $table->string('tenant_id');
+                $table->string('tenant_id')->nullable();
                 $table->foreignId('family_id')->constrained()->onDelete('cascade');
                 $table->string('email');
                 $table->string('token')->unique();
