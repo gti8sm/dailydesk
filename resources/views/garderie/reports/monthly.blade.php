@@ -60,7 +60,7 @@
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-blue-100 text-sm font-medium">Enfants présents</p>
+                    <p class="text-blue-100 text-sm font-medium">Enfants concernés</p>
                     <p class="text-3xl font-bold mt-2">{{ $report->count() }}</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
@@ -72,8 +72,9 @@
         <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-green-100 text-sm font-medium">Total jours</p>
-                    <p class="text-3xl font-bold mt-2">{{ $report->sum('days_count') }}</p>
+                    <p class="text-green-100 text-sm font-medium">Jours de présence</p>
+                    <p class="text-3xl font-bold mt-2">{{ $report->sum('total_days') }}</p>
+                    <p class="text-green-100 text-xs mt-1">dont {{ $report->sum('days_count') }} complets</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
                     <i class="fas fa-calendar-check text-2xl"></i>
@@ -84,8 +85,9 @@
         <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-purple-100 text-sm font-medium">Total heures</p>
-                    <p class="text-3xl font-bold mt-2">{{ number_format($report->sum('total_minutes') / 60, 1) }}h</p>
+                    <p class="text-purple-100 text-sm font-medium">Total temps garderie</p>
+                    @php $totalMin = $report->sum('total_minutes'); @endphp
+                    <p class="text-3xl font-bold mt-2">{{ floor($totalMin / 60) }}h{{ str_pad($totalMin % 60, 2, '0', STR_PAD_LEFT) }}</p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
                     <i class="fas fa-clock text-2xl"></i>
@@ -114,18 +116,24 @@
                             Famille
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Jours présents
+                            Jours présence
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Total heures
+                            Jours complets
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Moyenne/jour
+                            Temps garderie
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Moyenne / jour complet
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($report as $item)
+                    @php
+                        $incomplete = $item->total_days - $item->days_count;
+                    @endphp
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -147,26 +155,35 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ $item->days_count }} jours
+                                {{ $item->total_days }} j
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full {{ $incomplete > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                                {{ $item->days_count }} j
+                            </span>
+                            @if($incomplete > 0)
+                            <span class="block text-xs text-yellow-600 mt-1">{{ $incomplete }} incomplet(s)</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="text-sm font-medium text-gray-900">
-                                {{ number_format($item->total_minutes / 60, 2) }}h
-                            </div>
-                            <div class="text-xs text-gray-500">
-                                ({{ $item->total_minutes }} min)
+                                {{ floor($item->total_minutes / 60) }}h{{ str_pad($item->total_minutes % 60, 2, '0', STR_PAD_LEFT) }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="text-sm text-gray-900">
-                                {{ number_format($item->total_minutes / $item->days_count / 60, 2) }}h
+                                @if($item->days_count > 0)
+                                    {{ floor(($item->total_minutes / $item->days_count) / 60) }}h{{ str_pad(intval(($item->total_minutes / $item->days_count) % 60), 2, '0', STR_PAD_LEFT) }}
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                             <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
                             <p>Aucune présence enregistrée pour ce mois.</p>
                         </td>
@@ -190,9 +207,10 @@
                 <div class="mt-2 text-sm text-blue-800">
                     <p>Ce rapport contient les données nécessaires pour la facturation :</p>
                     <ul class="list-disc list-inside mt-2">
-                        <li><strong>Jours présents</strong> : Nombre de jours où l'enfant était présent</li>
-                        <li><strong>Total heures</strong> : Temps total de présence en garderie</li>
-                        <li><strong>Moyenne/jour</strong> : Temps moyen par jour de présence</li>
+                        <li><strong>Jours présence</strong> : Nombre total de jours où l'enfant est venu (arrivée ou départ enregistré)</li>
+                        <li><strong>Jours complets</strong> : Jours où l'arrivée ET le départ ont été enregistrés (en jaune si incomplet)</li>
+                        <li><strong>Temps garderie</strong> : Temps total réel en garderie (hors heures scolaires)</li>
+                        <li><strong>Moyenne / jour complet</strong> : Temps moyen par jour complet (basé sur les jours avec arrivée + départ)</li>
                     </ul>
                     <p class="mt-2">Exportez ce rapport en CSV (compatible Excel) pour l'importer dans votre logiciel de facturation.</p>
                 </div>

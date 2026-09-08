@@ -153,10 +153,16 @@ class GarderiePresenceController extends Controller
         $year = $request->get('year', now()->year);
         $month = $request->get('month', now()->month);
 
-        $report = GarderiePresence::select('child_id', DB::raw('COUNT(*) as days_count'), DB::raw('SUM(duration_minutes) as total_minutes'))
+        $report = GarderiePresence::select(
+                'child_id',
+                DB::raw('COUNT(*) as total_days'),
+                DB::raw('SUM(CASE WHEN arrival_time IS NOT NULL AND departure_time IS NOT NULL THEN 1 ELSE 0 END) as days_count'),
+                DB::raw('COALESCE(SUM(duration_minutes), 0) as total_minutes')
+            )
             ->forMonth($year, $month)
-            ->whereNotNull('arrival_time')
-            ->whereNotNull('departure_time')
+            ->where(function ($q) {
+                $q->whereNotNull('arrival_time')->orWhereNotNull('departure_time');
+            })
             ->groupBy('child_id')
             ->with('child.family')
             ->get();
@@ -169,10 +175,16 @@ class GarderiePresenceController extends Controller
         $year = $request->get('year', now()->year);
         $month = $request->get('month', now()->month);
 
-        $report = GarderiePresence::select('child_id', DB::raw('COUNT(*) as days_count'), DB::raw('SUM(duration_minutes) as total_minutes'))
+        $report = GarderiePresence::select(
+                'child_id',
+                DB::raw('COUNT(*) as total_days'),
+                DB::raw('SUM(CASE WHEN arrival_time IS NOT NULL AND departure_time IS NOT NULL THEN 1 ELSE 0 END) as days_count'),
+                DB::raw('COALESCE(SUM(duration_minutes), 0) as total_minutes')
+            )
             ->forMonth($year, $month)
-            ->whereNotNull('arrival_time')
-            ->whereNotNull('departure_time')
+            ->where(function ($q) {
+                $q->whereNotNull('arrival_time')->orWhereNotNull('departure_time');
+            })
             ->groupBy('child_id')
             ->with('child.family')
             ->get();
@@ -195,10 +207,11 @@ class GarderiePresenceController extends Controller
                 'Nom Enfant',
                 'Prénom Enfant',
                 'Famille',
-                'Jours Présents',
+                'Jours avec présence',
+                'Jours complets (arrivée + départ)',
                 'Total Minutes',
                 'Total Heures',
-                'Moyenne Heures/Jour'
+                'Moyenne Heures/Jour complet'
             ], ';');
             
             // Données
@@ -210,6 +223,7 @@ class GarderiePresenceController extends Controller
                     $row->child->last_name,
                     $row->child->first_name,
                     $row->child->family->family_name,
+                    $row->total_days,
                     $row->days_count,
                     $row->total_minutes,
                     number_format($totalHours, 2, '.', ''),
