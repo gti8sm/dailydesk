@@ -57,9 +57,9 @@
                         </a>
 
                         @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
-                        <div class="relative" x-data="{ open: false }">
+                        <div class="relative h-full flex items-center" x-data="{ open: false }">
                             <button @click="open = !open" @click.away="open = false"
-                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer">
+                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer h-full">
                                 <i class="fas fa-th-large mr-2"></i> Modules
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
@@ -82,9 +82,9 @@
                         @endif
 
                         @can('manage_families')
-                        <div class="relative" x-data="{ open: false }">
+                        <div class="relative h-full flex items-center" x-data="{ open: false }">
                             <button @click="open = !open" @click.away="open = false"
-                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer">
+                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer h-full">
                                 <i class="fas fa-folder-open mr-2"></i> Gestion
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
