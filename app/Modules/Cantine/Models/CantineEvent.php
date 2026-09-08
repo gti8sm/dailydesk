@@ -22,6 +22,7 @@ class CantineEvent extends Model
         'description',
         'parents_notified',
         'notified_at',
+        'parent_viewed_at',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class CantineEvent extends Model
         'event_time' => 'datetime:H:i',
         'parents_notified' => 'boolean',
         'notified_at' => 'datetime',
+        'parent_viewed_at' => 'datetime',
     ];
 
     public function child()

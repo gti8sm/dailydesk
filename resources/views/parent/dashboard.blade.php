@@ -9,7 +9,7 @@
             <i class="fas fa-home text-blue-600 mr-2"></i>
             Bonjour {{ $parent->first_name }}
         </h1>
-        <p class="mt-1 text-sm text-gray-600">Famille {{ $family->family_name }}</p>
+        <p class="mt-1 text-sm text-gray-600">{{ $family->family_name }}</p>
     </div>
 
     @if(session('success'))
@@ -17,6 +17,109 @@
         <p class="text-sm text-green-700">{{ session('success') }}</p>
     </div>
     @endif
+
+    @if($unreadEvents->isNotEmpty())
+    <!-- Alerte signalements non lus -->
+    <div class="mb-6 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="bg-orange-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div>
+                <p class="font-bold text-orange-800">
+                    {{ $unreadEvents->count() }} signalement(s) non lu(s)
+                </p>
+                <p class="text-sm text-orange-600">
+                    @foreach($unreadEvents->take(2) as $event)
+                        {{ $event->child->full_name }} — {{ $event->title }}<br>
+                    @endforeach
+                    @if($unreadEvents->count() > 2) et {{ $unreadEvents->count() - 2 }} autre(s)@endif
+                </p>
+            </div>
+        </div>
+        <form action="{{ route('parent.events.markViewed') }}" method="POST">
+            @csrf
+            <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium text-sm transition-colors whitespace-nowrap">
+                <i class="fas fa-check mr-1"></i> Marquer comme lu
+            </button>
+        </form>
+    </div>
+    @endif
+
+    <!-- Stats cards -->
+    <div class="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Heures garderie -->
+        <div class="bg-white shadow-lg rounded-xl p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Garderie</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['garderie_hours'] }}h</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ $monthName }} {{ $year }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-clock text-blue-600 text-xl"></i>
+                </div>
+            </div>
+            @if($stats['garderie_trend'] !== null)
+            <div class="mt-2 flex items-center gap-1 text-xs">
+                <i class="fas fa-arrow-{{ $stats['garderie_trend'] >= 0 ? 'up text-green-500' : 'down text-red-500' }}"></i>
+                <span class="{{ $stats['garderie_trend'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                    {{ abs($stats['garderie_trend']) }}% vs mois précédent
+                </span>
+            </div>
+            @else
+            <div class="mt-2 text-xs text-gray-400">Pas de données M-1</div>
+            @endif
+        </div>
+
+        <!-- Repas cantine -->
+        <div class="bg-white shadow-lg rounded-xl p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Cantine</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['cantine_meals'] }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">repas · {{ $monthName }} {{ $year }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i class="fas fa-utensils text-green-600 text-xl"></i>
+                </div>
+            </div>
+            @if($stats['cantine_trend'] !== null)
+            <div class="mt-2 flex items-center gap-1 text-xs">
+                <i class="fas fa-arrow-{{ $stats['cantine_trend'] >= 0 ? 'up text-green-500' : 'down text-red-500' }}"></i>
+                <span class="{{ $stats['cantine_trend'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                    {{ abs($stats['cantine_trend']) }}% vs mois précédent
+                </span>
+            </div>
+            @else
+            <div class="mt-2 text-xs text-gray-400">Pas de données M-1</div>
+            @endif
+        </div>
+
+        <!-- Moyenne repas/enfant -->
+        <div class="bg-white shadow-lg rounded-xl p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Moyenne</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['avg_meals'] }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">repas/enfant · {{ $monthName }}</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                </div>
+            </div>
+            @if($stats['avg_trend'] !== null)
+            <div class="mt-2 flex items-center gap-1 text-xs">
+                <i class="fas fa-arrow-{{ $stats['avg_trend'] >= 0 ? 'up text-green-500' : 'down text-red-500' }}"></i>
+                <span class="{{ $stats['avg_trend'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                    {{ abs($stats['avg_trend']) }}% vs mois précédent
+                </span>
+            </div>
+            @else
+            <div class="mt-2 text-xs text-gray-400">Pas de données M-1</div>
+            @endif
+        </div>
+    </div>
 
     <!-- Planning mensuel -->
     <div class="mb-6 bg-white shadow-lg rounded-xl overflow-hidden">
@@ -38,7 +141,7 @@
             <!-- Légende -->
             <div class="flex gap-4 mb-3 text-xs">
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span>Garderie</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span>Cantine</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span>Repas</span>
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-400"></span>Goûter</span>
             </div>
             <!-- Grille calendrier -->
@@ -55,9 +158,28 @@
                     $hasCantine = $cell['cantine']->isNotEmpty();
                     $cantineLunch = $cell['cantine']->where('meal_type', 'lunch')->where('is_present', true)->isNotEmpty();
                     $cantineSnack = $cell['cantine']->where('meal_type', 'snack')->where('is_present', true)->isNotEmpty();
-                    $garderieArrival = $cell['garderie']->whereNotNull('arrival_time')->first();
-                    $garderieDeparture = $cell['garderie']->whereNotNull('departure_time')->first();
+                    $garderiePresence = $cell['garderie']->first();
                     $isToday = $cell['date'] === now()->format('Y-m-d');
+
+                    $morningEnd = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_morning_end', '08:30'));
+                    $eveningStart = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_evening_start', '16:30'));
+
+                    $morningHours = null;
+                    $eveningHours = null;
+                    if ($garderiePresence && $garderiePresence->arrival_time && $garderiePresence->departure_time) {
+                        $arrival = \Carbon\Carbon::parse($garderiePresence->arrival_time);
+                        $departure = \Carbon\Carbon::parse($garderiePresence->departure_time);
+                        if ($arrival->lt($morningEnd)) {
+                            $morningEndActual = $departure->lt($morningEnd) ? $departure : $morningEnd;
+                            $morningMinutes = $arrival->diffInMinutes($morningEndActual);
+                            $morningHours = round($morningMinutes / 60, 1);
+                        }
+                        if ($departure->gt($eveningStart)) {
+                            $eveningStartActual = $arrival->gt($eveningStart) ? $arrival : $eveningStart;
+                            $eveningMinutes = $eveningStartActual->diffInMinutes($departure);
+                            $eveningHours = round($eveningMinutes / 60, 1);
+                        }
+                    }
                 @endphp
                 <div class="border rounded-lg p-1 min-h-[60px] {{ $isToday ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200' }} {{ ($hasGarderie || $hasCantine) ? '' : 'bg-gray-50' }}">
                     <div class="text-xs font-medium {{ $isToday ? 'text-indigo-700' : 'text-gray-600' }}">{{ $cell['day'] }}</div>
@@ -67,12 +189,14 @@
                         <div class="flex items-center gap-0.5">
                             <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
                             <span class="text-[10px] text-gray-600">
-                                @if($garderieArrival && $garderieDeparture)
-                                    {{ \Carbon\Carbon::parse($garderieArrival->arrival_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($garderieDeparture->departure_time)->format('H:i') }}
-                                @elseif($garderieArrival)
-                                    {{ \Carbon\Carbon::parse($garderieArrival->arrival_time)->format('H:i') }} →
-                                @elseif($garderieDeparture)
-                                    → {{ \Carbon\Carbon::parse($garderieDeparture->departure_time)->format('H:i') }}
+                                @if($morningHours && $eveningHours)
+                                    M:{{ $morningHours }}h S:{{ $eveningHours }}h
+                                @elseif($morningHours)
+                                    M:{{ $morningHours }}h
+                                @elseif($eveningHours)
+                                    S:{{ $eveningHours }}h
+                                @else
+                                    Garderie
                                 @endif
                             </span>
                         </div>
@@ -80,7 +204,7 @@
                         @if($cantineLunch)
                         <div class="flex items-center gap-0.5">
                             <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
-                            <span class="text-[10px] text-gray-600">Déj.</span>
+                            <span class="text-[10px] text-gray-600">Repas</span>
                         </div>
                         @endif
                         @if($cantineSnack)
@@ -148,21 +272,16 @@
             </div>
         </div>
 
-        <!-- Signalements récents -->
+        <!-- Signalements récents (max 3) -->
         <div class="space-y-4">
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-400 text-white">
-                    <h3 class="font-bold flex items-center justify-between">
-                        <span><i class="fas fa-exclamation-triangle mr-2"></i>Signalements</span>
-                        @if($unnotifiedCount > 0)
-                        <span class="bg-white text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                            {{ $unnotifiedCount }} nouveau(x)
-                        </span>
-                        @endif
+                    <h3 class="font-bold">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Signalements
                     </h3>
                 </div>
-                <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                    @foreach($garderieEvents->concat($cantineEvents)->sortByDesc('event_date')->take(8) as $event)
+                <div class="divide-y divide-gray-100">
+                    @forelse($recentEvents as $event)
                     <div class="p-3">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-medium text-gray-900">{{ $event->child->full_name }}</span>
@@ -175,31 +294,23 @@
                             @else
                                 <span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Cantine</span>
                             @endif
-                            @if(!$event->parents_notified)
-                                <span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Non notifié</span>
+                            @if($event->parents_notified && !$event->parent_viewed_at)
+                                <span class="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">Non lu</span>
                             @endif
                         </div>
                     </div>
-                    @endforeach
-                    @if($garderieEvents->isEmpty() && $cantineEvents->isEmpty())
+                    @empty
                     <div class="p-6 text-center text-gray-500 text-sm">
                         <i class="fas fa-check text-2xl text-green-300 mb-1"></i>
                         <p>Aucun signalement</p>
                     </div>
-                    @endif
+                    @endforelse
                 </div>
                 <div class="p-2 border-t border-gray-100">
                     <a href="{{ route('parent.events') }}" class="block text-center text-sm text-blue-600 hover:text-blue-800 py-1">
                         Voir tout
                     </a>
                 </div>
-            </div>
-
-            <div class="bg-white shadow-lg rounded-xl p-4">
-                <a href="{{ route('parent.notifications') }}" class="flex items-center justify-between text-gray-700 hover:text-blue-600">
-                    <span class="text-sm font-medium"><i class="fas fa-bell mr-2"></i>Notifications</span>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                </a>
             </div>
         </div>
     </div>

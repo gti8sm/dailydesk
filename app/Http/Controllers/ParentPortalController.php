@@ -40,8 +40,9 @@ class ParentPortalController extends Controller
             ->limit(10)
             ->get();
 
-        $unnotifiedCount = $garderieEvents->where('parents_notified', false)->count()
-            + $cantineEvents->where('parents_notified', false)->count();
+        $unreadEvents = $garderieEvents->concat($cantineEvents)
+            ->filter(fn($e) => $e->parents_notified && !$e->parent_viewed_at)
+            ->sortByDesc('notified_at');
 
         $now = now();
         $year = (int) request()->get('year', $now->year);
@@ -81,13 +82,72 @@ class ParentPortalController extends Controller
         $prevMonth = $firstDay->copy()->subMonth();
         $nextMonth = $firstDay->copy()->addMonth();
 
+        // Stats for current month
+        $currentGarderieMinutes = GarderiePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->sum('duration_minutes');
+        $currentCantineMeals = CantinePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->where('is_present', true)
+            ->count();
+        $currentChildCount = $children->count();
+        $currentAvgMeals = $currentChildCount > 0 ? round($currentCantineMeals / $currentChildCount) : 0;
+
+        // Stats for previous month (M-1)
+        $prevDate = $firstDay->copy()->subMonth();
+        $prevGarderieMinutes = GarderiePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $prevDate->year)
+            ->whereMonth('date', $prevDate->month)
+            ->sum('duration_minutes');
+        $prevCantineMeals = CantinePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $prevDate->year)
+            ->whereMonth('date', $prevDate->month)
+            ->where('is_present', true)
+            ->count();
+        $prevAvgMeals = $currentChildCount > 0 ? round($prevCantineMeals / $currentChildCount) : 0;
+
+        $stats = [
+            'garderie_hours' => round($currentGarderieMinutes / 60, 1),
+            'garderie_trend' => $prevGarderieMinutes > 0 ? round((($currentGarderieMinutes - $prevGarderieMinutes) / $prevGarderieMinutes) * 100) : null,
+            'cantine_meals' => $currentCantineMeals,
+            'cantine_trend' => $prevCantineMeals > 0 ? round((($currentCantineMeals - $prevCantineMeals) / $prevCantineMeals) * 100) : null,
+            'avg_meals' => $currentAvgMeals,
+            'avg_trend' => $prevAvgMeals > 0 ? round((($currentAvgMeals - $prevAvgMeals) / $prevAvgMeals) * 100) : null,
+        ];
+
+        // Recent events for preview (max 3)
+        $recentEvents = $garderieEvents->concat($cantineEvents)
+            ->sortByDesc('event_date')
+            ->take(3);
+
         return view('parent.dashboard', compact(
             'parent', 'family', 'children',
             'garderieEvents', 'cantineEvents',
-            'unnotifiedCount',
+            'unreadEvents', 'recentEvents',
+            'stats',
             'calendar', 'year', 'month', 'monthName',
             'prevMonth', 'nextMonth'
         ));
+    }
+
+    public function markEventsViewed(Request $request)
+    {
+        $parent = $this->getParent();
+        $childIds = $parent->family->children()->active()->pluck('id');
+
+        GarderieEvent::whereIn('child_id', $childIds)
+            ->where('parents_notified', true)
+            ->whereNull('parent_viewed_at')
+            ->update(['parent_viewed_at' => now()]);
+
+        CantineEvent::whereIn('child_id', $childIds)
+            ->where('parents_notified', true)
+            ->whereNull('parent_viewed_at')
+            ->update(['parent_viewed_at' => now()]);
+
+        return redirect()->route('parent.events');
     }
 
     public function editProfile()

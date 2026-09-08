@@ -132,9 +132,6 @@
                         <a href="{{ route('parent.dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Mon espace
                         </a>
-                        <a href="{{ route('parent.events') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> Signalements
-                        </a>
                         @endhasrole
                     </div>
                 </div>
@@ -161,6 +158,14 @@
                             <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-user mr-2"></i> Profil
                             </a>
+                            @hasrole('parent')
+                            <a href="{{ route('parent.notifications') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-bell mr-2"></i> Notifications
+                            </a>
+                            <a href="{{ route('parent.events') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> Signalements
+                            </a>
+                            @endhasrole
                             @hasrole('admin')
                             <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-users mr-2"></i> Utilisateurs
@@ -311,6 +316,10 @@
                         <a href="{{ route('parent.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-home w-6"></i>
                             <span class="ml-3">Mon espace</span>
+                        </a>
+                        <a href="{{ route('parent.notifications') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-bell w-6"></i>
+                            <span class="ml-3">Notifications</span>
                         </a>
                         <a href="{{ route('parent.events') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-exclamation-triangle w-6"></i>

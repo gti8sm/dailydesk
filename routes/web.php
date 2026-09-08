@@ -215,6 +215,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/children/{child}/edit', [ParentPortalController::class, 'editChild'])->name('children.edit');
         Route::put('/children/{child}', [ParentPortalController::class, 'updateChild'])->name('children.update');
         Route::get('/events', [ParentPortalController::class, 'events'])->name('events');
+        Route::post('/events/mark-viewed', [ParentPortalController::class, 'markEventsViewed'])->name('events.markViewed');
         Route::get('/notifications', [ParentPortalController::class, 'notifications'])->name('notifications');
         Route::put('/notifications', [ParentPortalController::class, 'updateNotifications'])->name('notifications.update');
     });

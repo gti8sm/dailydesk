@@ -9,8 +9,9 @@
         <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: #1e293b;">{{ $title }}</p>
         <p style="margin: 0 0 10px 0; color: #475569;">{{ $description }}</p>
         <p style="margin: 0; font-size: 13px; color: #64748b;">
-            Date : {{ $eventDate }}@if($eventTime) à {{ $eventTime }}@endif
-            @if($severity) · Gravité : {{ $severity }}@endif
+            Date : {{ $eventDate }}
+            @if($eventTime)<br>Heure : {{ $eventTime }}@endif
+            @if($severity)<br>Gravité : {{ $severity }}@endif
         </p>
     </div>
 
