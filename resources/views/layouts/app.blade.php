@@ -51,7 +51,7 @@
                             @endphp
                         </a>
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-4">
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Dashboard
                         </a>
@@ -64,7 +64,7 @@
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                 class="absolute left-0 top-full w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                                 @can('view_garderie')
                                 <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
                                     <i class="fas fa-child w-5"></i>
@@ -89,7 +89,7 @@
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                 class="absolute left-0 top-full w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                                 <a href="{{ route('families.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                                     <i class="fas fa-users w-5"></i>
                                     <span class="ml-3">Familles</span>
