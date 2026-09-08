@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merci — Communeo</title>
+    @php
+    try {
+        $appName = \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
+    } catch (\Exception $e) {
+        $appName = config('app.name', 'DailyDesk');
+    }
+@endphp
+    <title>Merci — {{ $appName }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,7 +40,7 @@
                 </li>
                 <li class="flex items-start">
                     <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 mt-0.5">2</span>
-                    Nous configurons votre espace Communeo selon vos besoins.
+                    Nous configurons votre espace {{ $appName }} selon vos besoins.
                 </li>
                 <li class="flex items-start">
                     <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 mt-0.5">3</span>
@@ -46,7 +53,7 @@
         </a>
     </div>
     <p class="text-center text-sm text-gray-400 mt-6">
-        &copy; {{ date('Y') }} Communeo — DailyDesk
+        &copy; {{ date('Y') }} {{ $appName }} — DailyDesk
     </p>
 </div>
 

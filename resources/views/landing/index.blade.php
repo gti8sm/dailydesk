@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communeo — Gestion municipale pour les mairies</title>
+    @php
+        try {
+            $appName = \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
+        } catch (\Exception $e) {
+            $appName = config('app.name', 'DailyDesk');
+        }
+    @endphp
+    <title>{{ $appName }} — Gestion municipale pour les mairies</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -25,7 +32,7 @@
                 <div class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center mr-3">
                     <i class="fas fa-users text-white text-lg"></i>
                 </div>
-                <span class="text-2xl font-bold text-gray-900">Communeo</span>
+                <span class="text-2xl font-bold text-gray-900">{{ $appName }}</span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
                 <a href="#features" class="text-gray-600 hover:text-blue-600 text-sm font-medium">Fonctionnalités</a>
@@ -62,7 +69,7 @@
             <span class="text-blue-200">simple et moderne</span>
         </h1>
         <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-            Communeo digitalise la garderie, la cantine et la gestion des familles
+            {{ $appName }} digitalise la garderie, la cantine et la gestion des familles
             pour les mairies et collectivités. Tout-en-un, accessible depuis anywhere.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
@@ -251,7 +258,7 @@
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ce qui arrive bientôt</h2>
-            <p class="text-gray-500 text-lg max-w-2xl mx-auto">Nous enrichissons continuellement Communeo avec de nouveaux modules pour répondre à tous les besoins des collectivités.</p>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto">Nous enrichissons continuellement {{ $appName }} avec de nouveaux modules pour répondre à tous les besoins des collectivités.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
@@ -348,7 +355,7 @@
                         <span class="text-xs text-yellow-600 font-medium">Q4 2027</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">API ouverte pour interconnecter Communeo avec votre logiciel comptable, votre SI existant, et les services de l'Éducation Nationale.</p>
+                <p class="text-sm text-gray-600">API ouverte pour interconnecter {{ $appName }} avec votre logiciel comptable, votre SI existant, et les services de l'Éducation Nationale.</p>
             </div>
             <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200">
                 <div class="flex items-center mb-4">
@@ -360,7 +367,7 @@
                         <span class="text-xs text-gray-600 font-medium">Vos idées</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">Nous développons Communeo avec et pour les utilisateurs. Une idée de fonctionnalité ? Partagez-la avec nous, nous l'étudierons.</p>
+                <p class="text-sm text-gray-600">Nous développons {{ $appName }} avec et pour les utilisateurs. Une idée de fonctionnalité ? Partagez-la avec nous, nous l'étudierons.</p>
             </div>
         </div>
     </div>
@@ -451,7 +458,7 @@
                     <div class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center mr-3">
                         <i class="fas fa-users text-white text-lg"></i>
                     </div>
-                    <span class="text-xl font-bold text-white">Communeo</span>
+                    <span class="text-xl font-bold text-white">{{ $appName }}</span>
                 </div>
                 <p class="text-sm">La plateforme de gestion municipale pensée pour les collectivités.</p>
             </div>
@@ -482,7 +489,7 @@
             </div>
         </div>
         <div class="border-t border-gray-800 pt-8 text-center text-sm">
-            <p>&copy; {{ date('Y') }} Communeo — DailyDesk. Tous droits réservés.</p>
+            <p>&copy; {{ date('Y') }} {{ $appName }} — DailyDesk. Tous droits réservés.</p>
         </div>
     </div>
 </footer>
