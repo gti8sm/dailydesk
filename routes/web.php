@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ChildController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\FamilyInvitationController;
 use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\SchoolClassController;
@@ -28,8 +29,13 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return redirect()->route('landing');
 });
+
+// Landing page publique
+Route::get('/accueil', [LandingPageController::class, 'index'])->name('landing');
+Route::post('/accueil/register', [LandingPageController::class, 'registerProspect'])->name('landing.register');
+Route::get('/accueil/merci', [LandingPageController::class, 'thankYou'])->name('landing.thank-you');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('web');
 Route::post('/login', [LoginController::class, 'login'])->middleware('web');

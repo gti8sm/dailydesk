@@ -53,9 +53,23 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs rounded-full
-                            {{ $tenant->status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                            {{ $tenant->status === 'active' ? 'Actif' : 'Suspendu' }}
+                        @php
+                            $statusColors = [
+                                'active' => 'bg-green-100 text-green-700',
+                                'suspended' => 'bg-red-100 text-red-700',
+                                'prospect' => 'bg-yellow-100 text-yellow-700',
+                                'cancelled' => 'bg-gray-100 text-gray-500',
+                            ];
+                            $statusLabels = [
+                                'active' => 'Actif',
+                                'suspended' => 'Suspendu',
+                                'prospect' => 'Prospect',
+                                'cancelled' => 'Annulé',
+                            ];
+                            $status = $tenant->status;
+                        @endphp
+                        <span class="px-2 py-1 text-xs rounded-full {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-600' }}">
+                            {{ $statusLabels[$status] ?? ucfirst($status) }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
