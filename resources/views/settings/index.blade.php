@@ -157,6 +157,37 @@
             </div>
         </div>
 
+        <!-- Cantine -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white">
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-utensils mr-3 text-2xl"></i>
+                    Cantine
+                </h2>
+                <p class="text-sm text-green-100 mt-1">
+                    Configuration des repas et goûter
+                </p>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div class="flex items-center">
+                        <i class="fas fa-cookie-bite text-orange-600 text-xl mr-4"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">Activer le goûter</p>
+                            <p class="text-sm text-gray-500">Permet d'enregistrer les présences au goûter en plus du déjeuner</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="cantine_enable_snack" value="1"
+                               {{ ($settings['cantine']['cantine_enable_snack'] ?? false) ? 'checked' : '' }}
+                               class="sr-only peer">
+                        <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- Configuration SMTP -->
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white">

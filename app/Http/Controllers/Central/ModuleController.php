@@ -36,6 +36,7 @@ class ModuleController extends Controller
                 'midi' => 'Midi',
                 'soir' => 'Soir',
             ]],
+            'cantine_enable_snack' => ['label' => 'Activer le goûter', 'type' => 'boolean', 'default' => '0'],
         ],
         'notifications' => [
             'notify_arrival' => ['label' => 'Notifier arrivée garderie', 'type' => 'boolean', 'default' => '0'],

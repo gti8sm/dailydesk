@@ -12,6 +12,7 @@ class SettingsController extends Controller
         $settings = [
             'general' => Setting::getGroup('general'),
             'garderie' => Setting::getGroup('garderie'),
+            'cantine' => Setting::getGroup('cantine'),
             'smtp' => Setting::getGroup('smtp'),
             'notifications' => Setting::getGroup('notifications'),
         ];
@@ -34,6 +35,7 @@ class SettingsController extends Controller
             'smtp_encryption' => 'nullable|in:tls,ssl',
             'smtp_from_address' => 'nullable|email',
             'smtp_from_name' => 'nullable|string',
+            'cantine_enable_snack' => 'nullable|boolean',
             'notify_arrival' => 'nullable|boolean',
             'notify_departure' => 'nullable|boolean',
             'notify_absence' => 'nullable|boolean',
@@ -56,6 +58,7 @@ class SettingsController extends Controller
     {
         if (str_starts_with($key, 'app_')) return 'general';
         if (str_starts_with($key, 'garderie_')) return 'garderie';
+        if (str_starts_with($key, 'cantine_')) return 'cantine';
         if (str_starts_with($key, 'smtp_')) return 'smtp';
         if (str_starts_with($key, 'notify_')) return 'notifications';
         return 'general';
@@ -64,6 +67,7 @@ class SettingsController extends Controller
     protected function getTypeFromKey($key)
     {
         if (str_starts_with($key, 'notify_')) return 'boolean';
+        if (str_starts_with($key, 'cantine_enable')) return 'boolean';
         if (in_array($key, ['smtp_port'])) return 'integer';
         return 'string';
     }

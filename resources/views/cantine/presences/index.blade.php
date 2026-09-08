@@ -34,7 +34,9 @@
             </a>
             <select id="meal-type-selector" class="text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                 <option value="lunch" {{ $mealType === 'lunch' ? 'selected' : '' }}>Déjeuner</option>
+                @if(\App\Models\Setting::get('cantine_enable_snack', false))
                 <option value="snack" {{ $mealType === 'snack' ? 'selected' : '' }}>Goûter</option>
+                @endif
             </select>
             <input type="date" id="date-selector" value="{{ $date }}"
                    class="text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
