@@ -17,6 +17,7 @@ class UserController extends Controller
         }
 
         $users = User::with('roles')
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'super_admin');
             })
@@ -59,6 +60,7 @@ class UserController extends Controller
             'login' => $validated['login'] ?? null,
             'password' => Hash::make($validated['password']),
             'is_active' => $request->has('is_active'),
+            'tenant_id' => auth()->user()->tenant_id,
         ]);
 
         $user->syncRoles($validated['roles']);
@@ -73,6 +75,10 @@ class UserController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
+        if ($user->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $user->load('roles');
         
         return view('users.show', compact('user'));
@@ -81,6 +87,10 @@ class UserController extends Controller
     public function edit(User $user)
     {
         if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        if ($user->tenant_id !== auth()->user()->tenant_id) {
             abort(403, 'Accès non autorisé');
         }
 
@@ -97,6 +107,10 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        if ($user->tenant_id !== auth()->user()->tenant_id) {
             abort(403, 'Accès non autorisé');
         }
 
@@ -139,6 +153,10 @@ class UserController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
+        if ($user->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Accès non autorisé');
+        }
+
         if ($user->hasRole('super_admin')) {
             abort(403, 'Vous ne pouvez pas supprimer un Super Admin.');
         }
@@ -158,6 +176,10 @@ class UserController extends Controller
     public function toggleStatus(User $user)
     {
         if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        if ($user->tenant_id !== auth()->user()->tenant_id) {
             abort(403, 'Accès non autorisé');
         }
 
