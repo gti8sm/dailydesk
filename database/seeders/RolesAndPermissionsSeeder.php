@@ -52,8 +52,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'export_data',
             'manage_settings',
             'view_garderie',
+            'record_garderie_presence',
+            'create_garderie_event',
             'view_garderie_events',
             'view_cantine',
+            'record_cantine_presence',
+            'create_cantine_event',
             'view_cantine_events',
             'manage_notifications',
         ]);
@@ -62,8 +66,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $personnelMairie->givePermissionTo([
             'view_dashboard',
             'view_garderie',
+            'record_garderie_presence',
             'view_garderie_events',
             'view_cantine',
+            'record_cantine_presence',
             'view_cantine_events',
         ]);
 
