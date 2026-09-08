@@ -10,6 +10,7 @@ use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\SubscriptionPlanController;
 use App\Http\Controllers\Central\ImpersonationController;
@@ -84,9 +85,10 @@ Route::middleware('auth')->group(function () {
     // Stop impersonation - accessible from both central and tenant domains
     Route::post('stop-impersonating', [ImpersonationController::class, 'stopImpersonating'])->name('central.stop-impersonating')->withoutMiddleware('auth');
     
-    Route::get('/profile', function () {
-        return view('profile.index');
-    })->name('profile');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::put('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin');
+    Route::put('/profile/whitelist', [ProfileController::class, 'updateIpWhitelist'])->name('profile.whitelist');
 
     Route::get('/help', function () {
         return view('help.index');
