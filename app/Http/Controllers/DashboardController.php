@@ -97,11 +97,19 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        $tenant = \App\Models\Tenant::find($user->tenant_id);
+        $plan = null;
+        if ($tenant) {
+            $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first();
+        }
+
         return view('dashboard.index', compact(
             'stats',
             'recent_garderie_events',
             'recent_cantine_events',
-            'my_children'
+            'my_children',
+            'tenant',
+            'plan'
         ));
     }
 
