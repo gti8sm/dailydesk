@@ -2,6 +2,13 @@
 
 @section('title', 'Aide & Documentation')
 
+@php
+    $user = auth()->user();
+    $isSuperAdmin = $user && $user->hasRole('super_admin');
+    $isAdmin = $user && $user->hasRole('admin_mairie');
+    $isParent = $user && $user->hasRole('parent');
+@endphp
+
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="text-center mb-8">
@@ -26,10 +33,33 @@
                 <p class="text-sm text-gray-700"><strong>Mot de passe ou PIN :</strong> Vous pouvez utiliser votre mot de passe complet ou votre code PIN (4-6 chiffres).</p>
                 <p class="text-sm text-gray-700"><strong>Rester connecté 30 jours :</strong> Cochez cette option pour éviter de vous reconnecter à chaque visite.</p>
                 <p class="text-sm text-gray-700"><strong>Mot de passe oublié :</strong> Cliquez sur le lien en bas du formulaire de connexion. Un email vous sera envoyé pour réinitialiser votre mot de passe.</p>
+                @if($isAdmin)
                 <p class="text-sm text-gray-700"><strong>Whitelist IP :</strong> Les administrateurs peuvent restreindre les connexions à certaines adresses IP.</p>
+                @endif
             </div>
         </div>
 
+        @if($isSuperAdmin)
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden border-l-4 border-indigo-500">
+            <button onclick="toggleSection('section-superadmin')" class="w-full px-6 py-4 flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-shield-alt text-indigo-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Super Admin — Gestion globale</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-superadmin"></i>
+            </button>
+            <div id="section-superadmin" class="hidden px-6 py-4 space-y-3">
+                <p class="text-sm text-gray-700"><strong>Tenants :</strong> Créez et gérez les mairies (tenants). Chaque tenant a son propre domaine, ses utilisateurs et ses données.</p>
+                <p class="text-sm text-gray-700"><strong>Plans d'abonnement :</strong> Définissez les plans (modules inclus, nombre max d'enfants, prix). Modifiez un plan pour mettre à jour tous les tenants qui l'utilisent.</p>
+                <p class="text-sm text-gray-700"><strong>Modules :</strong> Activez ou désactivez les modules (Garderie, Cantine) par tenant. Configurez les paramètres globaux par défaut.</p>
+                <p class="text-sm text-gray-700"><strong>Journal d'activité :</strong> Consultez toutes les actions effectuées sur la plateforme. Filtrez par tenant, action, utilisateur ou date.</p>
+                <p class="text-sm text-gray-700"><strong>Impersonation :</strong> Connectez-vous temporairement en tant qu'admin d'un tenant pour le dépanner. Utilisez "Retour Super Admin" pour revenir.</p>
+                <p class="text-sm text-gray-700"><strong>Statistiques :</strong> Vue d'ensemble des tenants actifs, revenus, croissance mensuelle et répartition par plan.</p>
+            </div>
+        </div>
+        @endif
+
+        @can('view_garderie')
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <button onclick="toggleSection('section-garderie')" class="w-full px-6 py-4 flex items-center justify-between bg-blue-50 hover:bg-blue-100 transition-colors">
                 <div class="flex items-center">
@@ -42,10 +72,14 @@
                 <p class="text-sm text-gray-700"><strong>Enregistrer une présence :</strong> Cliquez sur un enfant puis sur le bouton "Arrivée" ou "Départ". L'heure est enregistrée automatiquement.</p>
                 <p class="text-sm text-gray-700"><strong>Filtrer par date :</strong> Utilisez le sélecteur de date en haut pour consulter l'historique des présences.</p>
                 <p class="text-sm text-gray-700"><strong>Événements :</strong> Signalez un incident, un accident ou un comportement particulier via l'onglet "Événements".</p>
-                <p class="text-sm text-gray-700"><strong>Notifications :</strong> Les parents peuvent être notifiés automatiquement lors d'une arrivée, d'un départ ou d'un événement (configurable dans Paramètres).</p>
+                @can('manage_settings')
+                <p class="text-sm text-gray-700"><strong>Notifications :</strong> Les parents peuvent être notifiés automatiquement (configurable dans Paramètres).</p>
+                @endcan
             </div>
         </div>
+        @endcan
 
+        @can('view_cantine')
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <button onclick="toggleSection('section-cantine')" class="w-full px-6 py-4 flex items-center justify-between bg-orange-50 hover:bg-orange-100 transition-colors">
                 <div class="flex items-center">
@@ -61,7 +95,9 @@
                 <p class="text-sm text-gray-700"><strong>Événements :</strong> Signalez un refus alimentaire, une réaction allergique ou un incident via l'onglet dédié.</p>
             </div>
         </div>
+        @endcan
 
+        @can('manage_families')
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <button onclick="toggleSection('section-familles')" class="w-full px-6 py-4 flex items-center justify-between bg-green-50 hover:bg-green-100 transition-colors">
                 <div class="flex items-center">
@@ -77,7 +113,9 @@
                 <p class="text-sm text-gray-700"><strong>Invitations :</strong> Envoyez une invitation par email aux parents pour qu'ils créent leur compte et accèdent à leur espace.</p>
             </div>
         </div>
+        @endcan
 
+        @hasrole('parent')
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <button onclick="toggleSection('section-parent')" class="w-full px-6 py-4 flex items-center justify-between bg-purple-50 hover:bg-purple-100 transition-colors">
                 <div class="flex items-center">
@@ -92,7 +130,9 @@
                 <p class="text-sm text-gray-700"><strong>Notifications :</strong> Recevez des notifications lors des arrivées/départs de vos enfants (si activé par la mairie).</p>
             </div>
         </div>
+        @endhasrole
 
+        @hasrole('admin_mairie')
         <div class="bg-white shadow-lg rounded-xl overflow-hidden">
             <button onclick="toggleSection('section-admin')" class="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div class="flex items-center">
@@ -108,6 +148,7 @@
                 <p class="text-sm text-gray-700"><strong>Imports/Exports :</strong> Importez des familles en CSV, exportez les présences en Excel/PDF.</p>
             </div>
         </div>
+        @endhasrole
     </div>
 
     <div class="mt-8 text-center">

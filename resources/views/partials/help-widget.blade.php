@@ -1,52 +1,130 @@
 @php
     $routeName = request()->route() ? request()->route()->getName() : '';
+    $user = auth()->user();
+    $isSuperAdmin = $user && $user->hasRole('super_admin');
+    $isAdmin = $user && $user->hasRole('admin_mairie');
+    $isParent = $user && $user->hasRole('parent');
+
     $helpContent = [
-        'dashboard' => [
-            'title' => 'Tableau de bord',
-            'text' => 'Bienvenue sur votre tableau de bord. Vous y retrouvez les statistiques et accès rapides à toutes les fonctionnalités.',
-            'tips' => ['Utilisez le menu en haut pour naviguer entre les modules', 'Cliquez sur votre nom en haut à droite pour accéder aux paramètres'],
-        ],
         'login' => [
             'title' => 'Connexion',
             'text' => 'Connectez-vous avec votre email ou identifiant et votre mot de passe ou code PIN (4-6 chiffres).',
             'tips' => ['Cochez "Rester connecté 30 jours" pour éviter de vous reconnecter', 'Mot de passe oublié ? Cliquez sur le lien en bas du formulaire'],
+            'roles' => null, // accessible à tous
         ],
-        'garderie.index' => [
-            'title' => 'Garderie',
-            'text' => 'Gérez les présences des enfants à la garderie (matin et soir).',
-            'tips' => ['Cliquez sur un enfant pour enregistrer son arrivée ou son départ', 'Utilisez le filtre date pour voir l\'historique'],
-        ],
-        'cantine.index' => [
-            'title' => 'Cantine',
-            'text' => 'Gérez les présences des enfants à la cantine et le type de repas.',
-            'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié'],
-        ],
-        'families.index' => [
-            'title' => 'Familles',
-            'text' => 'Gérez les familles inscrites : coordonnées, enfants, contacts.',
-            'tips' => ['Cliquez sur une famille pour voir le détail', 'Utilisez le bouton "Importer" pour ajouter plusieurs familles en masse'],
-        ],
-        'classes.index' => [
-            'title' => 'Classes',
-            'text' => 'Gérez les classes scolaires et leurs enseignants.',
-            'tips' => ['Créez une classe par année scolaire', 'Associez les enfants à leur classe lors de leur inscription'],
-        ],
-        'users.index' => [
-            'title' => 'Utilisateurs',
-            'text' => 'Gérez les comptes utilisateurs et leurs rôles (admin, personnel, enseignant, etc.).',
-            'tips' => ['Attribuez un code PIN pour un accès rapide', 'Activez la whitelist IP pour restreindre les connexions'],
-        ],
-        'settings.index' => [
-            'title' => 'Paramètres',
-            'text' => 'Configurez les paramètres de votre instance : horaires, SMTP, notifications.',
-            'tips' => ['Les horaires de garderie définissent les plages par défaut', 'Configurez le SMTP pour activer les notifications email'],
-        ],
-        'parent.dashboard' => [
+    ];
+
+    if ($isSuperAdmin) {
+        $helpContent['dashboard'] = [
+            'title' => 'Dashboard Super Admin',
+            'text' => 'Gérez tous les tenants, plans d\'abonnement, modules et statistiques globales.',
+            'tips' => ['Utilisez "Modules" pour activer/désactiver des modules par tenant', 'Consultez le "Journal d\'activité" pour tracer les actions'],
+            'roles' => ['super_admin'],
+        ];
+        $helpContent['central.tenants.index'] = [
+            'title' => 'Tenants',
+            'text' => 'Gérez les mairies (tenants) : création, modification, activation, impersonation.',
+            'tips' => ['Cliquez sur "Créer" pour ajouter une nouvelle mairie', 'Utilisez l\'impersonation pour vous connecter en tant qu\'admin d\'un tenant'],
+            'roles' => ['super_admin'],
+        ];
+        $helpContent['central.plans.index'] = [
+            'title' => 'Plans d\'abonnement',
+            'text' => 'Définissez les plans d\'abonnement et les modules inclus dans chaque plan.',
+            'tips' => ['Chaque plan définit les modules disponibles et le nombre max d\'enfants', 'Désactivez un plan pour empêcher de nouvelles souscriptions'],
+            'roles' => ['super_admin'],
+        ];
+        $helpContent['central.modules.overview'] = [
+            'title' => 'Gestion des modules',
+            'text' => 'Activez ou désactivez les modules (Garderie, Cantine) pour chaque tenant.',
+            'tips' => ['Cliquez sur le bouton toggle pour activer/désactiver un module', 'Configurez les paramètres globaux via le bouton "Paramètres globaux"'],
+            'roles' => ['super_admin'],
+        ];
+        $helpContent['central.logs.index'] = [
+            'title' => 'Journal d\'activité',
+            'text' => 'Consultez toutes les actions effectuées sur la plateforme (connexions, créations, modifications, suppressions).',
+            'tips' => ['Filtrez par tenant, action ou date', 'Cliquez sur une entrée pour voir le détail des changements'],
+            'roles' => ['super_admin'],
+        ];
+        $helpContent['central.statistics'] = [
+            'title' => 'Statistiques globales',
+            'text' => 'Vue d\'ensemble des statistiques de la plateforme : tenants actifs, revenus, croissance.',
+            'tips' => ['Consultez la répartition par plan d\'abonnement', 'Suivez la croissance mensuelle'],
+            'roles' => ['super_admin'],
+        ];
+    } else {
+        $helpContent['dashboard'] = [
+            'title' => 'Tableau de bord',
+            'text' => 'Bienvenue sur votre tableau de bord. Vous y retrouvez les statistiques et accès rapides.',
+            'tips' => ['Utilisez le menu en haut pour naviguer entre les modules', 'Cliquez sur votre nom en haut à droite pour accéder aux paramètres'],
+            'roles' => null,
+        ];
+
+        if ($user && $user->can('view_garderie')) {
+            $helpContent['garderie.index'] = [
+                'title' => 'Garderie',
+                'text' => 'Gérez les présences des enfants à la garderie (matin et soir).',
+                'tips' => ['Cliquez sur un enfant pour enregistrer son arrivée ou son départ', 'Utilisez le filtre date pour voir l\'historique'],
+                'roles' => null,
+            ];
+        }
+
+        if ($user && $user->can('view_cantine')) {
+            $helpContent['cantine.index'] = [
+                'title' => 'Cantine',
+                'text' => 'Gérez les présences des enfants à la cantine et le type de repas.',
+                'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié'],
+                'roles' => null,
+            ];
+        }
+
+        if ($user && $user->can('manage_families')) {
+            $helpContent['families.index'] = [
+                'title' => 'Familles',
+                'text' => 'Gérez les familles inscrites : coordonnées, enfants, contacts.',
+                'tips' => ['Cliquez sur une famille pour voir le détail', 'Utilisez le bouton "Importer" pour ajouter plusieurs familles en masse'],
+                'roles' => null,
+            ];
+        }
+
+        if ($isAdmin) {
+            $helpContent['classes.index'] = [
+                'title' => 'Classes',
+                'text' => 'Gérez les classes scolaires et leurs enseignants.',
+                'tips' => ['Créez une classe par année scolaire', 'Associez les enfants à leur classe lors de leur inscription'],
+                'roles' => ['admin_mairie'],
+            ];
+            $helpContent['users.index'] = [
+                'title' => 'Utilisateurs',
+                'text' => 'Gérez les comptes utilisateurs et leurs rôles (admin, personnel, enseignant, etc.).',
+                'tips' => ['Attribuez un code PIN pour un accès rapide', 'Activez la whitelist IP pour restreindre les connexions'],
+                'roles' => ['admin_mairie'],
+            ];
+        }
+
+        if ($user && $user->can('manage_settings')) {
+            $helpContent['settings.index'] = [
+                'title' => 'Paramètres',
+                'text' => 'Configurez les paramètres de votre instance : horaires, SMTP, notifications.',
+                'tips' => ['Les horaires de garderie définissent les plages par défaut', 'Configurez le SMTP pour activer les notifications email'],
+                'roles' => null,
+            ];
+        }
+    }
+
+    if ($isParent) {
+        $helpContent['parent.dashboard'] = [
             'title' => 'Mon Espace Parent',
             'text' => 'Suivez les présences et événements de vos enfants à la garderie et la cantine.',
             'tips' => ['Consultez l\'historique des présences', 'Signalez un changement (allergie, régime) via l\'onglet Signalements'],
-        ],
-    ];
+            'roles' => ['parent'],
+        ];
+        $helpContent['parent.events'] = [
+            'title' => 'Signalements',
+            'text' => 'Signalez un changement important concernant votre enfant (allergie, régime, information médicale).',
+            'tips' => ['Soyez précis dans votre description', 'Un membre de l\'équipe prendra en compte votre signalement'],
+            'roles' => ['parent'],
+        ];
+    }
 
     $currentHelp = $helpContent[$routeName] ?? [
         'title' => 'Besoin d\'aide ?',
