@@ -143,7 +143,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/events/create', [GarderieEventController::class, 'create'])->name('events.create');
         Route::post('/events', [GarderieEventController::class, 'store'])->name('events.store');
         Route::get('/events/{event}', [GarderieEventController::class, 'show'])->name('events.show');
-        Route::post('/events/{event}/notify', [GarderieEventController::class, 'markNotified'])->name('events.notify');
+        Route::post('/events/{event}/notify', [GarderieEventController::class, 'markNotified'])->name('events.notify')
+            ->middleware('can:notify_event_parents');
     });
     
     Route::prefix('cantine')->name('cantine.')->middleware('can:view_cantine')->group(function () {
@@ -169,7 +170,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/events/create', [CantineEventController::class, 'create'])->name('events.create');
         Route::post('/events', [CantineEventController::class, 'store'])->name('events.store');
         Route::get('/events/{event}', [CantineEventController::class, 'show'])->name('events.show');
-        Route::post('/events/{event}/notify', [CantineEventController::class, 'markNotified'])->name('events.notify');
+        Route::post('/events/{event}/notify', [CantineEventController::class, 'markNotified'])->name('events.notify')
+            ->middleware('can:notify_event_parents');
     });
     
     Route::resource('families', FamilyController::class)

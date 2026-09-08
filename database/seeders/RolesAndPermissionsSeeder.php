@@ -33,6 +33,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_own_children',
             'view_own_events',
             'manage_notifications',
+            'notify_event_parents',
         ];
 
         foreach ($permissions as $permission) {
@@ -60,6 +61,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_cantine_event',
             'view_cantine_events',
             'manage_notifications',
+            'notify_event_parents',
         ]);
 
         $personnelMairie = Role::create(['name' => 'personnel_mairie']);

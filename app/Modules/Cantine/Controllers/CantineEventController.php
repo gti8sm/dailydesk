@@ -64,6 +64,10 @@ class CantineEventController extends Controller
 
     public function markNotified(CantineEvent $event)
     {
+        if (!auth()->user()->can('notify_event_parents')) {
+            abort(403, 'Seul un administrateur peut notifier les parents.');
+        }
+
         $event->load('child.family.parents.user');
 
         $parents = $event->child?->family?->parents ?? collect();

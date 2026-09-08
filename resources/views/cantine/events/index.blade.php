@@ -69,7 +69,7 @@
                         </td>
                         <td class="px-4 py-3 text-right text-sm whitespace-nowrap">
                             <a href="{{ route('cantine.events.show', $event) }}" class="text-green-600 hover:text-green-800 font-medium">Voir</a>
-                            @if(!$event->parents_notified)
+                            @if(!$event->parents_notified && auth()->user()->can('notify_event_parents'))
                             <form action="{{ route('cantine.events.notify', $event) }}" method="POST" class="inline ml-2">
                                 @csrf
                                 <button type="submit" class="text-green-600 hover:text-green-800 font-medium"

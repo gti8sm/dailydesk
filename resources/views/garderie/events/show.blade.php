@@ -69,12 +69,13 @@
                         @endif
                     </p>
                 </div>
-                @if(!$event->parents_notified)
+                @if(!$event->parents_notified && auth()->user()->can('notify_event_parents'))
                 <form action="{{ route('garderie.events.notify', $event) }}" method="POST">
                     @csrf
                     <button type="submit"
-                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition-colors">
-                        <i class="fas fa-envelope mr-1"></i> Marquer comme notifiés
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition-colors"
+                            onclick="return confirm('Notifier les parents par email ?')">
+                        <i class="fas fa-envelope mr-1"></i> Notifier les parents
                     </button>
                 </form>
                 @endif
