@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Famille ' . $family->family_name)
+@section('title', $family->family_name)
 
 @section('content')
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,7 +33,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <h1 class="text-2xl font-bold text-gray-900">
                 <i class="fas fa-users text-purple-600 mr-2"></i>
-                Famille {{ $family->family_name }}
+                {{ $family->family_name }}
             </h1>
         </div>
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">

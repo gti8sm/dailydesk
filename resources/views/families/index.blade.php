@@ -73,8 +73,9 @@
                     Liste des Familles
                 </h3>
                 <div class="flex gap-2">
-                    <input type="text" placeholder="Rechercher..." 
-                           class="rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                    <input type="text" id="family-search" placeholder="Rechercher..." 
+                           class="rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                           onkeyup="filterFamilies()">
                     <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
                         <i class="fas fa-filter"></i>
                     </button>
@@ -106,7 +107,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($families as $family)
-                    <tr x-data="{ open: false }" class="hover:bg-gray-50">
+                    <tr x-data="{ open: false }" class="hover:bg-gray-50 family-row" data-name="{{ strtolower($family->family_name) }}" data-city="{{ strtolower($family->city ?? '') }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <button @click="open = !open" class="text-gray-400 hover:text-purple-600 transition-colors">
                                 <i class="fas fa-chevron-right transition-transform duration-200" :class="{ 'rotate-90': open }"></i>
@@ -163,12 +164,12 @@
                             </form>
                         </td>
                     </tr>
-                    <tr x-show="open" x-collapse>
+                    <tr x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="family-detail">
                         <td colspan="6" class="bg-gray-50 px-6 py-4">
                             <div class="rounded-lg bg-white border border-gray-200 overflow-hidden">
                                 <div class="px-4 py-2 bg-purple-50 border-b border-purple-100">
                                     <p class="text-sm font-medium text-purple-700">
-                                        <i class="fas fa-child mr-2"></i> Enfants de la famille {{ $family->family_name }}
+                                        <i class="fas fa-child mr-2"></i> Enfants — {{ $family->family_name }}
                                     </p>
                                 </div>
                                 @if($family->children->count() > 0)
@@ -180,6 +181,7 @@
                                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Âge</th>
                                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Allergies / Régime</th>
                                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
@@ -221,6 +223,18 @@
                                                     </span>
                                                 @endif
                                             </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <a href="{{ route('children.edit', $child) }}" class="text-purple-600 hover:text-purple-900 mr-2" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('children.destroy', $child) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer cet enfant ?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -249,4 +263,20 @@
         </div>
     </div>
 </div>
+
+<script>
+function filterFamilies() {
+    const query = document.getElementById('family-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.family-row');
+    const details = document.querySelectorAll('.family-detail');
+    
+    rows.forEach((row, i) => {
+        const name = row.dataset.name || '';
+        const city = row.dataset.city || '';
+        const match = name.includes(query) || city.includes(query);
+        row.style.display = match ? '' : 'none';
+        if (details[i]) details[i].style.display = match ? '' : 'none';
+    });
+}
+</script>
 @endsection

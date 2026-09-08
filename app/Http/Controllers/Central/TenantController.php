@@ -269,11 +269,24 @@ class TenantController extends Controller
     private function seedRolesAndPermissions(): void
     {
         $permissions = [
+            'view_dashboard',
+            'manage_users',
             'view_garderie', 'manage_garderie',
+            'record_garderie_presence',
+            'create_garderie_event',
+            'view_garderie_events',
             'view_cantine', 'manage_cantine',
+            'record_cantine_presence',
+            'create_cantine_event',
+            'view_cantine_events',
             'manage_families', 'manage_children',
-            'view_garderie_events', 'view_cantine_events',
+            'import_families',
+            'export_data',
             'manage_settings',
+            'manage_notifications',
+            'notify_event_parents',
+            'view_own_children',
+            'view_own_events',
         ];
 
         foreach ($permissions as $perm) {
