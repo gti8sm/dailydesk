@@ -86,6 +86,7 @@ class LoginController extends Controller
         $remember = $request->filled('remember');
         if ($remember) {
             config(['session.lifetime' => 43200]); // 30 jours en minutes
+            \Cookie::queue('laravel_session', $request->session()->getId(), 43200);
         }
 
         Auth::login($user, $remember);
@@ -93,6 +94,10 @@ class LoginController extends Controller
         $user->update(['last_login_at' => now()]);
 
         $request->session()->regenerate();
+
+        if ($remember) {
+            \Cookie::queue('laravel_session', $request->session()->getId(), 43200);
+        }
 
         return redirect()->intended(route('dashboard'));
     }
