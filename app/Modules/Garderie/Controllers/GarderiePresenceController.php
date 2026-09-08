@@ -70,6 +70,8 @@ class GarderiePresenceController extends Controller
             ]
         );
 
+        $presence->calculateDuration();
+
         return response()->json([
             'success' => true,
             'message' => "Arrivée enregistrée pour {$child->full_name}",
