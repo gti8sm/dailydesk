@@ -64,9 +64,29 @@ class CantineEventController extends Controller
 
     public function markNotified(CantineEvent $event)
     {
+        $event->load('child.family.parents.user');
+
+        $parents = $event->child?->family?->parents ?? collect();
+
+        foreach ($parents as $parent) {
+            if ($parent->email) {
+                \Mail::to($parent->email)->send(
+                    new \App\Mail\EventNotificationMail(
+                        childName: $event->child->full_name,
+                        module: 'Cantine',
+                        title: $event->title,
+                        description: $event->description,
+                        severity: null,
+                        eventDate: $event->event_date->format('d/m/Y'),
+                        eventTime: $event->event_time?->format('H:i'),
+                    )
+                );
+            }
+        }
+
         $event->markAsNotified();
 
         return redirect()->back()
-            ->with('success', 'Parents marqués comme notifiés.');
+            ->with('success', 'Parents notifiés par email avec succès.');
     }
 }

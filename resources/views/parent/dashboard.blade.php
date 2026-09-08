@@ -18,6 +18,86 @@
     </div>
     @endif
 
+    <!-- Planning mensuel -->
+    <div class="mb-6 bg-white shadow-lg rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between">
+            <h3 class="font-bold">
+                <i class="fas fa-calendar-alt mr-2"></i>Planning de {{ $monthName }} {{ $year }}
+            </h3>
+            <div class="flex items-center gap-2">
+                <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="text-white hover:bg-white hover:bg-opacity-20 rounded px-2 py-1 transition">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <span class="text-sm">{{ $monthName }}</span>
+                <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="text-white hover:bg-white hover:bg-opacity-20 rounded px-2 py-1 transition">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="p-4">
+            <!-- Légende -->
+            <div class="flex gap-4 mb-3 text-xs">
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span>Garderie</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span>Cantine</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-400"></span>Goûter</span>
+            </div>
+            <!-- Grille calendrier -->
+            <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                @foreach(['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'] as $dayName)
+                <div class="font-semibold text-gray-500 py-1">{{ $dayName }}</div>
+                @endforeach
+                @foreach($calendar as $cell)
+                @if($cell === null)
+                <div></div>
+                @else
+                @php
+                    $hasGarderie = $cell['garderie']->isNotEmpty();
+                    $hasCantine = $cell['cantine']->isNotEmpty();
+                    $cantineLunch = $cell['cantine']->where('meal_type', 'lunch')->where('is_present', true)->isNotEmpty();
+                    $cantineSnack = $cell['cantine']->where('meal_type', 'snack')->where('is_present', true)->isNotEmpty();
+                    $garderieArrival = $cell['garderie']->whereNotNull('arrival_time')->first();
+                    $garderieDeparture = $cell['garderie']->whereNotNull('departure_time')->first();
+                    $isToday = $cell['date'] === now()->format('Y-m-d');
+                @endphp
+                <div class="border rounded-lg p-1 min-h-[60px] {{ $isToday ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200' }} {{ ($hasGarderie || $hasCantine) ? '' : 'bg-gray-50' }}">
+                    <div class="text-xs font-medium {{ $isToday ? 'text-indigo-700' : 'text-gray-600' }}">{{ $cell['day'] }}</div>
+                    @if($hasGarderie || $hasCantine)
+                    <div class="mt-1 space-y-0.5">
+                        @if($hasGarderie)
+                        <div class="flex items-center gap-0.5">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+                            <span class="text-[10px] text-gray-600">
+                                @if($garderieArrival && $garderieDeparture)
+                                    {{ \Carbon\Carbon::parse($garderieArrival->arrival_time)->format('H:i') }}–{{ \Carbon\Carbon::parse($garderieDeparture->departure_time)->format('H:i') }}
+                                @elseif($garderieArrival)
+                                    {{ \Carbon\Carbon::parse($garderieArrival->arrival_time)->format('H:i') }} →
+                                @elseif($garderieDeparture)
+                                    → {{ \Carbon\Carbon::parse($garderieDeparture->departure_time)->format('H:i') }}
+                                @endif
+                            </span>
+                        </div>
+                        @endif
+                        @if($cantineLunch)
+                        <div class="flex items-center gap-0.5">
+                            <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+                            <span class="text-[10px] text-gray-600">Déj.</span>
+                        </div>
+                        @endif
+                        @if($cantineSnack)
+                        <div class="flex items-center gap-0.5">
+                            <span class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></span>
+                            <span class="text-[10px] text-gray-600">Goûter</span>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @endif
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Mes enfants -->
         <div class="lg:col-span-2">
@@ -72,8 +152,13 @@
         <div class="space-y-4">
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-400 text-white">
-                    <h3 class="font-bold">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Signalements
+                    <h3 class="font-bold flex items-center justify-between">
+                        <span><i class="fas fa-exclamation-triangle mr-2"></i>Signalements</span>
+                        @if($unnotifiedCount > 0)
+                        <span class="bg-white text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $unnotifiedCount }} nouveau(x)
+                        </span>
+                        @endif
                     </h3>
                 </div>
                 <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">

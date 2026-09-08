@@ -75,8 +75,17 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-right text-sm">
+                        <td class="px-4 py-3 text-right text-sm whitespace-nowrap">
                             <a href="{{ route('garderie.events.show', $event) }}" class="text-blue-600 hover:text-blue-800 font-medium">Voir</a>
+                            @if(!$event->parents_notified)
+                            <form action="{{ route('garderie.events.notify', $event) }}" method="POST" class="inline ml-2">
+                                @csrf
+                                <button type="submit" class="text-green-600 hover:text-green-800 font-medium"
+                                        onclick="return confirm('Notifier les parents par email ?')">
+                                    Notifier
+                                </button>
+                            </form>
+                            @endif
                         </td>
                     </tr>
                     @empty

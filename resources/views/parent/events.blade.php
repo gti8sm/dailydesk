@@ -39,7 +39,7 @@
                         @if(!$event->parents_notified)
                             <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Non notifié</span>
                         @else
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"><i class="fas fa-check mr-1"></i>Notifié</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"><i class="fas fa-envelope mr-1"></i>Notifié par email</span>
                         @endif
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                         @if(!$event->parents_notified)
                             <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Non notifié</span>
                         @else
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"><i class="fas fa-check mr-1"></i>Notifié</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"><i class="fas fa-envelope mr-1"></i>Notifié par email</span>
                         @endif
                     </div>
                 </div>

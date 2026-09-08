@@ -6,7 +6,9 @@ use App\Models\Child;
 use App\Models\Family;
 use App\Models\ParentModel;
 use App\Modules\Garderie\Models\GarderieEvent;
+use App\Modules\Garderie\Models\GarderiePresence;
 use App\Modules\Cantine\Models\CantineEvent;
+use App\Modules\Cantine\Models\CantinePresence;
 use Illuminate\Http\Request;
 
 class ParentPortalController extends Controller
@@ -38,7 +40,54 @@ class ParentPortalController extends Controller
             ->limit(10)
             ->get();
 
-        return view('parent.dashboard', compact('parent', 'family', 'children', 'garderieEvents', 'cantineEvents'));
+        $unnotifiedCount = $garderieEvents->where('parents_notified', false)->count()
+            + $cantineEvents->where('parents_notified', false)->count();
+
+        $now = now();
+        $year = (int) request()->get('year', $now->year);
+        $month = (int) request()->get('month', $now->month);
+
+        $garderiePresences = GarderiePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get()
+            ->groupBy(fn($p) => $p->date->format('Y-m-d'));
+
+        $cantinePresences = CantinePresence::whereIn('child_id', $childIds)
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get()
+            ->groupBy(fn($p) => $p->date->format('Y-m-d'));
+
+        $calendar = [];
+        $firstDay = \Carbon\Carbon::create($year, $month, 1);
+        $daysInMonth = $firstDay->daysInMonth;
+        $startOffset = $firstDay->dayOfWeekIso - 1;
+
+        for ($i = 0; $i < $startOffset; $i++) {
+            $calendar[] = null;
+        }
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $dateKey = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            $calendar[] = [
+                'day' => $d,
+                'date' => $dateKey,
+                'garderie' => $garderiePresences->get($dateKey, collect()),
+                'cantine' => $cantinePresences->get($dateKey, collect()),
+            ];
+        }
+
+        $monthName = $firstDay->locale('fr')->monthName;
+        $prevMonth = $firstDay->copy()->subMonth();
+        $nextMonth = $firstDay->copy()->addMonth();
+
+        return view('parent.dashboard', compact(
+            'parent', 'family', 'children',
+            'garderieEvents', 'cantineEvents',
+            'unnotifiedCount',
+            'calendar', 'year', 'month', 'monthName',
+            'prevMonth', 'nextMonth'
+        ));
     }
 
     public function editProfile()
