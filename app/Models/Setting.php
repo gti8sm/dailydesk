@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
-    use BelongsToTenant;
+    use BelongsToTenant, LogsActivity;
     protected $fillable = ['key', 'value', 'type', 'group', 'description'];
 
     public static function get($key, $default = null)

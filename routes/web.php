@@ -13,6 +13,7 @@ use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\SubscriptionPlanController;
 use App\Http\Controllers\Central\ImpersonationController;
 use App\Http\Controllers\Central\ModuleController;
+use App\Http\Controllers\Central\ActivityLogController;
 use App\Http\Controllers\Central\StatisticsController;
 use App\Http\Controllers\Central\ExportController as CentralExportController;
 use App\Http\Controllers\ExportController;
@@ -69,6 +70,9 @@ Route::middleware('auth')->group(function () {
         Route::get('modules/settings', [ModuleController::class, 'globalSettings'])->name('modules.settings');
         Route::post('modules/settings', [ModuleController::class, 'updateGlobalSettings'])->name('modules.settings.update');
         Route::post('modules/{tenant}/{module}/toggle', [ModuleController::class, 'toggleModule'])->name('modules.toggle');
+
+        Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
+        Route::get('logs/{log}', [ActivityLogController::class, 'show'])->name('logs.show');
     });
     
     // Stop impersonation - accessible from both central and tenant domains

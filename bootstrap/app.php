@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Http\Request;
 use App\Providers\TenancyServiceProvider;
+use App\Http\Middleware\LogUserActivity;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -18,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'log.activity' => LogUserActivity::class,
+        ]);
+        $middleware->append(LogUserActivity::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (TokenMismatchException $e, Request $request) {

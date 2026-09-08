@@ -468,6 +468,21 @@
                 Gérer les Exports
             </a>
         </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-indigo-100 rounded-full p-3">
+                    <i class="fas fa-history text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="ml-3 text-lg font-semibold text-gray-900">Journal d'activité</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+                Tracer les actions des utilisateurs (connexions, modifications, suppressions)
+            </p>
+            <a href="{{ route('central.logs.index') }}" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center">
+                Consulter
+            </a>
+        </div>
     </div>
 </div>
 
