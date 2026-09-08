@@ -19,30 +19,42 @@
     @endif
 
     @if($unreadEvents->isNotEmpty())
-    <!-- Alerte signalements non lus -->
-    <div class="mb-6 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg p-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="bg-orange-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
-                <i class="fas fa-bell"></i>
-            </div>
-            <div>
-                <p class="font-bold text-orange-800">
-                    {{ $unreadEvents->count() }} signalement(s) non lu(s)
-                </p>
-                <p class="text-sm text-orange-600">
-                    @foreach($unreadEvents->take(2) as $event)
-                        {{ $event->child->full_name }} — {{ $event->title }}<br>
-                    @endforeach
-                    @if($unreadEvents->count() > 2) et {{ $unreadEvents->count() - 2 }} autre(s)@endif
-                </p>
-            </div>
+    <!-- Signalements non lus (au-dessus du planning) -->
+    <div class="mb-6 bg-white shadow-lg rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-400 text-white flex items-center justify-between">
+            <h3 class="font-bold">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Signalements non lus ({{ $unreadEvents->count() }})
+            </h3>
+            <form action="{{ route('parent.events.markViewed') }}" method="POST">
+                @csrf
+                <button type="submit" class="text-xs bg-white text-orange-600 font-bold px-3 py-1 rounded-full hover:bg-orange-50 transition">
+                    <i class="fas fa-check mr-1"></i> Marquer comme lu
+                </button>
+            </form>
         </div>
-        <form action="{{ route('parent.events.markViewed') }}" method="POST">
-            @csrf
-            <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium text-sm transition-colors whitespace-nowrap">
-                <i class="fas fa-check mr-1"></i> Marquer comme lu
-            </button>
-        </form>
+        <div class="divide-y divide-gray-100">
+            @foreach($unreadEvents->take(3) as $event)
+            <div class="p-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-900">{{ $event->child->full_name }}</span>
+                    <span class="text-xs text-gray-400">{{ $event->event_date->format('d/m/Y') }}</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1">{{ $event->title }}</p>
+                <div class="mt-1 flex items-center gap-1">
+                    @if(str_contains(get_class($event), 'Garderie'))
+                        <span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Garderie</span>
+                    @else
+                        <span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Cantine</span>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+        <div class="p-2 border-t border-gray-100">
+            <a href="{{ route('parent.events') }}" class="block text-center text-sm text-blue-600 hover:text-blue-800 py-1">
+                Voir tout
+            </a>
+        </div>
     </div>
     @endif
 
@@ -222,9 +234,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6">
         <!-- Mes enfants -->
-        <div class="lg:col-span-2">
+        <div>
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-200 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-900">
@@ -272,47 +284,6 @@
             </div>
         </div>
 
-        <!-- Signalements récents (max 3) -->
-        <div class="space-y-4">
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-400 text-white">
-                    <h3 class="font-bold">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Signalements
-                    </h3>
-                </div>
-                <div class="divide-y divide-gray-100">
-                    @forelse($recentEvents as $event)
-                    <div class="p-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-medium text-gray-900">{{ $event->child->full_name }}</span>
-                            <span class="text-xs text-gray-400">{{ $event->event_date->format('d/m/Y') }}</span>
-                        </div>
-                        <p class="text-sm text-gray-700 mt-1">{{ $event->title }}</p>
-                        <div class="mt-1 flex items-center gap-1">
-                            @if(str_contains(get_class($event), 'Garderie'))
-                                <span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Garderie</span>
-                            @else
-                                <span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Cantine</span>
-                            @endif
-                            @if($event->parents_notified && !$event->parent_viewed_at)
-                                <span class="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">Non lu</span>
-                            @endif
-                        </div>
-                    </div>
-                    @empty
-                    <div class="p-6 text-center text-gray-500 text-sm">
-                        <i class="fas fa-check text-2xl text-green-300 mb-1"></i>
-                        <p>Aucun signalement</p>
-                    </div>
-                    @endforelse
-                </div>
-                <div class="p-2 border-t border-gray-100">
-                    <a href="{{ route('parent.events') }}" class="block text-center text-sm text-blue-600 hover:text-blue-800 py-1">
-                        Voir tout
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

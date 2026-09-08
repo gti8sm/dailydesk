@@ -7,7 +7,7 @@
     
     <p>Bonjour,</p>
     
-    <p>Vous êtes invité(e) à rejoindre la plateforme <strong>{{ $appName }}</strong> pour gérer la famille <strong>{{ $family->family_name }}</strong>.</p>
+    <p>Vous êtes invité(e) à rejoindre la plateforme <strong>{{ $appName }}</strong> pour gérer la <strong>{{ $family->family_name }}</strong>.</p>
     
     <p>Vous pourrez consulter les présences de vos enfants, signaler des absences, et mettre à jour les informations (allergies, régime alimentaire, inscriptions garderie/cantine).</p>
     

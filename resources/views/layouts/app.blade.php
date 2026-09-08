@@ -52,9 +52,11 @@
                         </a>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        @hasrole('admin')
                         <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Dashboard
                         </a>
+                        @endhasrole
 
                         @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
                         <div class="relative h-full flex items-center" x-data="{ open: false }">
@@ -237,10 +239,12 @@
                     
                     <!-- Menu items -->
                     <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+                        @hasrole('admin')
                         <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-home w-6"></i>
                             <span class="ml-3">Dashboard</span>
                         </a>
+                        @endhasrole
 
                         @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
                         <div x-data="{ open: false }" class="space-y-1">
