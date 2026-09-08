@@ -81,6 +81,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', function () {
         return view('profile.index');
     })->name('profile');
+
+    Route::get('/help', function () {
+        return view('help.index');
+    })->name('help');
     
     Route::get('/settings', [SettingsController::class, 'index'])
         ->name('settings.index')

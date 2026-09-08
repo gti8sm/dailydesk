@@ -332,5 +332,9 @@
     </script>
     
     @stack('scripts')
+
+    @auth
+    @include('partials.help-widget')
+    @endauth
 </body>
 </html>
