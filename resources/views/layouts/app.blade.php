@@ -36,7 +36,7 @@
     </div>
     @endif
     
-    <nav class="bg-white shadow-sm border-b border-gray-200" x-data="{ mobileMenuOpen: false }">
+    <nav class="bg-white shadow-sm border-b border-gray-200" x-data="{ mobileMenuOpen: false, modulesOpen: false, gestionOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
@@ -51,38 +51,83 @@
                             @endphp
                         </a>
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-4">
                         <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Dashboard
                         </a>
-                        
-                        @can('view_garderie')
-                        <a href="{{ route('garderie.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-child mr-2"></i> Garderie
-                        </a>
-                        @endcan
-                        
-                        @can('view_cantine')
-                        <a href="{{ route('cantine.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-utensils mr-2"></i> Cantine
-                        </a>
-                        @endcan
-                        
+
+                        @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer">
+                                <i class="fas fa-th-large mr-2"></i> Modules
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                @can('view_garderie')
+                                <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                    <i class="fas fa-child w-5"></i>
+                                    <span class="ml-3">Garderie</span>
+                                </a>
+                                @endcan
+                                @can('view_cantine')
+                                <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                    <i class="fas fa-utensils w-5"></i>
+                                    <span class="ml-3">Cantine</span>
+                                </a>
+                                @endcan
+                            </div>
+                        </div>
+                        @endif
+
                         @can('manage_families')
-                        <a href="{{ route('families.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-users mr-2"></i> Familles
-                        </a>
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer">
+                                <i class="fas fa-folder-open mr-2"></i> Gestion
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                <a href="{{ route('families.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-users w-5"></i>
+                                    <span class="ml-3">Familles</span>
+                                </a>
+                                @hasrole('admin')
+                                <a href="{{ route('classes.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-school w-5"></i>
+                                    <span class="ml-3">Classes</span>
+                                </a>
+                                <a href="{{ route('invitations.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-envelope-open-text w-5"></i>
+                                    <span class="ml-3">Invitations</span>
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('users.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-user-cog w-5"></i>
+                                    <span class="ml-3">Utilisateurs</span>
+                                </a>
+                                <a href="{{ route('imports.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-upload w-5"></i>
+                                    <span class="ml-3">Imports</span>
+                                </a>
+                                <a href="{{ route('exports.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-download w-5"></i>
+                                    <span class="ml-3">Exports</span>
+                                </a>
+                                @endhasrole
+                                @can('manage_settings')
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-cog w-5"></i>
+                                    <span class="ml-3">Paramètres</span>
+                                </a>
+                                @endcan
+                            </div>
+                        </div>
                         @endcan
-                        
-                        @hasrole('admin')
-                        <a href="{{ route('classes.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-school mr-2"></i> Classes
-                        </a>
-                        <a href="{{ route('invitations.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            <i class="fas fa-envelope-open-text mr-2"></i> Invitations
-                        </a>
-                        @endhasrole
-                        
+
                         @hasrole('parent')
                         <a href="{{ route('parent.dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Mon espace
@@ -191,48 +236,87 @@
                             <i class="fas fa-home w-6"></i>
                             <span class="ml-3">Dashboard</span>
                         </a>
-                        
-                        @can('view_garderie')
-                        <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-child w-6"></i>
-                            <span class="ml-3">Garderie</span>
-                        </a>
-                        @endcan
-                        
-                        @can('view_cantine')
-                        <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
-                            <i class="fas fa-utensils w-6"></i>
-                            <span class="ml-3">Cantine</span>
-                        </a>
-                        @endcan
-                        
+
+                        @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
+                        <div x-data="{ open: false }" class="space-y-1">
+                            <button @click="open = !open" class="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-th-large w-6"></i>
+                                <span class="ml-3 flex-1 text-left">Modules</span>
+                                <i class="fas fa-chevron-down text-xs" :class="{ 'rotate-180': open }"></i>
+                            </button>
+                            <div x-show="open" x-collapse class="pl-4 space-y-1">
+                                @can('view_garderie')
+                                <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                                    <i class="fas fa-child w-5"></i>
+                                    <span class="ml-3">Garderie</span>
+                                </a>
+                                @endcan
+                                @can('view_cantine')
+                                <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                    <i class="fas fa-utensils w-5"></i>
+                                    <span class="ml-3">Cantine</span>
+                                </a>
+                                @endcan
+                            </div>
+                        </div>
+                        @endif
+
                         @can('manage_families')
-                        <a href="{{ route('families.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg">
-                            <i class="fas fa-users w-6"></i>
-                            <span class="ml-3">Familles</span>
-                        </a>
+                        <div x-data="{ open: false }" class="space-y-1">
+                            <button @click="open = !open" class="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-folder-open w-6"></i>
+                                <span class="ml-3 flex-1 text-left">Gestion</span>
+                                <i class="fas fa-chevron-down text-xs" :class="{ 'rotate-180': open }"></i>
+                            </button>
+                            <div x-show="open" x-collapse class="pl-4 space-y-1">
+                                <a href="{{ route('families.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-users w-5"></i>
+                                    <span class="ml-3">Familles</span>
+                                </a>
+                                @hasrole('admin')
+                                <a href="{{ route('classes.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-school w-5"></i>
+                                    <span class="ml-3">Classes</span>
+                                </a>
+                                <a href="{{ route('invitations.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-envelope-open-text w-5"></i>
+                                    <span class="ml-3">Invitations</span>
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('users.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-user-cog w-5"></i>
+                                    <span class="ml-3">Utilisateurs</span>
+                                </a>
+                                <a href="{{ route('imports.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-file-upload w-5"></i>
+                                    <span class="ml-3">Imports</span>
+                                </a>
+                                <a href="{{ route('exports.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-file-download w-5"></i>
+                                    <span class="ml-3">Exports</span>
+                                </a>
+                                @endhasrole
+                                @can('manage_settings')
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-cog w-5"></i>
+                                    <span class="ml-3">Paramètres</span>
+                                </a>
+                                @endcan
+                            </div>
+                        </div>
                         @endcan
-                        
-                        @hasrole('admin')
-                        <a href="{{ route('users.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                            <i class="fas fa-users w-6"></i>
-                            <span class="ml-3">Utilisateurs</span>
+
+                        @hasrole('parent')
+                        <a href="{{ route('parent.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-home w-6"></i>
+                            <span class="ml-3">Mon espace</span>
                         </a>
-                        <a href="{{ route('imports.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                            <i class="fas fa-file-upload w-6"></i>
-                            <span class="ml-3">Imports</span>
-                        </a>
-                        <a href="{{ route('exports.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                            <i class="fas fa-file-download w-6"></i>
-                            <span class="ml-3">Exports</span>
+                        <a href="{{ route('parent.events') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-exclamation-triangle w-6"></i>
+                            <span class="ml-3">Signalements</span>
                         </a>
                         @endhasrole
-                        @can('manage_settings')
-                        <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                            <i class="fas fa-cog w-6"></i>
-                            <span class="ml-3">Paramètres</span>
-                        </a>
-                        @endcan
                     </nav>
                     
                     <!-- Footer -->
