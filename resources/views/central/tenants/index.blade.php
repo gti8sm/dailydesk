@@ -25,12 +25,31 @@
     </div>
     @endif
 
+    <div class="mb-4 flex flex-wrap gap-2">
+        @php
+            $tabs = [
+                'all' => 'Tous',
+                'active' => 'Actifs',
+                'prospect' => 'Prospects',
+                'suspended' => 'Suspendus',
+            ];
+        @endphp
+        @foreach($tabs as $key => $label)
+        <a href="{{ route('central.tenants.index', ['status' => $key]) }}"
+           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors
+           {{ $statusFilter === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200' }}">
+            {{ $label }}
+            <span class="ml-1 px-1.5 py-0.5 rounded-full text-xs {{ $statusFilter === $key ? 'bg-blue-500' : 'bg-gray-200' }}">{{ $statusCounts[$key] ?? 0 }}</span>
+        </a>
+        @endforeach
+    </div>
+
     <div class="bg-white shadow-lg rounded-xl overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domaine</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -44,7 +63,7 @@
                         <div class="text-xs text-gray-500">{{ $tenant->email }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $tenant->domains->first()?->domain ?? 'N/A' }}
+                        <a href="{{ url('/' . $tenant->slug) }}" target="_blank" class="text-blue-600 hover:text-blue-800">/{{ $tenant->slug }}</a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 text-xs rounded-full
@@ -105,5 +124,10 @@
             </tbody>
         </table>
     </div>
+    @if($tenants->hasPages())
+    <div class="mt-4">
+        {{ $tenants->links() }}
+    </div>
+    @endif
 </div>
 @endsection

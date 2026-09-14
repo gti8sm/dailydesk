@@ -4,12 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <title>@yield('title', 'DailyDesk')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [x-cloak] { display: none !important; }
+        @php
+            $primaryColor = '#3B82F6';
+            $secondaryColor = '#6366F1';
+            if (function_exists('tenant') && tenant()) {
+                $primaryColor = tenant()->primary_color ?? '#3B82F6';
+                $secondaryColor = tenant()->secondary_color ?? '#6366F1';
+            }
+        @endphp
+        :root {
+            --tenant-primary: {{ $primaryColor }};
+            --tenant-secondary: {{ $secondaryColor }};
+        }
+        .tenant-primary { background-color: var(--tenant-primary); }
+        .tenant-primary-text { color: var(--tenant-primary); }
+        .tenant-primary-border { border-color: var(--tenant-primary); }
+        .tenant-secondary { background-color: var(--tenant-secondary); }
+        .tenant-secondary-text { color: var(--tenant-secondary); }
+        .btn-tenant {
+            background-color: var(--tenant-primary);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-tenant:hover {
+            background-color: var(--tenant-secondary);
+        }
+        .focus-tenant:focus {
+            --tw-ring-color: var(--tenant-primary);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -41,19 +70,35 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600">
+                        @php
+                            $dashboardRoute = auth()->user()->hasRole('super_admin') ? route('central.dashboard') : route('dashboard');
+                        @endphp
+                        <a href="{{ $dashboardRoute }}" class="flex items-center gap-2">
                             @php
+                                $tenantLogo = null;
+                                $appName = config('app.name', 'DailyDesk');
                                 try {
-                                    echo \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
-                                } catch (\Exception $e) {
-                                    echo config('app.name', 'DailyDesk');
-                                }
+                                    $appName = \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
+                                    if (function_exists('tenant') && tenant() && tenant()->logo_path) {
+                                        $tenantLogo = tenant()->logo_path;
+                                    }
+                                } catch (\Exception $e) {}
                             @endphp
+                            @if($tenantLogo)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($tenantLogo) }}"
+                                 alt="{{ $appName }}"
+                                 class="h-8 w-auto max-h-8 object-contain">
+                            @else
+                            <div class="bg-blue-600 rounded-lg w-8 h-8 flex items-center justify-center">
+                                <i class="fas fa-users text-white text-sm"></i>
+                            </div>
+                            @endif
+                            <span class="text-2xl font-bold text-blue-600">{{ $appName }}</span>
                         </a>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         @hasrole('admin')
-                        <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{{ $dashboardRoute }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Dashboard
                         </a>
                         @endhasrole
@@ -135,6 +180,58 @@
                             <i class="fas fa-home mr-2"></i> Mon espace
                         </a>
                         @endhasrole
+
+                        @hasrole('super_admin')
+                        <div class="relative h-full flex items-center" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer h-full">
+                                <i class="fas fa-cog mr-2"></i> Administration
+                                @if($openTicketCount ?? 0)
+                                <span class="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{{ $openTicketCount }}</span>
+                                @endif
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute left-0 top-full w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                <a href="{{ route('central.tenants.create') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                    <i class="fas fa-plus-circle w-5"></i>
+                                    <span class="ml-3">Créer un tenant</span>
+                                </a>
+                                <a href="{{ route('central.tenants.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                    <i class="fas fa-building w-5"></i>
+                                    <span class="ml-3">Tenants</span>
+                                </a>
+                                <a href="{{ route('central.plans.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                                    <i class="fas fa-tags w-5"></i>
+                                    <span class="ml-3">Plans</span>
+                                </a>
+                                <a href="{{ route('central.statistics') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600">
+                                    <i class="fas fa-chart-line w-5"></i>
+                                    <span class="ml-3">Statistiques</span>
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('central.modules.overview') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-puzzle-piece w-5"></i>
+                                    <span class="ml-3">Modules</span>
+                                </a>
+                                <a href="{{ route('central.exports') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-download w-5"></i>
+                                    <span class="ml-3">Exports</span>
+                                </a>
+                                <a href="{{ route('central.logs.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-history w-5"></i>
+                                    <span class="ml-3">Journal</span>
+                                </a>
+                                <a href="{{ route('central.support.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                    <i class="fas fa-life-ring w-5"></i>
+                                    <span class="ml-3">Support</span>
+                                    @if($openTicketCount ?? 0)
+                                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $openTicketCount }}</span>
+                                    @endif
+                                </a>
+                            </div>
+                        </div>
+                        @endhasrole
                     </div>
                 </div>
                 
@@ -157,9 +254,11 @@
                             </button>
                         </div>
                         <div x-show="open" @click.away="open = false" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            @unless(auth()->user()->hasRole('super_admin'))
                             <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-user mr-2"></i> Profil
                             </a>
+                            @endunless
                             @hasrole('parent')
                             <a href="{{ route('parent.notifications') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-bell mr-2"></i> Notifications
@@ -178,13 +277,17 @@
                             <a href="{{ route('exports.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-file-download mr-2"></i> Exports
                             </a>
+                            <a href="{{ route('support.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-life-ring mr-2"></i> Support
+                            </a>
                             @endhasrole
                             @can('manage_settings')
                             <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-cog mr-2"></i> Paramètres
                             </a>
                             @endcan
-                            <form method="POST" action="{{ route('logout') }}">
+                            @endunless
+                            <form method="POST" action="{{ auth()->user()->hasRole('super_admin') ? route('central.logout') : route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
@@ -240,7 +343,7 @@
                     <!-- Menu items -->
                     <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
                         @hasrole('admin')
-                        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <a href="{{ $dashboardRoute }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-home w-6"></i>
                             <span class="ml-3">Dashboard</span>
                         </a>
@@ -304,6 +407,10 @@
                                     <i class="fas fa-file-download w-5"></i>
                                     <span class="ml-3">Exports</span>
                                 </a>
+                                <a href="{{ route('support.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-life-ring w-5"></i>
+                                    <span class="ml-3">Support</span>
+                                </a>
                                 @endhasrole
                                 @can('manage_settings')
                                 <div class="border-t border-gray-100 my-1"></div>
@@ -330,6 +437,41 @@
                             <span class="ml-3">Signalements</span>
                         </a>
                         @endhasrole
+
+                        @hasrole('super_admin')
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="{{ route('central.tenants.create') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-plus-circle w-6"></i>
+                            <span class="ml-3">Créer un tenant</span>
+                        </a>
+                        <a href="{{ route('central.tenants.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-building w-6"></i>
+                            <span class="ml-3">Tenants</span>
+                        </a>
+                        <a href="{{ route('central.plans.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-tags w-6"></i>
+                            <span class="ml-3">Plans</span>
+                        </a>
+                        <a href="{{ route('central.statistics') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-chart-line w-6"></i>
+                            <span class="ml-3">Statistiques</span>
+                        </a>
+                        <a href="{{ route('central.modules.overview') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-puzzle-piece w-6"></i>
+                            <span class="ml-3">Modules</span>
+                        </a>
+                        <a href="{{ route('central.logs.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-history w-6"></i>
+                            <span class="ml-3">Journal</span>
+                        </a>
+                        <a href="{{ route('central.support.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-life-ring w-6"></i>
+                            <span class="ml-3">Support</span>
+                            @if($openTicketCount ?? 0)
+                            <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $openTicketCount }}</span>
+                            @endif
+                        </a>
+                        @endhasrole
                     </nav>
                     
                     <!-- Footer -->
@@ -341,7 +483,7 @@
                                 <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
                             </div>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ auth()->user()->hasRole('super_admin') ? route('central.logout') : route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
                                 <i class="fas fa-sign-out-alt w-6"></i>
@@ -433,5 +575,25 @@
     @auth
     @include('partials.help-widget')
     @endauth
+
+    <footer class="bg-gray-800 text-gray-300 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-sm text-center sm:text-left">
+                    &copy; {{ date('Y') }} DailyDesk — Tous droits réservés
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+                    <a href="{{ route('legal.cgv') }}" class="hover:text-white transition">CGV</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="{{ route('legal.mentions') }}" class="hover:text-white transition">Mentions légales</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="{{ route('legal.rgpd') }}" class="hover:text-white transition">RGPD</a>
+                </div>
+                <div class="text-sm text-center sm:text-right">
+                    Site développé à Libourne par <a href="https://smallwebconcept.fr" target="_blank" class="text-orange-400 hover:text-orange-300 font-medium">SmallWebConcept</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

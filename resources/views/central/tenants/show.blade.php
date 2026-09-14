@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-6">
-        <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+        <a href="{{ route('central.dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
             <i class="fas fa-arrow-left mr-2"></i>
             Retour au dashboard
         </a>
@@ -152,29 +152,21 @@
                     </dl>
                 </div>
 
-                <!-- Domaines -->
+                <!-- URL d'accès -->
                 <div class="bg-green-50 rounded-lg p-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-globe text-green-600 mr-2"></i>
-                        Domaines
+                        URL d'accès
                     </h2>
-                    @if($tenant->domains->count() > 0)
-                    <ul class="space-y-2">
-                        @foreach($tenant->domains as $domain)
-                        <li class="flex items-center justify-between bg-white rounded-lg p-3">
-                            <span class="text-sm font-mono text-gray-900">{{ $domain->domain }}</span>
-                            <a href="http://{{ $domain->domain }}:8001" 
-                               target="_blank" 
-                               class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i class="fas fa-external-link-alt mr-1"></i>
-                                Ouvrir
-                            </a>
-                        </li>
-                        @endforeach
-                    </ul>
-                    @else
-                    <p class="text-sm text-gray-500">Aucun domaine configuré</p>
-                    @endif
+                    <div class="bg-white rounded-lg p-3 flex items-center justify-between">
+                        <span class="text-sm font-mono text-gray-900">/{{ $tenant->slug }}</span>
+                        <a href="{{ url('/' . $tenant->slug) }}"
+                           target="_blank"
+                           class="text-blue-600 hover:text-blue-800 text-sm">
+                            <i class="fas fa-external-link-alt mr-1"></i>
+                            Ouvrir
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Modules activés -->

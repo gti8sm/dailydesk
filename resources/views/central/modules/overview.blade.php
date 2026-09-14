@@ -15,7 +15,7 @@
             <a href="{{ route('central.modules.settings') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
                 <i class="fas fa-cog mr-2"></i>Paramètres globaux
             </a>
-            <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+            <a href="{{ route('central.dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                 <i class="fas fa-arrow-left mr-2"></i>Retour
             </a>
         </div>

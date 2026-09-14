@@ -19,8 +19,22 @@ class TenantController extends Controller
             abort(403, 'Accès non autorisé');
         }
         
-        $tenants = Tenant::with('domains')->latest()->get();
-        return view('central.tenants.index', compact('tenants'));
+        $statusFilter = request()->get('status', 'all');
+        $query = Tenant::with('domains')->latest();
+        
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+        
+        $tenants = $query->paginate(15);
+        $statusCounts = [
+            'all' => Tenant::count(),
+            'active' => Tenant::where('status', 'active')->count(),
+            'prospect' => Tenant::where('status', 'prospect')->count(),
+            'suspended' => Tenant::where('status', 'suspended')->count(),
+        ];
+        
+        return view('central.tenants.index', compact('tenants', 'statusFilter', 'statusCounts'));
     }
 
     public function create()
@@ -77,7 +91,8 @@ class TenantController extends Controller
             ]);
 
             // Créer le domaine
-            $domain = $validated['slug'] . '.localhost';
+            $baseDomain = config('app.tenant_domain', env('TENANT_DOMAIN', 'dailydesk.fr'));
+            $domain = $validated['slug'] . '.' . $baseDomain;
             $tenant->domains()->create(['domain' => $domain]);
 
             // En single-DB : pas de création de base, juste l'admin et les settings
@@ -85,8 +100,8 @@ class TenantController extends Controller
             $this->seedTenantSettings($tenant);
 
             return redirect()
-                ->route('dashboard')
-                ->with('success', "Tenant '{$tenant->name}' créé avec succès ! Domaine : {$domain}");
+                ->route('central.dashboard')
+                ->with('success', "Tenant '{$tenant->name}' créé avec succès ! URL : " . url('/' . $tenant->slug));
 
         } catch (\Exception $e) {
             if (isset($tenant)) {
@@ -211,7 +226,7 @@ class TenantController extends Controller
             $tenant->delete();
 
             return redirect()
-                ->route('dashboard')
+                ->route('central.dashboard')
                 ->with('success', "Tenant '{$tenantName}' supprimé avec succès !");
 
         } catch (\Exception $e) {

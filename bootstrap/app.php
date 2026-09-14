@@ -7,6 +7,8 @@ use Illuminate\Session\TokenMismatchException;
 use Illuminate\Http\Request;
 use App\Providers\TenancyServiceProvider;
 use App\Http\Middleware\LogUserActivity;
+use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\InitializeTenancyBySlug;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -21,8 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'log.activity' => LogUserActivity::class,
+            'tenancy.slug' => InitializeTenancyBySlug::class,
         ]);
         $middleware->append(LogUserActivity::class);
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (TokenMismatchException $e, Request $request) {

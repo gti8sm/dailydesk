@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Listeners;
@@ -61,6 +62,18 @@ class TenancyServiceProvider extends ServiceProvider
         $this->bootEvents();
         $this->mapRoutes();
         $this->makeTenancyMiddlewareHighestPriority();
+
+        View::composer('layouts.app', function ($view) {
+            $openTicketCount = 0;
+            if (auth()->check() && auth()->user()->hasRole('super_admin')) {
+                try {
+                    $openTicketCount = \App\Models\SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
+                } catch (\Exception $e) {
+                    $openTicketCount = 0;
+                }
+            }
+            $view->with('openTicketCount', $openTicketCount);
+        });
     }
 
     protected function bootEvents(): void
@@ -85,10 +98,6 @@ class TenancyServiceProvider extends ServiceProvider
     protected function makeTenancyMiddlewareHighestPriority(): void
     {
         $tenancyMiddleware = [
-            \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
-            \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-            \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
-            \Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByRequestData::class,
         ];

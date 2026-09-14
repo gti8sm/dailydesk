@@ -17,13 +17,6 @@ class ImpersonationController extends Controller
 
         $superAdminId = auth()->id();
 
-        // Récupérer le domaine du tenant
-        $tenantDomain = $tenant->getPrimaryDomain();
-
-        if (!$tenantDomain) {
-            return back()->with('error', 'Ce tenant n\'a pas de domaine configuré.');
-        }
-
         // Générer un token signé sécurisé
         $tokenData = [
             'tenant_id' => $tenant->id,
@@ -34,10 +27,8 @@ class ImpersonationController extends Controller
 
         $token = base64_encode(json_encode($tokenData));
 
-        // Construire l'URL du tenant avec le token
-        $port = request()->getPort();
-        $portSuffix = ($port && $port != 80 && $port != 443) ? ':' . $port : '';
-        $tenantUrl = request()->getScheme() . '://' . $tenantDomain . $portSuffix . '/central/do-impersonate?token=' . urlencode($token);
+        // Build path-based tenant URL
+        $tenantUrl = url('/' . $tenant->slug . '/central/do-impersonate?token=' . urlencode($token));
 
         return redirect($tenantUrl);
     }
@@ -135,22 +126,15 @@ class ImpersonationController extends Controller
 
         $token = base64_encode(json_encode($tokenData));
 
-        // Rediriger vers le domaine central avec le token
-        $port = request()->getPort();
-        $portSuffix = ($port && $port != 80 && $port != 443) ? ':' . $port : '';
-        
-        $centralDomains = config('tenancy.central_domains', []);
-        
-        // Si on est déjà sur un domaine central, utiliser route()
-        if (in_array(request()->getHost(), $centralDomains)) {
-            return redirect()->route('dashboard')
+        // Si tenancy n'est pas initialisé, rediriger directement
+        if (!tenancy()->initialized) {
+            return redirect()->route('central.dashboard')
                 ->with('success', 'Vous êtes de retour en tant que Super Admin');
         }
-        
-        // Sinon rediriger vers localhost (domaine central) avec token
-        $centralDomain = $centralDomains[1] ?? 'localhost';
-        $centralUrl = request()->getScheme() . '://' . $centralDomain . $portSuffix . '/central/restore-super-admin?token=' . urlencode($token);
-        
+
+        // Rediriger vers le domaine central avec le token
+        $centralUrl = url('/central/restore-super-admin?token=' . urlencode($token));
+
         return redirect($centralUrl);
     }
     
@@ -197,7 +181,7 @@ class ImpersonationController extends Controller
             Auth::login($superAdmin);
             
             return redirect()
-                ->route('dashboard')
+                ->route('central.dashboard')
                 ->with('success', 'Vous êtes de retour en tant que Super Admin');
         }
         

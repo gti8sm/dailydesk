@@ -6,7 +6,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+            <a href="{{ route('central.dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Retour au dashboard
             </a>

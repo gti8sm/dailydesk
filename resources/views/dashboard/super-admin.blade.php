@@ -250,7 +250,7 @@
                             Tenant
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Domaine
+                            URL
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Plan
@@ -288,14 +288,10 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">
-                                @if($tenant->domains->count() > 0)
-                                    <a href="http://{{ $tenant->domains->first()->domain }}" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                        {{ $tenant->domains->first()->domain }}
-                                        <i class="fas fa-external-link-alt ml-1 text-xs"></i>
-                                    </a>
-                                @else
-                                    <span class="text-gray-400">Aucun domaine</span>
-                                @endif
+                                <a href="{{ url('/' . $tenant->slug) }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    /{{ $tenant->slug }}
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -390,6 +386,11 @@
                 </tbody>
             </table>
         </div>
+        @if($tenants->hasPages())
+        <div class="px-6 py-3 border-t border-gray-200 bg-gray-50">
+            {{ $tenants->links() }}
+        </div>
+        @endif
     </div>
 
     <!-- Actions rapides -->

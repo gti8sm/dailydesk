@@ -99,32 +99,27 @@ class LoginController extends Controller
             \Cookie::queue('laravel_session', $request->session()->getId(), 43200);
         }
 
-        return redirect()->intended(route('dashboard'));
+        // Redirect super admin to central dashboard, tenant users to their tenant dashboard
+        if ($user->hasRole('super_admin')) {
+            return redirect()->intended(route('central.dashboard'));
+        }
+
+        $tenant = \App\Models\Tenant::find($user->tenant_id);
+        if ($tenant) {
+            return redirect()->intended(route('dashboard', ['tenant' => $tenant->slug]));
+        }
+
+        return redirect()->intended(route('login'));
     }
 
     public function showForgotPasswordForm()
     {
-        // Vérifier si SMTP est configuré
-        $smtpConfigured = Setting::get('smtp_host') && Setting::get('smtp_from_address');
-        
-        if (!$smtpConfigured) {
-            return redirect()->route('login')
-                ->with('error', 'La réinitialisation de mot de passe n\'est pas disponible. Contactez l\'administrateur.');
-        }
-        
         return view('auth.forgot-password');
     }
 
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-
-        // Vérifier si SMTP est configuré
-        $smtpConfigured = Setting::get('smtp_host') && Setting::get('smtp_from_address');
-        
-        if (!$smtpConfigured) {
-            return back()->with('error', 'La réinitialisation de mot de passe n\'est pas disponible.');
-        }
 
         $user = User::where('email', $request->email)->first();
 

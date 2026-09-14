@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\Models\Central\SubscriptionPlan;
+use App\Mail\WelcomeProspectMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +15,8 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        return view('landing.index');
+        $plans = SubscriptionPlan::active()->ordered()->get();
+        return view('landing.index', compact('plans'));
     }
 
     public function registerProspect(Request $request)
@@ -49,10 +52,10 @@ class LandingPageController extends Controller
                 'address' => $validated['address'],
                 'city' => $validated['city'] ?? null,
                 'postal_code' => $validated['postal_code'] ?? null,
-                'status' => 'prospect',
+                'status' => 'active',
                 'subscription_plan' => 'starter',
-                'subscription_starts_at' => null,
-                'subscription_expires_at' => null,
+                'subscription_starts_at' => now(),
+                'subscription_expires_at' => now()->addYear(),
                 'trial_ends_at' => now()->addDays(30),
                 'primary_color' => '#3B82F6',
                 'secondary_color' => '#6366F1',
@@ -65,13 +68,33 @@ class LandingPageController extends Controller
                 ],
             ]);
 
-            $domain = $slug . '.dailydesk.fr';
-            $tenant->domains()->create(['domain' => $domain]);
+            $baseDomain = config('app.tenant_domain', env('TENANT_DOMAIN', 'dailydesk.fr'));
+            $tenant->domains()->create(['domain' => $slug . '.' . $baseDomain]);
 
-            $this->createTenantAdmin($tenant, $validated);
+            $admin = $this->createTenantAdmin($tenant, $validated);
+
+            // Generate password reset token for the prospect
+            $token = Str::random(60);
+            \DB::table('password_resets')->updateOrInsert(
+                ['email' => $validated['email']],
+                ['token' => Hash::make($token), 'created_at' => now()]
+            );
 
             DB::commit();
 
+            // Send welcome email to prospect with password setup link
+            try {
+                Mail::to($validated['email'])->send(new WelcomeProspectMail(
+                    $validated['name'],
+                    $validated['email'],
+                    $token,
+                    $slug
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Erreur envoi email welcome prospect: ' . $e->getMessage());
+            }
+
+            // Notify super admin
             try {
                 Mail::raw(
                     "Bonjour,\n\nUne nouvelle demande de démo a été enregistrée :\n\n" .
@@ -80,15 +103,15 @@ class LandingPageController extends Controller
                     "Téléphone : {$validated['phone']}\n" .
                     "Adresse : {$validated['address']}\n" .
                     "Organisation : " . ($validated['organization_name'] ?? 'N/A') . "\n\n" .
-                    "Le tenant a été créé avec le statut 'prospect'.\n" .
-                    "Connectez-vous au super admin pour l'activer.",
+                    "Le tenant a été créé et activé automatiquement.\n" .
+                    "URL : " . url('/' . $slug),
                     function ($message) use ($validated) {
                         $message->to('simonmaraval@smallwebconcept.fr')
                             ->subject('Nouvelle demande de démo - ' . ($validated['organization_name'] ?? $validated['name']));
                     }
                 );
             } catch (\Exception $e) {
-                // Email failure should not block the process
+                \Log::error('Erreur envoi email super admin (demande démo): ' . $e->getMessage());
             }
 
             return redirect()->route('landing.thank-you');
@@ -126,7 +149,7 @@ class LandingPageController extends Controller
         return $slug;
     }
 
-    private function createTenantAdmin(Tenant $tenant, array $data): void
+    private function createTenantAdmin(Tenant $tenant, array $data)
     {
         $tempPassword = Str::random(12);
 
@@ -134,7 +157,7 @@ class LandingPageController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($tempPassword),
-            'is_active' => false,
+            'is_active' => true,
             'tenant_id' => $tenant->id,
         ]);
 
@@ -147,6 +170,8 @@ class LandingPageController extends Controller
             'temp_admin_password' => $tempPassword,
         ]);
         $tenant->save();
+
+        return $admin;
     }
 
     private function seedRolesAndPermissions(): void

@@ -48,6 +48,18 @@ class DashboardController extends Controller
         if ($user->hasRole('parent')) {
             return redirect()->route('parent.dashboard');
         }
+
+        // Check onboarding for admin users
+        if ($user->hasRole('admin')) {
+            $tenant = \App\Models\Tenant::find($user->tenant_id);
+            if ($tenant) {
+                $settings = $tenant->settings ?? [];
+                $onboardingCompleted = $settings['onboarding_completed'] ?? false;
+                if (!$onboardingCompleted && !request()->routeIs('onboarding.*')) {
+                    return redirect()->route('onboarding.index');
+                }
+            }
+        }
         
         $stats = [
             'garderie_today' => 0,
@@ -115,17 +127,18 @@ class DashboardController extends Controller
 
     private function superAdminDashboard()
     {
-        $tenants = \App\Models\Tenant::with('domains')->get();
+        $tenants = \App\Models\Tenant::with('domains')->latest()->paginate(10);
+        $allTenants = \App\Models\Tenant::with('domains')->get();
         $plans = \App\Models\Central\SubscriptionPlan::all();
         
         $stats = [
-            'total_tenants' => $tenants->count(),
-            'active_tenants' => $tenants->where('status', 'active')->count(),
-            'suspended_tenants' => $tenants->where('status', 'suspended')->count(),
-            'trial_tenants' => $tenants->filter(function($tenant) {
+            'total_tenants' => $allTenants->count(),
+            'active_tenants' => $allTenants->where('status', 'active')->count(),
+            'suspended_tenants' => $allTenants->where('status', 'suspended')->count(),
+            'trial_tenants' => $allTenants->filter(function($tenant) {
                 return $tenant->trial_ends_at && $tenant->trial_ends_at->isFuture();
             })->count(),
-            'expired_trials' => $tenants->filter(function($tenant) {
+            'expired_trials' => $allTenants->filter(function($tenant) {
                 return $tenant->trial_ends_at && $tenant->trial_ends_at->isPast();
             })->count(),
             'total_plans' => $plans->count(),
@@ -137,19 +150,19 @@ class DashboardController extends Controller
         foreach ($plans as $plan) {
             $planStats[$plan->slug] = [
                 'name' => $plan->name,
-                'count' => $tenants->where('subscription_plan', $plan->slug)->count(),
-                'revenue' => $tenants->where('subscription_plan', $plan->slug)->count() * $plan->price_monthly,
+                'count' => $allTenants->where('subscription_plan', $plan->slug)->count(),
+                'revenue' => $allTenants->where('subscription_plan', $plan->slug)->count() * $plan->price_monthly,
             ];
         }
         
         // Revenus mensuels totaux
-        $monthlyRevenue = $tenants->sum(function($tenant) use ($plans) {
+        $monthlyRevenue = $allTenants->sum(function($tenant) use ($plans) {
             $plan = $plans->firstWhere('slug', $tenant->subscription_plan);
             return $plan ? $plan->price_monthly : 0;
         });
         
         // Nouveaux tenants ce mois
-        $newThisMonth = $tenants->filter(function($tenant) {
+        $newThisMonth = $allTenants->filter(function($tenant) {
             return $tenant->created_at && $tenant->created_at->isCurrentMonth();
         })->count();
         
@@ -157,7 +170,7 @@ class DashboardController extends Controller
         $monthlyGrowth = [];
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
-            $monthlyGrowth[$date->format('M Y')] = $tenants->filter(function($tenant) use ($date) {
+            $monthlyGrowth[$date->format('M Y')] = $allTenants->filter(function($tenant) use ($date) {
                 return $tenant->created_at && 
                        $tenant->created_at->year == $date->year && 
                        $tenant->created_at->month == $date->month;

@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-6">
-        <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+        <a href="{{ route('central.dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
             <i class="fas fa-arrow-left mr-2"></i>
             Retour au dashboard
         </a>
@@ -70,7 +70,7 @@
                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('slug') border-red-500 @enderror"
                                    placeholder="paris">
                             <span class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-lg">
-                                .localhost
+                                (URL: /{{ old('slug', '') }})
                             </span>
                         </div>
                         <p class="mt-1 text-xs text-gray-500">Uniquement lettres minuscules, chiffres et tirets</p>
@@ -179,11 +179,11 @@
                                 <i class="fas fa-check-circle text-blue-500 hidden peer-checked:block"></i>
                             </div>
                             <p class="text-2xl font-bold text-gray-900 mb-2">
-                                {{ number_format($plan->price, 0, ',', ' ') }}€
+                                {{ number_format($plan->price_monthly, 0, ',', ' ') }}€
                                 <span class="text-sm text-gray-500 font-normal">/mois</span>
                             </p>
                             <ul class="text-sm text-gray-600 space-y-1">
-                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ $plan->max_children }} enfants max</li>
+                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ $plan->max_children ? $plan->max_children . ' enfants max' : 'Enfants illimités' }}</li>
                                 @foreach($plan->modules as $module)
                                 <li><i class="fas fa-check text-green-500 mr-1"></i> {{ ucfirst($module) }}</li>
                                 @endforeach
@@ -305,7 +305,7 @@
 
             <!-- Actions -->
             <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-800 font-medium">
+                <a href="{{ route('central.dashboard') }}" class="text-gray-600 hover:text-gray-800 font-medium">
                     <i class="fas fa-times mr-2"></i>
                     Annuler
                 </a>
