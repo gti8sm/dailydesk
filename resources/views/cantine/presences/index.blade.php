@@ -133,7 +133,7 @@ function updateUrl() {
 
 async function toggleCantinePresence(presenceId, makePresent) {
     try {
-        await window.axios.patch(`/cantine/presences/${presenceId}`, {
+        await window.axios.patch(`{{ route('cantine.presences.update', ['__PRESENCE_ID__']) }}`.replace('__PRESENCE_ID__', presenceId), {
             is_present: makePresent
         });
         window.location.reload();

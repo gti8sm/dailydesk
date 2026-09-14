@@ -44,31 +44,28 @@ class GarderiePresence extends Model
 
     public function calculateDuration()
     {
-        if ($this->arrival_time && $this->departure_time) {
-            $arrival = \Carbon\Carbon::parse($this->arrival_time);
-            $departure = \Carbon\Carbon::parse($this->departure_time);
-            
-            // Récupérer les horaires de garderie depuis les paramètres
-            $morningEnd = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_morning_end', '08:30'));
-            $eveningStart = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_evening_start', '16:30'));
-            
-            $totalMinutes = 0;
-            
-            // Calculer le temps de garderie du matin (si applicable)
-            if ($arrival->lt($morningEnd)) {
-                $morningDeparture = $departure->lt($morningEnd) ? $departure : $morningEnd;
-                $totalMinutes += $arrival->diffInMinutes($morningDeparture);
-            }
-            
-            // Calculer le temps de garderie du soir (si applicable)
-            if ($departure->gt($eveningStart)) {
-                $eveningArrival = $arrival->gt($eveningStart) ? $arrival : $eveningStart;
-                $totalMinutes += $eveningArrival->diffInMinutes($departure);
-            }
-            
-            $this->duration_minutes = $totalMinutes;
-            $this->save();
+        $morningEnd = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_morning_end', '08:30'));
+        $eveningStart = \Carbon\Carbon::parse(\App\Models\Setting::get('garderie_evening_start', '16:30'));
+
+        $arrival = $this->arrival_time ? \Carbon\Carbon::parse($this->arrival_time) : null;
+        $departure = $this->departure_time ? \Carbon\Carbon::parse($this->departure_time) : null;
+
+        $totalMinutes = 0;
+
+        // Garderie du matin : si arrivée enregistrée avant la fin de la garderie matinale
+        if ($arrival && $arrival->lt($morningEnd)) {
+            $morningDeparture = ($departure && $departure->lt($morningEnd)) ? $departure : $morningEnd;
+            $totalMinutes += $arrival->diffInMinutes($morningDeparture);
         }
+
+        // Garderie du soir : si départ enregistré après le début de la garderie du soir
+        if ($departure && $departure->gt($eveningStart)) {
+            $eveningArrival = ($arrival && $arrival->gt($eveningStart)) ? $arrival : $eveningStart;
+            $totalMinutes += $eveningArrival->diffInMinutes($departure);
+        }
+
+        $this->duration_minutes = $totalMinutes;
+        $this->save();
     }
 
     public function scopeForDate($query, $date)

@@ -109,22 +109,22 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Nom et prénom de l'enfant">
                             Enfant
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" title="Nom de la famille rattachée à l'enfant">
                             Famille
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Nombre total de jours où l'enfant est venu en garderie (arrivée et/ou départ enregistré)">
                             Jours présence
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Jours où l'arrivée ET le départ ont été enregistrés. En jaune si des jours sont incomplets (un seul pointage).">
                             Jours complets
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Temps total réel passé en garderie, hors heures scolaires. Calculé à partir des horaires de garderie configurés (matin avant l'école, soir après l'école).">
                             Temps garderie
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Temps moyen en garderie par jour complet (jours avec arrivée ET départ enregistrés)">
                             Moyenne / jour complet
                         </th>
                     </tr>

@@ -261,7 +261,7 @@ function alphabeticalSearch() {
                     return;
                 }
                 
-                const response = await window.axios.get('/garderie/search?q=');
+                const response = await window.axios.get('{{ route('garderie.search') }}?q=');
                 const children = response.data || [];
                 this.allChildren = Array.isArray(children) ? children : [];
                 this.filteredChildren = Array.isArray(children) ? children : [];
@@ -326,7 +326,7 @@ function alphabeticalSearch() {
             console.log('Enregistrement arrivée:', this.selectedChild.first_name, time);
             
             try {
-                const response = await window.axios.post(`/garderie/children/${this.selectedChild.id}/arrival`, {
+                const response = await window.axios.post(`{{ route('garderie.record.arrival', ['__CHILD_ID__']) }}`.replace('__CHILD_ID__', this.selectedChild.id), {
                     date: date,
                     arrival_time: time
                 });
@@ -348,7 +348,7 @@ function alphabeticalSearch() {
             const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
             try {
-                const response = await window.axios.post(`/garderie/children/${this.selectedChild.id}/departure`, {
+                const response = await window.axios.post(`{{ route('garderie.record.departure', ['__CHILD_ID__']) }}`.replace('__CHILD_ID__', this.selectedChild.id), {
                     date: date,
                     departure_time: time
                 });
@@ -369,7 +369,7 @@ document.getElementById('date-selector').addEventListener('change', function() {
 async function deleteGarderiePresence(presenceId) {
     if (!confirm('Annuler cette présence ?')) return;
     try {
-        await window.axios.delete(`/garderie/presences/${presenceId}`);
+        await window.axios.delete(`{{ route('garderie.presences.destroy', ['__PRESENCE_ID__']) }}`.replace('__PRESENCE_ID__', presenceId));
         window.location.reload();
     } catch (error) {
         alert('Erreur lors de la suppression');
@@ -385,7 +385,7 @@ async function editGarderieTime(presenceId, field, currentTime) {
         return;
     }
     try {
-        await window.axios.patch(`/garderie/presences/${presenceId}`, {
+        await window.axios.patch(`{{ route('garderie.presences.update', ['__PRESENCE_ID__']) }}`.replace('__PRESENCE_ID__', presenceId), {
             [field]: newTime
         });
         window.location.reload();

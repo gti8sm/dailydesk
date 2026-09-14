@@ -165,10 +165,12 @@
             @endif
 
             <div class="pt-2 border-t border-gray-100">
+                @unless(auth()->user()->hasRole('super_admin'))
                 <a href="#" onclick="window.open('{{ route('help') }}', '_blank', 'width=800,height=600'); return false;"
                    class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
                     <i class="fas fa-book mr-2"></i>Aide complète
                 </a>
+                @endunless
             </div>
         </div>
 
