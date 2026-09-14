@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @php
         try {
             $appName = \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
@@ -70,7 +71,7 @@
         </h1>
         <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8">
             {{ $appName }} digitalise la garderie, la cantine et la gestion des familles
-            pour les mairies et collectivités. Tout-en-un, accessible depuis anywhere.
+            pour les mairies et collectivités. Tout-en-un, accessible sur ordinateur, tablette et mobile.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#demo" class="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-colors shadow-lg">
@@ -128,6 +129,7 @@
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Pointage en temps réel</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Rapports mensuels</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Notifications parents</li>
+                    <li><i class="fas fa-tablet-alt text-blue-500 mr-2"></i> Utilisable sur tablette & mobile</li>
                 </ul>
             </div>
             <div class="feature-card bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -140,6 +142,7 @@
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Gestion des allergies</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Suivi des repas</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Export des présences</li>
+                    <li><i class="fas fa-tablet-alt text-orange-500 mr-2"></i> Utilisable sur tablette & mobile</li>
                 </ul>
             </div>
             <div class="feature-card bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -194,61 +197,161 @@
     </div>
 </section>
 
-<!-- Modules -->
+<!-- Multi-device -->
+<section class="py-20 px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Pensé pour le terrain
+                </h2>
+                <p class="text-gray-600 text-lg mb-8">
+                    Que ce soit à l'accueil de la garderie, en salle de cantine ou en déplacement,
+                    {{ $appName }} s'adapte à votre façon de travailler. Pointez les enfants depuis
+                    une tablette, un smartphone ou un ordinateur — partout, tout le temps.
+                </p>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 rounded-xl w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-tablet-alt text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Tablette en salle</h3>
+                            <p class="text-sm text-gray-600">Pointage rapide des présences en garderie et en cantine, directement depuis une tablette. Idéal pour le personnel sur le terrain.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-green-100 rounded-xl w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-mobile-alt text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Mobile en déplacement</h3>
+                            <p class="text-sm text-gray-600">Accédez à toutes les fonctionnalités depuis votre smartphone. Consultez les présences, gérez les enfants et recevez les notifications où que vous soyez.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-purple-100 rounded-xl w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-desktop text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Ordinateur au bureau</h3>
+                            <p class="text-sm text-gray-600">Gérez les paramètres, les familles, les exports et la facturation depuis votre poste fixe. Une expérience complète sur grand écran.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
+                    <div class="bg-gray-100 rounded-2xl p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="bg-blue-600 rounded-lg w-8 h-8 flex items-center justify-center mr-2">
+                                    <i class="fas fa-child text-white text-sm"></i>
+                                </div>
+                                <span class="font-semibold text-gray-900 text-sm">Garderie — Matin</span>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ date('d/m/Y') }}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between bg-green-50 rounded-lg p-2">
+                                <span class="text-sm text-gray-700">Lucas D.</span>
+                                <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Présent 7h42</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-green-50 rounded-lg p-2">
+                                <span class="text-sm text-gray-700">Emma L.</span>
+                                <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Présente 7h55</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-yellow-50 rounded-lg p-2">
+                                <span class="text-sm text-gray-700">Noah P.</span>
+                                <span class="text-xs text-yellow-600 font-medium"><i class="fas fa-clock mr-1"></i> En attente</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="bg-blue-600 text-white py-3 rounded-xl text-sm font-medium">
+                            <i class="fas fa-hand-point-up mr-1"></i> Pointer
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-3 rounded-xl text-sm font-medium">
+                            <i class="fas fa-list mr-1"></i> Liste
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute -top-4 -right-4 bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    <i class="fas fa-utensils mr-1"></i> Cantine
+                </div>
+                <div class="absolute -bottom-4 -left-4 bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    <i class="fas fa-child mr-1"></i> Garderie
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modules / Pricing -->
 <section id="modules" class="bg-gray-50 py-20 px-4">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Des modules adaptés à vos besoins</h2>
             <p class="text-gray-500 text-lg max-w-2xl mx-auto">Activez uniquement les modules dont vous avez besoin. Évoluez à votre rythme.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-2xl shadow-lg p-8 border-2 border-blue-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900">Starter</h3>
-                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Actuel</span>
-                </div>
-                <p class="text-3xl font-bold text-gray-900 mb-1">49€<span class="text-base font-normal text-gray-500">/mois</span></p>
-                <p class="text-sm text-gray-500 mb-6">Pour les petites communes</p>
-                <ul class="space-y-3 text-sm">
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Module Garderie</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Jusqu'à 50 enfants</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Gestion des familles</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Support email</li>
-                </ul>
-            </div>
-            <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-blue-500 relative scale-105">
+        <div class="grid grid-cols-1 md:grid-cols-{{ $plans->count() }} gap-8">
+            @foreach($plans as $index => $plan)
+            @php
+                $isPopular = $plan->slug === 'pro';
+                $borderClass = $isPopular ? 'border-2 border-blue-500 relative scale-105 shadow-xl' : 'border-2 border-' . ($plan->slug === 'starter' ? 'blue-200' : 'gray-200') . ' shadow-lg';
+            @endphp
+            <div class="bg-white rounded-2xl p-8 {{ $borderClass }}">
+                @if($isPopular)
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
                     Populaire
                 </div>
+                @endif
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900">Pro</h3>
-                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Actuel</span>
-                </div>
-                <p class="text-3xl font-bold text-gray-900 mb-1">99€<span class="text-base font-normal text-gray-500">/mois</span></p>
-                <p class="text-sm text-gray-500 mb-6">Pour les communes moyennes</p>
-                <ul class="space-y-3 text-sm">
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Module Garderie</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Module Cantine</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Jusqu'à 150 enfants</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Notifications parents</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Support prioritaire</li>
-                </ul>
-            </div>
-            <div class="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900">Premium</h3>
+                    <h3 class="text-xl font-bold text-gray-900">{{ $plan->name }}</h3>
+                    @if($plan->slug === 'premium')
                     <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">Sur devis</span>
+                    @else
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Disponible</span>
+                    @endif
                 </div>
-                <p class="text-3xl font-bold text-gray-900 mb-1">199€<span class="text-base font-normal text-gray-500">/mois</span></p>
-                <p class="text-sm text-gray-500 mb-6">Pour les grandes collectivités</p>
+                <p class="text-3xl font-bold text-gray-900 mb-1">
+                    {{ number_format($plan->price_monthly, 0, ',', ' ') }}€
+                    <span class="text-base font-normal text-gray-500">/mois</span>
+                </p>
+                <p class="text-sm text-gray-500 mb-6">
+                    @if($plan->max_children)
+                        Jusqu'à {{ $plan->max_children }} enfants
+                    @else
+                        Enfants illimités
+                    @endif
+                </p>
                 <ul class="space-y-3 text-sm">
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Tous les modules</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Enfants illimités</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Multi-sites</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> API & intégrations</li>
-                    <li class="flex items-center text-gray-700"><i class="fas fa-check text-green-500 mr-3"></i> Support dédié</li>
+                    @foreach($plan->modules as $module)
+                    <li class="flex items-center text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        Module {{ ucfirst($module) }}
+                    </li>
+                    @endforeach
+                    @if($plan->max_children)
+                    <li class="flex items-center text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        Jusqu'à {{ $plan->max_children }} enfants
+                    </li>
+                    @else
+                    <li class="flex items-center text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        Enfants illimités
+                    </li>
+                    @endif
+                    @foreach($plan->features as $feature)
+                    <li class="flex items-center text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        {{ $feature }}
+                    </li>
+                    @endforeach
                 </ul>
             </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -260,102 +363,54 @@
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ce qui arrive bientôt</h2>
             <p class="text-gray-500 text-lg max-w-2xl mx-auto">Nous enrichissons continuellement {{ $appName }} avec de nouveaux modules pour répondre à tous les besoins des collectivités.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
                 <div class="flex items-center mb-4">
                     <div class="bg-blue-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-calendar-check text-white text-xl"></i>
+                        <i class="fas fa-boxes text-white text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-gray-900">Réservation d'activités</h3>
-                        <span class="text-xs text-blue-600 font-medium">Q1 2027</span>
+                        <h3 class="font-bold text-gray-900">Gestion des stocks</h3>
+                        <span class="text-xs text-blue-600 font-medium">Q4 2026</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">Réservation en ligne des activités périscolaires, ALSH et vacances. Calendrier interactif, gestion des places et listes d'attente.</p>
+                <p class="text-sm text-gray-600">Suivi des stocks de matériel, fournitures et consommables. Alertes de réapprovisionnement, historique des entrées/sorties et inventaire simplifié.</p>
             </div>
             <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
                 <div class="flex items-center mb-4">
                     <div class="bg-green-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-comments text-white text-xl"></i>
+                        <i class="fas fa-globe text-white text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-gray-900">Communication parents-mairie</h3>
+                        <h3 class="font-bold text-gray-900">Page publique mairie</h3>
                         <span class="text-xs text-green-600 font-medium">Q1 2027</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">Messagerie intégrée entre parents et mairie. Annonces groupées, alertes, et suivi des échanges par famille.</p>
+                <p class="text-sm text-gray-600">Création d'un site public pour la mairie : actualités, horaires, services en ligne, contact. Une vitrine numérique personnalisable sans compétences techniques.</p>
             </div>
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
                 <div class="flex items-center mb-4">
                     <div class="bg-orange-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-euro-sign text-white text-xl"></i>
+                        <i class="fas fa-calendar-check text-white text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-gray-900">Facturation & paiements</h3>
+                        <h3 class="font-bold text-gray-900">Réservation de salles & matériels</h3>
                         <span class="text-xs text-orange-600 font-medium">Q2 2027</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">Facturation automatique des repas et activités. Paiement en ligne, échéanciers, et rappels automatiques.</p>
+                <p class="text-sm text-gray-600">Mise à disposition des salles municipales et du matériel en libre-service. Calendrier de réservation en ligne, gestion des disponibilités et validation des demandes par les agents.</p>
             </div>
             <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
                 <div class="flex items-center mb-4">
                     <div class="bg-purple-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-bus text-white text-xl"></i>
+                        <i class="fas fa-bell text-white text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-gray-900">Transport scolaire</h3>
-                        <span class="text-xs text-purple-600 font-medium">Q2 2027</span>
+                        <h3 class="font-bold text-gray-900">Alertes citoyens & agenda public</h3>
+                        <span class="text-xs text-purple-600 font-medium">Q3 2027</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600">Gestion des circuits de transport, affectation des enfants, suivi des présences dans les bus et alertes retards.</p>
-            </div>
-            <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl p-6 border border-red-100">
-                <div class="flex items-center mb-4">
-                    <div class="bg-red-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-chart-bar text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900">Tableaux de bord avancés</h3>
-                        <span class="text-xs text-red-600 font-medium">Q3 2027</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">Statistiques détaillées : taux de fréquentation, coûts par enfant, tendances saisonnières, et exports pour les conseils municipaux.</p>
-            </div>
-            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100">
-                <div class="flex items-center mb-4">
-                    <div class="bg-indigo-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-mobile-alt text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900">Application mobile</h3>
-                        <span class="text-xs text-indigo-600 font-medium">Q3 2027</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">App iOS & Android pour les parents : notifications push, pointage, consultation des présences et signalements en un geste.</p>
-            </div>
-            <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 border border-teal-100">
-                <div class="flex items-center mb-4">
-                    <div class="bg-teal-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-file-signature text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900">Documents & consentements</h3>
-                        <span class="text-xs text-teal-600 font-medium">Q4 2027</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">Gestion des documents administratifs, autorisations parentales numériques, et signatures électroniques pour les sorties et activités.</p>
-            </div>
-            <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-6 border border-yellow-100">
-                <div class="flex items-center mb-4">
-                    <div class="bg-yellow-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-plug text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900">API & intégrations</h3>
-                        <span class="text-xs text-yellow-600 font-medium">Q4 2027</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">API ouverte pour interconnecter {{ $appName }} avec votre logiciel comptable, votre SI existant, et les services de l'Éducation Nationale.</p>
+                <p class="text-sm text-gray-600">Signalement d'incidents par les citoyens (voirie, éclairage, propreté...), suivi des traitements et agenda public des événements municipaux accessible à tous.</p>
             </div>
             <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200">
                 <div class="flex items-center mb-4">
@@ -474,10 +529,9 @@
             <div>
                 <h4 class="text-white font-semibold mb-4 text-sm">Société</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-white transition-colors">À propos</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Mentions légales</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">RGPD</a></li>
+                    <li><a href="{{ route('legal.cgv') }}" class="hover:text-white transition-colors">CGV</a></li>
+                    <li><a href="{{ route('legal.mentions') }}" class="hover:text-white transition-colors">Mentions légales</a></li>
+                    <li><a href="{{ route('legal.rgpd') }}" class="hover:text-white transition-colors">RGPD</a></li>
                 </ul>
             </div>
             <div>
@@ -490,6 +544,7 @@
         </div>
         <div class="border-t border-gray-800 pt-8 text-center text-sm">
             <p>&copy; {{ date('Y') }} {{ $appName }} — DailyDesk. Tous droits réservés.</p>
+            <p class="mt-2 text-gray-500">Site développé à Libourne par <a href="https://smallwebconcept.fr" target="_blank" class="text-orange-400 hover:text-orange-300 font-medium">SmallWebConcept</a></p>
         </div>
     </div>
 </footer>

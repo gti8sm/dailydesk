@@ -28,23 +28,23 @@
         </div>
         <h1 class="text-3xl font-bold text-gray-900 mb-4">Merci pour votre demande !</h1>
         <p class="text-gray-600 text-lg mb-6">
-            Votre demande de démo a bien été enregistrée. Notre équipe vous contactera
-            dans les plus brefs délais pour configurer votre espace et vous accompagner.
+            Votre espace DailyDesk a été créé ! Un email vous a été envoyé pour configurer votre mot de passe.
+            Vous bénéficiez d'une période d'essai de 30 jours, sans engagement.
         </p>
         <div class="bg-blue-50 rounded-xl p-6 mb-6 text-left">
             <h3 class="font-semibold text-gray-900 mb-3 text-sm">Prochaines étapes :</h3>
             <ol class="space-y-3 text-sm text-gray-600">
                 <li class="flex items-start">
                     <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 mt-0.5">1</span>
-                    Notre équipe vérifie votre demande et vous contacte par email ou téléphone.
+                    Vérifiez votre boîte email et cliquez sur le lien pour définir votre mot de passe.
                 </li>
                 <li class="flex items-start">
                     <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 mt-0.5">2</span>
-                    Nous configurons votre espace {{ $appName }} selon vos besoins.
+                    Connectez-vous à votre espace {{ $appName }} avec votre email et votre nouveau mot de passe.
                 </li>
                 <li class="flex items-start">
                     <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0 mt-0.5">3</span>
-                    Vous accédez à votre démo de 30 jours, sans engagement.
+                    Configurez votre espace et commencez à utiliser DailyDesk.
                 </li>
             </ol>
         </div>
@@ -54,6 +54,14 @@
     </div>
     <p class="text-center text-sm text-gray-400 mt-6">
         &copy; {{ date('Y') }} {{ $appName }} — DailyDesk
+    </p>
+    <p class="text-center text-sm text-gray-400 mt-2">
+        <a href="{{ route('legal.cgv') }}" class="hover:text-gray-600">CGV</a> ·
+        <a href="{{ route('legal.mentions') }}" class="hover:text-gray-600">Mentions légales</a> ·
+        <a href="{{ route('legal.rgpd') }}" class="hover:text-gray-600">RGPD</a>
+    </p>
+    <p class="text-center text-sm text-gray-400 mt-2">
+        Site développé à Libourne par <a href="https://smallwebconcept.fr" target="_blank" class="text-orange-400 hover:text-orange-300 font-medium">SmallWebConcept</a>
     </p>
 </div>
 
