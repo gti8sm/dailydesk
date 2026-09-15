@@ -96,6 +96,7 @@
                                min="0"
                                step="0.01"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('price_monthly') border-red-500 @enderror">
+                        <p class="mt-1 text-xs text-gray-500">Mettre 0 pour "Sur devis"</p>
                         @error('price_monthly')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -117,84 +118,50 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
+            </div>
 
+            <!-- Tranche de population -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-users text-blue-600 mr-2"></i>
+                    Tranche de Population
+                </h2>
+                <p class="text-sm text-gray-500 mb-4">Définissez la tranche de population de la commune couverte par ce plan. Laissez vide pour un plan sans critère de population.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="max_children" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nombre d'Enfants Max <span class="text-red-500">*</span>
+                        <label for="population_min" class="block text-sm font-medium text-gray-700 mb-2">
+                            Population minimum
                         </label>
                         <input type="number" 
-                               name="max_children" 
-                               id="max_children" 
-                               value="{{ old('max_children', $plan->max_children) }}"
-                               required
-                               min="1"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('max_children') border-red-500 @enderror">
-                        @error('max_children')
+                               name="population_min" 
+                               id="population_min" 
+                               value="{{ old('population_min', $plan->population_min) }}"
+                               min="0"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('population_min') border-red-500 @enderror"
+                               placeholder="0">
+                        @error('population_min')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="population_max" class="block text-sm font-medium text-gray-700 mb-2">
+                            Population maximum
+                        </label>
+                        <input type="number" 
+                               name="population_max" 
+                               id="population_max" 
+                               value="{{ old('population_max', $plan->population_max) }}"
+                               min="0"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('population_max') border-red-500 @enderror"
+                               placeholder="Laisser vide = illimité">
+                        @error('population_max')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
-            </div>
-
-            <!-- Modules -->
-            <div class="border-b border-gray-200 pb-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">
-                    <i class="fas fa-puzzle-piece text-blue-600 mr-2"></i>
-                    Modules Inclus <span class="text-red-500">*</span>
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                        <input type="checkbox" 
-                               name="modules[]" 
-                               value="garderie" 
-                               {{ in_array('garderie', old('modules', $plan->modules ?? [])) ? 'checked' : '' }}
-                               class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                        <div class="ml-3">
-                            <span class="font-medium text-gray-900">Garderie</span>
-                            <p class="text-sm text-gray-500">Gestion des présences garderie</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                        <input type="checkbox" 
-                               name="modules[]" 
-                               value="cantine" 
-                               {{ in_array('cantine', old('modules', $plan->modules ?? [])) ? 'checked' : '' }}
-                               class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                        <div class="ml-3">
-                            <span class="font-medium text-gray-900">Cantine</span>
-                            <p class="text-sm text-gray-500">Gestion des présences cantine</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                        <input type="checkbox" 
-                               name="modules[]" 
-                               value="alsh" 
-                               {{ in_array('alsh', old('modules', $plan->modules ?? [])) ? 'checked' : '' }}
-                               class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                        <div class="ml-3">
-                            <span class="font-medium text-gray-900">ALSH</span>
-                            <p class="text-sm text-gray-500">Accueil de loisirs</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                        <input type="checkbox" 
-                               name="modules[]" 
-                               value="facturation" 
-                               {{ in_array('facturation', old('modules', $plan->modules ?? [])) ? 'checked' : '' }}
-                               class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                        <div class="ml-3">
-                            <span class="font-medium text-gray-900">Facturation</span>
-                            <p class="text-sm text-gray-500">Gestion des factures</p>
-                        </div>
-                    </label>
-                </div>
-                @error('modules')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
             </div>
 
             <!-- Fonctionnalités -->

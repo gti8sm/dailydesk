@@ -61,6 +61,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
         .hero-gradient { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #6366f1 100%); }
