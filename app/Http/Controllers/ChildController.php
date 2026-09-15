@@ -15,6 +15,13 @@ class ChildController extends Controller
 
     public function store(Request $request, Family $family)
     {
+        // Vérifier la limite d'enfants du plan du tenant
+        $tenant = \App\Models\Tenant::find(auth()->user()->tenant_id);
+        if ($tenant && !$tenant->canAddChild()) {
+            return redirect()->route('families.show', $family)
+                ->with('error', "La limite d'enfants de votre plan ({$tenant->max_children}) est atteinte. Veuillez mettre à niveau votre abonnement pour ajouter plus d'enfants.");
+        }
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',

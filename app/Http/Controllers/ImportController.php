@@ -16,7 +16,12 @@ class ImportController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
-        return view('imports.index');
+        $tenant = \App\Models\Tenant::find(auth()->user()->tenant_id);
+        $currentChildren = Child::count();
+        $maxChildren = $tenant?->max_children;
+        $remainingSlots = $tenant?->getRemainingChildrenSlots();
+
+        return view('imports.index', compact('tenant', 'currentChildren', 'maxChildren', 'remainingSlots'));
     }
 
     public function importFamilies(Request $request)
@@ -113,6 +118,11 @@ class ImportController extends Controller
             'file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
+        // Vérifier la limite d'enfants du plan du tenant
+        $tenant = \App\Models\Tenant::find(auth()->user()->tenant_id);
+        $remainingSlots = $tenant?->getRemainingChildrenSlots();
+        $currentCount = Child::count();
+
         $file = $request->file('file');
         $path = $file->getRealPath();
         
@@ -123,8 +133,20 @@ class ImportController extends Controller
         // Retirer l'en-tête
         $headers = array_shift($data);
 
+        // Compter les lignes valides (non vides) pour vérifier la limite
+        $validLines = array_filter($data, function($row) {
+            return !empty(array_filter($row));
+        });
+        $pendingCount = count($validLines);
+
+        if ($remainingSlots !== null && $pendingCount > $remainingSlots) {
+            return redirect()->route('imports.index')
+                ->with('error', "Impossible d'importer : vous tentez d'ajouter {$pendingCount} enfant(s) mais il ne vous reste que {$remainingSlots} place(s) disponible(s) sur votre plan (limite : {$tenant->max_children} enfants, actuellement : {$currentCount}). Veuillez mettre à niveau votre abonnement ou réduire le fichier.");
+        }
+
         $imported = 0;
         $errors = [];
+        $skipped = 0;
 
         DB::beginTransaction();
         
@@ -133,6 +155,13 @@ class ImportController extends Controller
                 // Ignorer les lignes vides
                 if (empty(array_filter($row))) {
                     continue;
+                }
+
+                // Vérifier la limite à chaque ajout (sécurité supplémentaire)
+                if ($remainingSlots !== null && $imported >= $remainingSlots) {
+                    $errors[] = "Ligne " . ($index + 2) . ": Limite d'enfants atteinte ({$tenant->max_children}). Import interrompu.";
+                    $skipped = count($validLines) - $imported;
+                    break;
                 }
 
                 // Chercher la famille par email
@@ -175,6 +204,9 @@ class ImportController extends Controller
             DB::commit();
 
             $message = "{$imported} enfant(s) importé(s) avec succès.";
+            if ($skipped > 0) {
+                $message .= " {$skipped} ligne(s) ignorée(s) (limite du plan atteinte).";
+            }
             if (!empty($errors)) {
                 $message .= " " . count($errors) . " erreur(s) détectée(s).";
             }

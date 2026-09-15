@@ -46,6 +46,27 @@
     </div>
     @endif
 
+    @if($maxChildren !== null)
+    <div class="mb-6 bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded">
+        <div class="flex items-center">
+            <i class="fas fa-info-circle text-indigo-500 mr-3 text-xl"></i>
+            <div class="flex-1">
+                <p class="text-indigo-900 font-medium">
+                    Limite du plan : <strong>{{ $maxChildren }} enfants</strong>
+                </p>
+                <p class="text-sm text-indigo-700 mt-1">
+                    Actuellement : {{ $currentChildren }} enfant(s) enregistré(s) —
+                    @if($remainingSlots > 0)
+                    il vous reste <strong>{{ $remainingSlots }} place(s)</strong> disponible(s)
+                    @else
+                    <strong class="text-red-600">limite atteinte</strong> — mettez à niveau votre abonnement pour importer plus d'enfants
+                    @endif
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Import Familles -->
         <div class="bg-white shadow-lg rounded-lg overflow-hidden">
