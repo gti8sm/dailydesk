@@ -16,106 +16,184 @@
         </a>
     </div>
 
+    <!-- Filtres -->
     <div class="bg-white shadow-lg rounded-xl p-6 mb-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <form method="GET" class="space-y-4">
+            <!-- Recherche texte -->
             <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Tenant</label>
-                <select name="tenant_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
-                    <option value="">Tous</option>
-                    @foreach($tenants as $tenant)
-                    <option value="{{ $tenant->id }}" {{ request('tenant_id') == $tenant->id ? 'selected' : '' }}>{{ $tenant->name }}</option>
-                    @endforeach
-                </select>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Recherche</label>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Description, utilisateur, IP, modèle…"
+                           class="w-full pl-9 rounded-lg border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
-                <select name="action" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
-                    <option value="">Toutes</option>
-                    @foreach($actions as $action)
-                    <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>{{ ucfirst($action) }}</option>
-                    @endforeach
-                </select>
+
+            <!-- Filtres en grille -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Tenant</label>
+                    <select name="tenant_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        <option value="">Tous</option>
+                        @foreach($tenants as $tenant)
+                        <option value="{{ $tenant->id }}" {{ request('tenant_id') == $tenant->id ? 'selected' : '' }}>{{ $tenant->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Module</label>
+                    <select name="module" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        <option value="">Tous</option>
+                        @foreach($modules as $key => $label)
+                        <option value="{{ $key }}" {{ request('module') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
+                    <select name="action" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                        <option value="">Toutes</option>
+                        @foreach($actions as $action)
+                        <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>{{ ucfirst($action) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Du</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Au</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Du</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Au</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-lg border-gray-300 shadow-sm text-sm">
-            </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">
-                    <i class="fas fa-filter mr-1"></i>Filtrer
-                </button>
+
+            <!-- Boutons -->
+            <div class="flex items-center justify-between">
+                <div class="text-xs text-gray-500">
+                    @if(request()->hasAny(['search','tenant_id','module','action','date_from','date_to']))
+                        <span class="inline-flex items-center px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full">
+                            <i class="fas fa-filter mr-1"></i>Filtres actifs
+                        </span>
+                    @endif
+                </div>
+                <div class="flex gap-2">
+                    @if(request()->hasAny(['search','tenant_id','module','action','date_from','date_to']))
+                    <a href="{{ route('central.logs.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium">
+                        <i class="fas fa-times mr-1"></i>Réinitialiser
+                    </a>
+                    @endif
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                        <i class="fas fa-filter mr-1"></i>Filtrer
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 
+    <!-- Tableau -->
     <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Utilisateur</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tenant</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse($logs as $log)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {{ $log->created_at->format('d/m/Y H:i') }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {{ $log->user_name ?? 'Système' }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        @php
-                            $colors = [
-                                'created' => 'bg-green-100 text-green-700',
-                                'updated' => 'bg-blue-100 text-blue-700',
-                                'deleted' => 'bg-red-100 text-red-700',
-                                'login' => 'bg-purple-100 text-purple-700',
-                                'logout' => 'bg-gray-100 text-gray-700',
-                            ];
-                            $icons = [
-                                'created' => 'fa-plus',
-                                'updated' => 'fa-edit',
-                                'deleted' => 'fa-trash',
-                                'login' => 'fa-sign-in-alt',
-                                'logout' => 'fa-sign-out-alt',
-                            ];
-                        @endphp
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $colors[$log->action] ?? 'bg-gray-100 text-gray-700' }}">
-                            <i class="fas {{ $icons[$log->action] ?? 'fa-circle' }} mr-1"></i>{{ $log->action }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900">
-                        <a href="{{ route('central.logs.show', $log) }}" class="hover:text-indigo-600 hover:underline">
-                            {{ $log->description }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {{ $log->tenant?->name ?? '—' }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">
-                        {{ $log->ip_address ?? '—' }}
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-4 py-12 text-center text-gray-500">
-                        <i class="fas fa-history text-4xl text-gray-300 mb-3"></i>
-                        <p>Aucune activité enregistrée</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Utilisateur</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Module</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tenant</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse($logs as $log)
+                    @php
+                        $colors = [
+                            'created' => 'bg-green-100 text-green-700',
+                            'updated' => 'bg-blue-100 text-blue-700',
+                            'deleted' => 'bg-red-100 text-red-700',
+                            'login' => 'bg-purple-100 text-purple-700',
+                            'logout' => 'bg-gray-100 text-gray-700',
+                        ];
+                        $icons = [
+                            'created' => 'fa-plus',
+                            'updated' => 'fa-edit',
+                            'deleted' => 'fa-trash',
+                            'login' => 'fa-sign-in-alt',
+                            'logout' => 'fa-sign-out-alt',
+                        ];
+                        $moduleColors = [
+                            'users' => 'bg-gray-100 text-gray-600',
+                            'families' => 'bg-blue-100 text-blue-700',
+                            'children' => 'bg-pink-100 text-pink-700',
+                            'garderie' => 'bg-cyan-100 text-cyan-700',
+                            'cantine' => 'bg-orange-100 text-orange-700',
+                            'invitations' => 'bg-indigo-100 text-indigo-700',
+                            'tenants' => 'bg-purple-100 text-purple-700',
+                            'settings' => 'bg-yellow-100 text-yellow-700',
+                            'auth' => 'bg-green-100 text-green-700',
+                        ];
+                        $moduleIcons = [
+                            'users' => 'fa-users',
+                            'families' => 'fa-home',
+                            'children' => 'fa-child',
+                            'garderie' => 'fa-child',
+                            'cantine' => 'fa-utensils',
+                            'invitations' => 'fa-envelope',
+                            'tenants' => 'fa-building',
+                            'settings' => 'fa-cog',
+                            'auth' => 'fa-key',
+                        ];
+                    @endphp
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {{ $log->created_at->format('d/m/Y H:i') }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            {{ $log->user_name ?? 'Système' }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            @if($log->module)
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $moduleColors[$log->module] ?? 'bg-gray-100 text-gray-600' }}">
+                                <i class="fas {{ $moduleIcons[$log->module] ?? 'fa-circle' }} mr-1"></i>{{ $log->module_label }}
+                            </span>
+                            @else
+                            <span class="text-gray-300 text-xs">—</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $colors[$log->action] ?? 'bg-gray-100 text-gray-700' }}">
+                                <i class="fas {{ $icons[$log->action] ?? 'fa-circle' }} mr-1"></i>{{ $log->action }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900 max-w-md">
+                            <a href="{{ route('central.logs.show', $log) }}" class="hover:text-indigo-600 hover:underline">
+                                {{ $log->description }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {{ $log->tenant?->name ?? '—' }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">
+                            {{ $log->ip_address ?? '—' }}
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-4 py-12 text-center text-gray-500">
+                            <i class="fas fa-history text-4xl text-gray-300 mb-3"></i>
+                            <p>Aucune activité enregistrée</p>
+                            @if(request()->hasAny(['search','tenant_id','module','action','date_from','date_to']))
+                            <p class="text-sm text-gray-400 mt-1">Essayez de modifier ou réinitialiser les filtres</p>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-6">

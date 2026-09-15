@@ -25,8 +25,16 @@ class ActivityLogController extends Controller
             $query->where('action', $request->action);
         }
 
+        if ($request->filled('module')) {
+            $query->forModule($request->module);
+        }
+
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('search')) {
+            $query->search($request->search);
         }
 
         if ($request->filled('date_from')) {
@@ -40,8 +48,19 @@ class ActivityLogController extends Controller
         $logs = $query->paginate(50)->withQueryString();
         $tenants = Tenant::orderBy('name')->get();
         $actions = ['created', 'updated', 'deleted', 'login', 'logout'];
+        $modules = [
+            'users' => 'Utilisateurs',
+            'families' => 'Familles',
+            'children' => 'Enfants',
+            'garderie' => 'Garderie',
+            'cantine' => 'Cantine',
+            'invitations' => 'Invitations',
+            'tenants' => 'Tenants',
+            'settings' => 'Configuration',
+            'auth' => 'Authentification',
+        ];
 
-        return view('central.logs.index', compact('logs', 'tenants', 'actions'));
+        return view('central.logs.index', compact('logs', 'tenants', 'actions', 'modules'));
     }
 
     public function show(ActivityLog $log)
