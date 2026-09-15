@@ -133,6 +133,30 @@
                     @enderror
                 </div>
 
+                <!-- Permissions stock -->
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <i class="fas fa-boxes-stacked text-indigo-600 mr-1"></i>
+                        Permissions Stock
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">Attribuez individuellement les droits de gestion des stocks à cet utilisateur.</p>
+                    <div class="space-y-2">
+                        @php
+                            $stockPerms = ['view_stock' => 'Voir le stock', 'record_stock_movement' => 'Saisir des mouvements', 'manage_stock' => 'Gérer le stock (CRUD complet)'];
+                        @endphp
+                        @foreach($stockPerms as $perm => $label)
+                        <label class="flex items-center p-2 bg-white rounded border border-gray-200 hover:bg-indigo-50 cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                   name="permissions[]"
+                                   value="{{ $perm }}"
+                                   {{ in_array($perm, old('permissions', [])) ? 'checked' : '' }}
+                                   class="text-indigo-600 focus:ring-indigo-500 rounded">
+                            <span class="ml-3 text-sm text-gray-700">{{ $label }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <!-- Statut actif -->
                 <div class="flex items-center">
                     <input type="checkbox" 

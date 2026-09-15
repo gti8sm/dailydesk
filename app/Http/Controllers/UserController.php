@@ -52,6 +52,8 @@ class UserController extends Controller
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,name',
             'is_active' => 'boolean',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string',
         ]);
 
         $user = User::create([
@@ -64,6 +66,15 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles($validated['roles']);
+
+        // Sync individual permissions (stock management, etc.)
+        $stockPerms = ['view_stock', 'record_stock_movement', 'manage_stock'];
+        $submittedPerms = $validated['permissions'] ?? [];
+        foreach ($stockPerms as $perm) {
+            if (in_array($perm, $submittedPerms)) {
+                $user->givePermissionTo($perm);
+            }
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'Utilisateur créé avec succès.');
@@ -126,6 +137,8 @@ class UserController extends Controller
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,name',
             'is_active' => 'boolean',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string',
         ]);
 
         $user->update([
@@ -142,6 +155,17 @@ class UserController extends Controller
         }
 
         $user->syncRoles($validated['roles']);
+
+        // Sync individual permissions (stock management, etc.)
+        $stockPerms = ['view_stock', 'record_stock_movement', 'manage_stock'];
+        $submittedPerms = $validated['permissions'] ?? [];
+        foreach ($stockPerms as $perm) {
+            if (in_array($perm, $submittedPerms)) {
+                $user->givePermissionTo($perm);
+            } else {
+                $user->revokePermissionTo($perm);
+            }
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'Utilisateur modifié avec succès.');

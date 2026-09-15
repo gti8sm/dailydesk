@@ -77,6 +77,7 @@ class ActivityLog extends Model
             'children' => 'Enfants',
             'garderie' => 'Garderie',
             'cantine' => 'Cantine',
+            'stock' => 'Stock',
             'invitations' => 'Invitations',
             'tenants' => 'Tenants',
             'auth' => 'Authentification',
@@ -106,6 +107,9 @@ class ActivityLog extends Model
             'App\Modules\Cantine\Models\CantineEvent' => 'cantine',
             'App\Modules\Cantine\Models\CantineMenu' => 'cantine',
             'App\Modules\Cantine\Models\CantineDish' => 'cantine',
+            'App\Modules\Stock\Models\StockLocation' => 'stock',
+            'App\Modules\Stock\Models\StockItem' => 'stock',
+            'App\Modules\Stock\Models\StockMovement' => 'stock',
         ];
     }
 }

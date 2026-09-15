@@ -54,6 +54,7 @@ class ActivityLogController extends Controller
             'children' => 'Enfants',
             'garderie' => 'Garderie',
             'cantine' => 'Cantine',
+            'stock' => 'Stock',
             'invitations' => 'Invitations',
             'tenants' => 'Tenants',
             'settings' => 'Configuration',

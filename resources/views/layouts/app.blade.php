@@ -156,6 +156,36 @@
                                     </div>
                                 </div>
                                 @endcan
+                                @can('view_stock')
+                                <div class="relative" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
+                                    <a href="{{ route('stock.items.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                        <i class="fas fa-boxes-stacked w-5"></i>
+                                        <span class="ml-3 flex-1">Stock</span>
+                                        <i class="fas fa-chevron-right text-xs text-gray-400 ml-2"></i>
+                                    </a>
+                                    <div x-show="subOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                         class="absolute left-full top-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 -ml-1">
+                                        <a href="{{ route('stock.items.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                            <i class="fas fa-box w-4"></i>
+                                            <span class="ml-3">Articles</span>
+                                        </a>
+                                        @can('manage_stock')
+                                        <a href="{{ route('stock.locations.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                            <i class="fas fa-warehouse w-4"></i>
+                                            <span class="ml-3">Lieux</span>
+                                        </a>
+                                        @endcan
+                                        <a href="{{ route('stock.movements.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                            <i class="fas fa-arrow-right-arrow-left w-4"></i>
+                                            <span class="ml-3">Mouvements</span>
+                                        </a>
+                                        <a href="{{ route('stock.alerts.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                            <i class="fas fa-triangle-exclamation w-4"></i>
+                                            <span class="ml-3">Alertes</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                @endcan
                             </div>
                         </div>
                         @endif
@@ -434,6 +464,35 @@
                                         <a href="{{ route('cantine.events.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
                                             <i class="fas fa-exclamation-triangle w-4"></i>
                                             <span class="ml-3">Signalements</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                @endcan
+                                @can('view_stock')
+                                <div x-data="{ stockOpen: false }" class="space-y-1">
+                                    <button @click="stockOpen = !stockOpen" class="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                        <i class="fas fa-boxes-stacked w-5"></i>
+                                        <span class="ml-3 flex-1 text-left">Stock</span>
+                                        <i class="fas fa-chevron-down text-xs" :class="{ 'rotate-180': stockOpen }"></i>
+                                    </button>
+                                    <div x-show="stockOpen" x-collapse class="pl-4 space-y-1">
+                                        <a href="{{ route('stock.items.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                            <i class="fas fa-box w-4"></i>
+                                            <span class="ml-3">Articles</span>
+                                        </a>
+                                        @can('manage_stock')
+                                        <a href="{{ route('stock.locations.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                            <i class="fas fa-warehouse w-4"></i>
+                                            <span class="ml-3">Lieux</span>
+                                        </a>
+                                        @endcan
+                                        <a href="{{ route('stock.movements.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                            <i class="fas fa-arrow-right-arrow-left w-4"></i>
+                                            <span class="ml-3">Mouvements</span>
+                                        </a>
+                                        <a href="{{ route('stock.alerts.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
+                                            <i class="fas fa-triangle-exclamation w-4"></i>
+                                            <span class="ml-3">Alertes</span>
                                         </a>
                                     </div>
                                 </div>

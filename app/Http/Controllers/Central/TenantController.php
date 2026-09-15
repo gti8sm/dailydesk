@@ -302,6 +302,7 @@ class TenantController extends Controller
             'notify_event_parents',
             'view_own_children',
             'view_own_events',
+            'manage_stock', 'view_stock', 'record_stock_movement',
         ];
 
         foreach ($permissions as $perm) {

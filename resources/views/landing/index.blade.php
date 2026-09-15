@@ -12,8 +12,8 @@
         }
     @endphp
     <title>{{ $appName }} — Gestion municipale pour les mairies</title>
-    <meta name="description" content="DailyDesk — Solution complète de gestion municipale pour les mairies et collectivités. Gestion des familles, cantine scolaire, garderie, et plus encore.">
-    <meta name="keywords" content="gestion municipale, mairie, cantine scolaire, garderie, administration, collectivités, logiciel mairie, gestion périscolaire">
+    <meta name="description" content="DailyDesk — Solution complète de gestion municipale pour les mairies et collectivités. Gestion des familles, cantine scolaire, garderie, stocks et plus encore.">
+    <meta name="keywords" content="gestion municipale, mairie, cantine scolaire, garderie, administration, collectivités, logiciel mairie, gestion périscolaire, gestion des stocks">
     <meta name="author" content="SmallWebConcept">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -117,7 +117,7 @@
             <span class="text-blue-200">simple et moderne</span>
         </h1>
         <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-            {{ $appName }} digitalise la garderie, la cantine et la gestion des familles
+            {{ $appName }} digitalise la garderie, la cantine, la gestion des familles et des stocks
             pour les mairies et collectivités. Tout-en-un, accessible sur ordinateur, tablette et mobile.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
@@ -202,6 +202,19 @@
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Import CSV en masse</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Espace parent dédié</li>
                     <li><i class="fas fa-check text-green-500 mr-2"></i> Invitations par email</li>
+                </ul>
+            </div>
+            <div class="feature-card bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                <div class="bg-indigo-100 rounded-2xl w-16 h-16 flex items-center justify-center mb-6">
+                    <i class="fas fa-boxes-stacked text-indigo-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Gestion des stocks</h3>
+                <p class="text-gray-600 text-sm mb-4">Suivez les stocks de matériel, fournitures et consommables. Gérez les lieux de stockage, les entrées/sorties et recevez des alertes de réapprovisionnement.</p>
+                <ul class="text-sm text-gray-500 space-y-1">
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Lieux de stockage multiples</li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Alertes de seuil minimum</li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Historique des mouvements</li>
+                    <li><i class="fas fa-tablet-alt text-indigo-500 mr-2"></i> Saisie rapide sur mobile</li>
                 </ul>
             </div>
             <div class="feature-card bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -457,18 +470,6 @@
             <p class="text-gray-500 text-lg max-w-2xl mx-auto">Nous enrichissons continuellement {{ $appName }} avec de nouveaux modules pour répondre à tous les besoins des collectivités.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-                <div class="flex items-center mb-4">
-                    <div class="bg-blue-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">
-                        <i class="fas fa-boxes text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900">Gestion des stocks</h3>
-                        <span class="text-xs text-blue-600 font-medium">Q4 2026</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600">Suivi des stocks de matériel, fournitures et consommables. Alertes de réapprovisionnement, historique des entrées/sorties et inventaire simplifié.</p>
-            </div>
             <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
                 <div class="flex items-center mb-4">
                     <div class="bg-green-600 rounded-xl w-12 h-12 flex items-center justify-center mr-3">

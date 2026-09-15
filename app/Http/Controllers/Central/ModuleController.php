@@ -22,6 +22,12 @@ class ModuleController extends Controller
             'color' => 'orange',
             'description' => 'Gestion des présences cantine et repas',
         ],
+        'stock' => [
+            'label' => 'Stock',
+            'icon' => 'fas fa-boxes-stacked',
+            'color' => 'indigo',
+            'description' => 'Gestion des stocks, lieux et mouvements',
+        ],
     ];
 
     protected array $globalSettings = [

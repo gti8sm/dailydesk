@@ -30,6 +30,10 @@ use App\Modules\Cantine\Controllers\CantinePresenceController;
 use App\Modules\Cantine\Controllers\CantineEventController;
 use App\Modules\Cantine\Controllers\CantineMenuController;
 use App\Modules\Cantine\Controllers\CantineDishController;
+use App\Modules\Stock\Controllers\StockLocationController;
+use App\Modules\Stock\Controllers\StockItemController;
+use App\Modules\Stock\Controllers\StockMovementController;
+use App\Modules\Stock\Controllers\StockAlertController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -218,6 +222,40 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
             Route::delete('/{dish}', [CantineDishController::class, 'destroy'])->name('destroy');
             Route::get('/search', [CantineDishController::class, 'search'])->name('search');
         });
+    });
+
+    // Module Stock
+    Route::prefix('stock')->name('stock.')->middleware('can:view_stock')->group(function () {
+        // Lieux de stockage
+        Route::prefix('locations')->name('locations.')->middleware('can:manage_stock')->group(function () {
+            Route::get('/', [StockLocationController::class, 'index'])->name('index');
+            Route::get('/create', [StockLocationController::class, 'create'])->name('create');
+            Route::post('/', [StockLocationController::class, 'store'])->name('store');
+            Route::get('/{location}/edit', [StockLocationController::class, 'edit'])->name('edit');
+            Route::put('/{location}', [StockLocationController::class, 'update'])->name('update');
+            Route::delete('/{location}', [StockLocationController::class, 'destroy'])->name('destroy');
+        });
+
+        // Articles
+        Route::prefix('items')->name('items.')->group(function () {
+            Route::get('/', [StockItemController::class, 'index'])->name('index');
+            Route::get('/create', [StockItemController::class, 'create'])->name('create')->middleware('can:manage_stock');
+            Route::post('/', [StockItemController::class, 'store'])->name('store')->middleware('can:manage_stock');
+            Route::get('/{item}', [StockItemController::class, 'show'])->name('show');
+            Route::get('/{item}/edit', [StockItemController::class, 'edit'])->name('edit')->middleware('can:manage_stock');
+            Route::put('/{item}', [StockItemController::class, 'update'])->name('update')->middleware('can:manage_stock');
+            Route::delete('/{item}', [StockItemController::class, 'destroy'])->name('destroy')->middleware('can:manage_stock');
+        });
+
+        // Mouvements
+        Route::prefix('movements')->name('movements.')->group(function () {
+            Route::get('/', [StockMovementController::class, 'index'])->name('index');
+            Route::get('/create', [StockMovementController::class, 'create'])->name('create')->middleware('can:record_stock_movement');
+            Route::post('/', [StockMovementController::class, 'store'])->name('store')->middleware('can:record_stock_movement');
+        });
+
+        // Alertes
+        Route::get('/alerts', [StockAlertController::class, 'index'])->name('alerts.index');
     });
 
     Route::resource('families', FamilyController::class)->middleware('can:manage_families');

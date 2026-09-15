@@ -182,6 +182,7 @@ class LandingPageController extends Controller
             'view_garderie', 'record_garderie_presence', 'create_garderie_event', 'view_garderie_events',
             'view_cantine', 'record_cantine_presence', 'create_cantine_event', 'view_cantine_events',
             'view_own_children', 'view_own_events', 'manage_notifications',
+            'manage_stock', 'view_stock', 'record_stock_movement',
         ];
 
         foreach ($permissions as $perm) {
