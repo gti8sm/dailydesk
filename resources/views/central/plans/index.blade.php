@@ -46,16 +46,34 @@
                     <!-- Prix -->
                     <div class="p-6 bg-gray-50">
                         <div class="text-center mb-4">
+                            @if($plan->price_monthly > 0)
                             <span class="text-4xl font-bold text-gray-900">{{ number_format($plan->price_monthly, 0, ',', ' ') }}€</span>
                             <span class="text-gray-500">/mois</span>
+                            @else
+                            <span class="text-2xl font-bold text-gray-900">Sur devis</span>
+                            @endif
                         </div>
                         <div class="text-center text-sm text-gray-600 mb-4">
+                            @if($plan->population_min !== null)
                             <i class="fas fa-users mr-1"></i>
+                            @if($plan->population_max !== null)
+                            {{ number_format($plan->population_min, 0, ',', ' ') }} – {{ number_format($plan->population_max, 0, ',', ' ') }} hab.
+                            @else
+                            Plus de {{ number_format($plan->population_min, 0, ',', ' ') }} hab.
+                            @endif
+                            @else
+                            <i class="fas fa-child mr-1"></i>
+                            @if($plan->max_children)
                             Jusqu'à <strong>{{ number_format($plan->max_children, 0, ',', ' ') }}</strong> enfants
+                            @else
+                            <strong>Enfants illimités</strong>
+                            @endif
+                            @endif
                         </div>
                     </div>
 
                     <!-- Modules -->
+                    @if($plan->modules && count($plan->modules) > 0)
                     <div class="px-6 py-4 border-t border-gray-200">
                         <h4 class="text-sm font-semibold text-gray-700 mb-3">Modules inclus :</h4>
                         <ul class="space-y-2">
@@ -67,6 +85,15 @@
                             @endforeach
                         </ul>
                     </div>
+                    @else
+                    <div class="px-6 py-4 border-t border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Modules inclus :</h4>
+                        <p class="text-sm text-gray-500 italic">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Tous les modules inclus
+                        </p>
+                    </div>
+                    @endif
 
                     <!-- Features -->
                     @if($plan->features && count($plan->features) > 0)
