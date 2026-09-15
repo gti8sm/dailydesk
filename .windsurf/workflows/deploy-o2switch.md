@@ -9,18 +9,21 @@ description: Deploy the application on o2switch shared hosting via SSH and Git
 - Accès cPanel pour créer le sous-domaine et la BDD
 - Le repo GitHub https://github.com/gti8sm/dailydesk
 
+## Identifiants
+- Utilisateur SSH : sc5oljr7620
+- Hôte : mur.o2switch.net
+- Répertoire de l'app : /dailydesk/
+
 ## Étapes
 
 ### 1. Connexion SSH
 ```bash
-ssh gti8sm@mur.o2switch.net
+ssh sc5oljr7620@mur.o2switch.net
 ```
 
-### 2. Cloner le repo dans public_html
+### 2. Aller dans le répertoire de l'app
 ```bash
-cd ~/public_html
-git clone https://github.com/gti8sm/dailydesk.git dailydesk
-cd dailydesk
+cd /dailydesk/
 ```
 
 ### 3. Copier le .env de production
@@ -69,7 +72,7 @@ Visiter https://dailydesk.fr et se connecter avec :
 
 ## Mises à jour futures
 ```bash
-cd ~/public_html/dailydesk
+cd /dailydesk/
 git pull origin main
 php artisan migrate --force
 php artisan config:cache

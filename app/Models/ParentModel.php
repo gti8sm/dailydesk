@@ -22,14 +22,19 @@ class ParentModel extends Model
         'email',
         'phone',
         'mobile',
+        'address',
+        'postal_code',
+        'city',
         'relationship',
         'is_primary_contact',
         'can_pickup',
+        'is_legal_guardian',
     ];
 
     protected $casts = [
         'is_primary_contact' => 'boolean',
         'can_pickup' => 'boolean',
+        'is_legal_guardian' => 'boolean',
     ];
 
     public function family()
@@ -45,5 +50,22 @@ class ParentModel extends Model
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function getRelationshipLabelAttribute()
+    {
+        return match ($this->relationship) {
+            'mother' => 'Mère',
+            'father' => 'Père',
+            'guardian' => 'Tuteur légal',
+            'other' => 'Autre',
+            default => 'Autre',
+        };
+    }
+
+    public function getFullAddressAttribute()
+    {
+        $parts = array_filter([$this->address, $this->postal_code, $this->city]);
+        return implode(', ', $parts) ?: null;
     }
 }

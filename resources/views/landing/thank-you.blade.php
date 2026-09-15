@@ -56,9 +56,15 @@
         &copy; {{ date('Y') }} {{ $appName }} — DailyDesk
     </p>
     <p class="text-center text-sm text-gray-400 mt-2">
+        @if(Route::has('legal.cgv'))
         <a href="{{ route('legal.cgv') }}" class="hover:text-gray-600">CGV</a> ·
+        @endif
+        @if(Route::has('legal.mentions'))
         <a href="{{ route('legal.mentions') }}" class="hover:text-gray-600">Mentions légales</a> ·
+        @endif
+        @if(Route::has('legal.rgpd'))
         <a href="{{ route('legal.rgpd') }}" class="hover:text-gray-600">RGPD</a>
+        @endif
     </p>
     <p class="text-center text-sm text-gray-400 mt-2">
         Site développé à Libourne par <a href="https://smallwebconcept.fr" target="_blank" class="text-orange-400 hover:text-orange-300 font-medium">SmallWebConcept</a>

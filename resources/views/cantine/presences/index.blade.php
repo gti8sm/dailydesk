@@ -77,7 +77,8 @@
                     $presence = $presenceByChildId->get($child->id);
                     $isPresent = $presence && $presence->is_present;
                 @endphp
-                <div class="rounded-xl border-2 transition-all {{ $isPresent ? 'border-green-300 bg-green-50' : 'border-red-200 bg-red-50' }}">
+                <div class="rounded-xl border-2 transition-all {{ $isPresent ? 'border-green-300 bg-green-50' : 'border-red-200 bg-red-50' }} {{ ($child->allergies || $child->dietary_restrictions) ? 'ring-1 ring-red-200' : '' }}"
+                     x-data="{ showDetails: false }">
                     <div class="p-3 flex items-center justify-between">
                         <div class="flex items-center gap-2 min-w-0 flex-1">
                             <div class="rounded-full w-9 h-9 flex items-center justify-center font-bold text-sm flex-shrink-0 {{ $isPresent ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
@@ -85,8 +86,13 @@
                             </div>
                             <div class="min-w-0">
                                 <div class="font-medium text-sm text-gray-900 truncate">{{ $child->full_name }}</div>
-                                @if($child->allergies)
-                                    <div class="text-xs text-red-600 font-medium"><i class="fas fa-exclamation-triangle mr-1"></i>Allergies</div>
+                                @if($child->allergies || $child->dietary_restrictions)
+                                    <button type="button" @click="showDetails = !showDetails"
+                                            class="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5 touch-manipulation">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>{{ $child->allergies ? 'Allergies' : 'Contraintes' }}</span>
+                                        <i class="fas fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': showDetails }"></i>
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -104,6 +110,23 @@
                         @endif
                         @endcan
                     </div>
+                    @if($child->allergies || $child->dietary_restrictions)
+                    <div x-show="showDetails" x-transition.duration.200ms
+                         class="px-3 pb-3 space-y-2">
+                        @if($child->allergies)
+                        <div class="bg-red-100 text-red-800 rounded-lg p-2 text-xs">
+                            <div class="font-semibold mb-1"><i class="fas fa-allergies mr-1"></i>Allergies</div>
+                            <p>{{ $child->allergies }}</p>
+                        </div>
+                        @endif
+                        @if($child->dietary_restrictions)
+                        <div class="bg-orange-100 text-orange-800 rounded-lg p-2 text-xs">
+                            <div class="font-semibold mb-1"><i class="fas fa-ban mr-1"></i>Restrictions alimentaires</div>
+                            <p>{{ $child->dietary_restrictions }}</p>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
                 </div>
                 @endforeach
             </div>

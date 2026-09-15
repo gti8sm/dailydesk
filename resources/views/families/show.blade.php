@@ -62,6 +62,61 @@
         </div>
     </div>
 
+    <!-- Parents / Tuteurs -->
+    @if($family->parents->isNotEmpty())
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-user-friends text-purple-600 mr-2"></i>
+                Parents / Tuteurs ({{ $family->parents->count() }})
+            </h2>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            @foreach($family->parents as $parent)
+            <div class="p-4 border rounded-lg {{ $parent->is_primary_contact ? 'border-purple-300 bg-purple-50' : 'border-gray-200 bg-gray-50' }}">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-gray-900">{{ $parent->full_name }}</span>
+                        <span class="px-2 py-0.5 text-xs rounded-full
+                            {{ $parent->relationship === 'mother' ? 'bg-pink-100 text-pink-700' : '' }}
+                            {{ $parent->relationship === 'father' ? 'bg-blue-100 text-blue-700' : '' }}
+                            {{ $parent->relationship === 'guardian' ? 'bg-orange-100 text-orange-700' : '' }}
+                            {{ $parent->relationship === 'other' ? 'bg-gray-100 text-gray-700' : '' }}">
+                            {{ $parent->relationship_label }}
+                        </span>
+                    </div>
+                    @if($parent->is_primary_contact)
+                    <span class="text-xs text-purple-600 font-medium"><i class="fas fa-star mr-1"></i>Contact principal</span>
+                    @endif
+                </div>
+                <div class="space-y-1 text-sm text-gray-600">
+                    @if($parent->email)
+                    <p><i class="fas fa-envelope mr-2 text-gray-400"></i>{{ $parent->email }}</p>
+                    @endif
+                    @if($parent->phone)
+                    <p><i class="fas fa-phone mr-2 text-gray-400"></i>{{ $parent->phone }}</p>
+                    @endif
+                    @if($parent->mobile)
+                    <p><i class="fas fa-mobile-alt mr-2 text-gray-400"></i>{{ $parent->mobile }}</p>
+                    @endif
+                    @if($parent->full_address)
+                    <p><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>{{ $parent->full_address }}</p>
+                    @endif
+                </div>
+                <div class="mt-2 flex gap-3">
+                    @if($parent->can_pickup)
+                    <span class="text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>Autorisé à récupérer</span>
+                    @endif
+                    @if($parent->is_legal_guardian)
+                    <span class="text-xs text-orange-600"><i class="fas fa-shield-alt mr-1"></i>Tuteur légal</span>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <!-- Enfants -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">

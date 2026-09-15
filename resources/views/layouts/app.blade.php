@@ -72,6 +72,7 @@
                     <div class="flex-shrink-0 flex items-center">
                         @php
                             $dashboardRoute = auth()->user()->hasRole('super_admin') ? route('central.dashboard') : route('dashboard');
+                        $isTenantContext = function_exists('tenant') && tenant();
                         @endphp
                         <a href="{{ $dashboardRoute }}" class="flex items-center gap-2">
                             @php
@@ -103,6 +104,7 @@
                         </a>
                         @endhasrole
 
+                        @if($isTenantContext)
                         @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
                         <div class="relative h-full flex items-center" x-data="{ open: false }">
                             <button @click="open = !open" @click.away="open = false"
@@ -180,6 +182,7 @@
                             <i class="fas fa-home mr-2"></i> Mon espace
                         </a>
                         @endhasrole
+                        @endif
 
                         @hasrole('super_admin')
                         <div class="relative h-full flex items-center" x-data="{ open: false }">
@@ -348,6 +351,7 @@
                         </a>
                         @endhasrole
 
+                        @if($isTenantContext)
                         @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
                         <div x-data="{ open: false }" class="space-y-1">
                             <button @click="open = !open" class="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
@@ -436,6 +440,7 @@
                             <span class="ml-3">Signalements</span>
                         </a>
                         @endhasrole
+                        @endif
 
                         @hasrole('super_admin')
                         <div class="border-t border-gray-100 my-1"></div>
@@ -582,11 +587,17 @@
                     &copy; {{ date('Y') }} DailyDesk — Tous droits réservés
                 </div>
                 <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+                    @if(Route::has('legal.cgv'))
                     <a href="{{ route('legal.cgv') }}" class="hover:text-white transition">CGV</a>
                     <span class="text-gray-600">|</span>
+                    @endif
+                    @if(Route::has('legal.mentions'))
                     <a href="{{ route('legal.mentions') }}" class="hover:text-white transition">Mentions légales</a>
                     <span class="text-gray-600">|</span>
+                    @endif
+                    @if(Route::has('legal.rgpd'))
                     <a href="{{ route('legal.rgpd') }}" class="hover:text-white transition">RGPD</a>
+                    @endif
                 </div>
                 <div class="text-sm text-center sm:text-right">
                     Site développé à Libourne par <a href="https://smallwebconcept.fr" target="_blank" class="text-orange-400 hover:text-orange-300 font-medium">SmallWebConcept</a>

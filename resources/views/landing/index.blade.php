@@ -529,9 +529,15 @@
             <div>
                 <h4 class="text-white font-semibold mb-4 text-sm">Société</h4>
                 <ul class="space-y-2 text-sm">
+                    @if(Route::has('legal.cgv'))
                     <li><a href="{{ route('legal.cgv') }}" class="hover:text-white transition-colors">CGV</a></li>
+                    @endif
+                    @if(Route::has('legal.mentions'))
                     <li><a href="{{ route('legal.mentions') }}" class="hover:text-white transition-colors">Mentions légales</a></li>
+                    @endif
+                    @if(Route::has('legal.rgpd'))
                     <li><a href="{{ route('legal.rgpd') }}" class="hover:text-white transition-colors">RGPD</a></li>
+                    @endif
                 </ul>
             </div>
             <div>
