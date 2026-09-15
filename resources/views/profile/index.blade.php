@@ -2,6 +2,10 @@
 
 @section('title', 'Mon Profil')
 
+@php
+    $routePrefix = auth()->user()->hasRole('super_admin') ? 'central.profile' : 'profile';
+@endphp
+
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-6">
@@ -79,7 +83,7 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
                     <i class="fas fa-key text-gray-600 mr-2"></i>Modifier le mot de passe
                 </h3>
-                <form action="{{ route('profile.password') }}" method="POST" class="space-y-4">
+                <form action="{{ route("{$routePrefix}.password") }}" method="POST" class="space-y-4">
                     @csrf
                     @method('PUT')
                     <div>
@@ -119,7 +123,7 @@
                     <i class="fas fa-lock text-gray-600 mr-2"></i>Configurer le code PIN
                 </h3>
                 <p class="text-sm text-gray-500 mb-3">Le code PIN (4 à 6 chiffres) permet une connexion rapide sans saisir votre mot de passe complet.</p>
-                <form action="{{ route('profile.pin') }}" method="POST" class="space-y-4">
+                <form action="{{ route("{$routePrefix}.pin") }}" method="POST" class="space-y-4">
                     @csrf
                     @method('PUT')
                     @if(Auth::user()->confidential_code)
@@ -156,7 +160,7 @@
                     <i class="fas fa-shield-alt text-gray-600 mr-2"></i>Gérer la whitelist IP
                 </h3>
                 <p class="text-sm text-gray-500 mb-3">Restreignez les connexions à votre compte à certaines adresses IP. Laissez désactivé pour autoriser toutes les IP.</p>
-                <form action="{{ route('profile.whitelist') }}" method="POST" class="space-y-4">
+                <form action="{{ route("{$routePrefix}.whitelist") }}" method="POST" class="space-y-4">
                     @csrf
                     @method('PUT')
                     <div class="flex items-center">

@@ -108,6 +108,11 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::get('support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('support/{ticket}/comment', [SupportTicketController::class, 'comment'])->name('support.comment');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::put('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin');
+    Route::put('/profile/whitelist', [ProfileController::class, 'updateIpWhitelist'])->name('profile.whitelist');
 });
 
 /*

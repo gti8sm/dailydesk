@@ -289,6 +289,14 @@
                             </a>
                             @endcan
                             @endunless
+                            @hasrole('super_admin')
+                            <a href="{{ route('central.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i> Profil
+                            </a>
+                            <a href="{{ route('central.modules.settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i> Paramètres plateforme
+                            </a>
+                            @endhasrole
                             <form method="POST" action="{{ auth()->user()->hasRole('super_admin') ? route('central.logout') : route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -474,6 +482,14 @@
                             @if($openTicketCount ?? 0)
                             <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $openTicketCount }}</span>
                             @endif
+                        </a>
+                        <a href="{{ route('central.profile') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-user w-6"></i>
+                            <span class="ml-3">Profil</span>
+                        </a>
+                        <a href="{{ route('central.modules.settings') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-cog w-6"></i>
+                            <span class="ml-3">Paramètres plateforme</span>
                         </a>
                         @endhasrole
                     </nav>
