@@ -50,6 +50,10 @@ class ModuleController extends Controller
             'notify_absence' => ['label' => 'Notifier absence', 'type' => 'boolean', 'default' => '0'],
             'notify_event' => ['label' => 'Notifier événements', 'type' => 'boolean', 'default' => '1'],
         ],
+        'stock' => [
+            'stock_default_min_quantity' => ['label' => 'Seuil minimum par défaut', 'type' => 'integer', 'default' => '5'],
+            'stock_enable_alerts' => ['label' => 'Activer les alertes email', 'type' => 'boolean', 'default' => '1'],
+        ],
     ];
 
     public function overview()

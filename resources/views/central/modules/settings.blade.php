@@ -34,6 +34,8 @@
                 <i class="fas fa-utensils mr-2 text-orange-600"></i>Cantine
                 @elseif($group === 'notifications')
                 <i class="fas fa-bell mr-2 text-purple-600"></i>Notifications
+                @elseif($group === 'stock')
+                <i class="fas fa-boxes-stacked mr-2 text-indigo-600"></i>Stock
                 @else
                 <i class="fas fa-cog mr-2 text-gray-600"></i>{{ ucfirst($group) }}
                 @endif
@@ -64,6 +66,11 @@
                                class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                         <span class="ml-2 text-sm text-gray-600">Activer</span>
                     </label>
+
+                    @elseif($config['type'] === 'integer')
+                    <input type="number" name="{{ $key }}" id="{{ $key }}"
+                           value="{{ $currentValues[$key] ?? $config['default'] }}" min="0" step="1"
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500">
 
                     @else
                     <input type="text" name="{{ $key }}" id="{{ $key }}"

@@ -50,7 +50,7 @@ class StockItemController extends Controller
     {
         $item = new StockItem();
         $item->quantity = 0;
-        $item->min_quantity = 0;
+        $item->min_quantity = \App\Models\Setting::get('stock_default_min_quantity', 5);
         $item->unit = 'pièce';
         $item->location_id = $request->get('location_id');
 
