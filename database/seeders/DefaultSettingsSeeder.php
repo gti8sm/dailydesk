@@ -11,7 +11,7 @@ class DefaultSettingsSeeder extends Seeder
     {
         $settings = [
             // Paramètres généraux
-            ['key' => 'app_name', 'value' => 'Communeo', 'type' => 'string', 'group' => 'general', 'description' => 'Nom de l\'application', 'tenant_id' => null],
+            ['key' => 'app_name', 'value' => 'DailyDesk', 'type' => 'string', 'group' => 'general', 'description' => 'Nom de l\'application', 'tenant_id' => null],
             
             // Paramètres garderie
             ['key' => 'garderie_morning_start', 'value' => '07:00', 'type' => 'string', 'group' => 'garderie', 'description' => 'Heure de début de la garderie du matin', 'tenant_id' => null],
