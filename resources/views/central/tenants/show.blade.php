@@ -99,9 +99,6 @@
                             <dt class="text-sm font-medium text-gray-500">Population</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 {{ number_format($tenant->population, 0, ',', ' ') }} habitants
-                                @php
-                                    $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first();
-                                @endphp
                                 @if($plan && $plan->population_min !== null)
                                 <span class="ml-2 text-xs text-gray-500">({{ $plan->name }})</span>
                                 @endif
@@ -117,6 +114,7 @@
                         <i class="fas fa-tags text-purple-600 mr-2"></i>
                         Abonnement
                     </h2>
+                    @php $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first(); @endphp
                     <dl class="space-y-3">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Plan</dt>
