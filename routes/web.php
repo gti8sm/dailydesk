@@ -9,6 +9,7 @@ use App\Http\Controllers\FamilyInvitationController;
 use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TenantModuleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
@@ -158,6 +159,10 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index')->middleware('can:manage_settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('can:manage_settings');
+
+    // Tenant module management (admin/admin_mairie)
+    Route::get('/settings/modules', [TenantModuleController::class, 'index'])->name('tenant.modules.index');
+    Route::post('/settings/modules/{module}/toggle', [TenantModuleController::class, 'toggle'])->name('tenant.modules.toggle');
 
     Route::prefix('exports')->name('exports.')->group(function () {
         Route::get('/', [ExportController::class, 'index'])->name('index');

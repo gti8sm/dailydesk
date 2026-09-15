@@ -73,7 +73,8 @@
     @endif
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        @can('view_garderie')
+        @foreach($activeModules as $key => $module)
+        @if($key === 'garderie' && auth()->user()->can('view_garderie'))
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
@@ -98,9 +99,7 @@
                 </a>
             </div>
         </div>
-        @endcan
-
-        @can('view_cantine')
+        @elseif($key === 'cantine' && auth()->user()->can('view_cantine'))
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
@@ -125,7 +124,33 @@
                 </a>
             </div>
         </div>
-        @endcan
+        @elseif($key === 'stock' && auth()->user()->can('view_stock'))
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-boxes-stacked text-3xl text-indigo-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Articles en stock
+                            </dt>
+                            <dd class="text-2xl font-semibold text-gray-900">
+                                {{ $stats['stock_items'] ?? 0 }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3">
+                <a href="{{ route('stock.items.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Voir détails <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        @endif
+        @endforeach
 
         @can('manage_families')
         <div class="bg-white overflow-hidden shadow rounded-lg">

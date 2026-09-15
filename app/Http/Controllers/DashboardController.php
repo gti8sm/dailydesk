@@ -84,6 +84,11 @@ class DashboardController extends Controller
             $stats['children_count'] = Child::where('is_active', true)->count();
         }
 
+        if ($user->can('view_stock')) {
+            $stats['stock_items'] = \App\Modules\Stock\Models\StockItem::count();
+            $stats['stock_alerts'] = \App\Modules\Stock\Models\StockItem::whereColumn('quantity', '<=', 'min_quantity')->count();
+        }
+
         $recent_garderie_events = null;
         if ($user->can('view_garderie_events')) {
             $recent_garderie_events = GarderieEvent::with(['child', 'createdBy'])
@@ -115,13 +120,19 @@ class DashboardController extends Controller
             $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first();
         }
 
+        // Modules disponibles (config) filtrés par modules activés du tenant
+        $allModules = config('modules', []);
+        $enabledModules = $tenant?->modules_enabled ?? array_keys($allModules);
+        $activeModules = array_filter($allModules, fn($key) => in_array($key, $enabledModules), ARRAY_FILTER_USE_KEY);
+
         return view('dashboard.index', compact(
             'stats',
             'recent_garderie_events',
             'recent_cantine_events',
             'my_children',
             'tenant',
-            'plan'
+            'plan',
+            'activeModules'
         ));
     }
 

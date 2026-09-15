@@ -14,6 +14,15 @@
         </p>
     </div>
 
+    @if(auth()->user()->hasRole(['admin', 'admin_mairie']))
+    <div class="mb-6">
+        <a href="{{ route('tenant.modules.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg font-medium transition-colors">
+            <i class="fas fa-puzzle-piece mr-2"></i>
+            Gérer les modules
+        </a>
+    </div>
+    @endif
+
     @if(session('success'))
     <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded">
         <div class="flex">

@@ -72,6 +72,7 @@
                     <div class="flex-shrink-0 flex items-center">
                         @php
                             $isTenantContext = function_exists('tenant') && tenant();
+                            $tenantModules = $isTenantContext ? (tenant()->modules_enabled ?? array_keys(config('modules', []))) : array_keys(config('modules', []));
                             if (auth()->user()->hasRole('super_admin')) {
                                 $dashboardRoute = route('central.dashboard');
                             } elseif ($isTenantContext && tenant()->slug) {
@@ -121,12 +122,15 @@
                             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
                                  class="absolute left-0 top-full w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                                 @can('view_garderie')
+                                @if(in_array('garderie', $tenantModules))
                                 <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
                                     <i class="fas fa-child w-5"></i>
                                     <span class="ml-3">Garderie</span>
                                 </a>
+                                @endif
                                 @endcan
                                 @can('view_cantine')
+                                @if(in_array('cantine', $tenantModules))
                                 <div class="relative" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
                                     <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
                                         <i class="fas fa-utensils w-5"></i>
@@ -155,8 +159,10 @@
                                         </a>
                                     </div>
                                 </div>
+                                @endif
                                 @endcan
                                 @can('view_stock')
+                                @if(in_array('stock', $tenantModules))
                                 <div class="relative" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
                                     <a href="{{ route('stock.items.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                                         <i class="fas fa-boxes-stacked w-5"></i>
@@ -185,6 +191,7 @@
                                         </a>
                                     </div>
                                 </div>
+                                @endif
                                 @endcan
                             </div>
                         </div>
@@ -434,12 +441,15 @@
                             </button>
                             <div x-show="open" x-collapse class="pl-4 space-y-1">
                                 @can('view_garderie')
+                                @if(in_array('garderie', $tenantModules))
                                 <a href="{{ route('garderie.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
                                     <i class="fas fa-child w-5"></i>
                                     <span class="ml-3">Garderie</span>
                                 </a>
+                                @endif
                                 @endcan
                                 @can('view_cantine')
+                                @if(in_array('cantine', $tenantModules))
                                 <div x-data="{ cantineOpen: false }" class="space-y-1">
                                     <button @click="cantineOpen = !cantineOpen" class="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
                                         <i class="fas fa-utensils w-5"></i>
@@ -467,8 +477,10 @@
                                         </a>
                                     </div>
                                 </div>
+                                @endif
                                 @endcan
                                 @can('view_stock')
+                                @if(in_array('stock', $tenantModules))
                                 <div x-data="{ stockOpen: false }" class="space-y-1">
                                     <button @click="stockOpen = !stockOpen" class="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">
                                         <i class="fas fa-boxes-stacked w-5"></i>
@@ -496,6 +508,7 @@
                                         </a>
                                     </div>
                                 </div>
+                                @endif
                                 @endcan
                             </div>
                         </div>

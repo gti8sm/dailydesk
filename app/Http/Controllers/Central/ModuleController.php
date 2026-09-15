@@ -9,26 +9,12 @@ use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
-    protected array $availableModules = [
-        'garderie' => [
-            'label' => 'Garderie',
-            'icon' => 'fas fa-child',
-            'color' => 'blue',
-            'description' => 'Gestion de la garderie matin et soir',
-        ],
-        'cantine' => [
-            'label' => 'Cantine',
-            'icon' => 'fas fa-utensils',
-            'color' => 'orange',
-            'description' => 'Gestion des présences cantine et repas',
-        ],
-        'stock' => [
-            'label' => 'Stock',
-            'icon' => 'fas fa-boxes-stacked',
-            'color' => 'indigo',
-            'description' => 'Gestion des stocks, lieux et mouvements',
-        ],
-    ];
+    protected array $availableModules;
+
+    public function __construct()
+    {
+        $this->availableModules = config('modules', []);
+    }
 
     protected array $globalSettings = [
         'garderie' => [
