@@ -398,7 +398,7 @@
                             @endif
                         </p>
                     </div>
-                    <div x-show="billing === 'yearly'" x-transition.duration.200ms x-cloak>
+                    <div x-show="billing === 'yearly'" x-transition.duration.200ms style="display: none;">
                         <p class="text-3xl font-bold text-gray-900 mb-1">
                             {{ number_format($plan->price_yearly, 0, ',', ' ') }}€
                             <span class="text-base font-normal text-gray-500">/an</span>
