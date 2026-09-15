@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('title', 'Créer mon compte parent')
 
@@ -60,6 +60,13 @@
                 <ul class="text-sm text-red-700">
                     @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                 </ul>
+                @if($errors->has('email'))
+                <div class="mt-2 pt-2 border-t border-red-200">
+                    <a href="{{ route('login') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Se connecter avec mon compte existant
+                    </a>
+                </div>
+                @endif
             </div>
             @endif
 

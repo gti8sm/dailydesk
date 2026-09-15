@@ -106,6 +106,12 @@ class FamilyInvitationController extends Controller
 
         $family = $invitation->family;
 
+        // Initialiser le contexte tenant pour que les vues/routes fonctionnent
+        $tenant = \App\Models\Tenant::find($family->tenant_id);
+        if ($tenant) {
+            tenancy()->initialize($tenant);
+        }
+
         return view('invitations.register', compact('invitation', 'family'));
     }
 
@@ -127,11 +133,29 @@ class FamilyInvitationController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // Vérifier si l'email est déjà utilisé
+        $existingUser = User::where('email', $validated['email'])->first();
+        if ($existingUser) {
+            return back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors([
+                    'email' => 'Un compte existe déjà avec cette adresse email. Si vous avez déjà créé votre compte, connectez-vous directement. Sinon, contactez la mairie.',
+                ]);
+        }
+
+        // Initialiser le contexte tenant depuis la famille de l'invitation
+        $family = $invitation->family;
+        $tenant = \App\Models\Tenant::find($family->tenant_id);
+        if ($tenant) {
+            tenancy()->initialize($tenant);
+        }
+
         $user = User::create([
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
             'is_active' => true,
+            'tenant_id' => $family->tenant_id,
         ]);
 
         $user->assignRole('parent');
@@ -145,8 +169,9 @@ class FamilyInvitationController extends Controller
             'phone' => $validated['phone'] ?? null,
             'mobile' => $validated['mobile'] ?? null,
             'relationship' => $validated['relationship'],
-            'is_primary_contact' => !$invitation->family->parents()->exists(),
+            'is_primary_contact' => !$family->parents()->exists(),
             'can_pickup' => true,
+            'tenant_id' => $family->tenant_id,
         ]);
 
         $invitation->update([
@@ -156,7 +181,9 @@ class FamilyInvitationController extends Controller
 
         auth()->login($user);
 
-        return redirect()->route('parent.dashboard')
+        // Redirection vers le dashboard parent du tenant
+        $tenantSlug = $tenant?->slug ?? 'test';
+        return redirect("/{$tenantSlug}/parent/dashboard")
             ->with('success', 'Bienvenue ! Votre compte a été créé avec succès.');
     }
 }
