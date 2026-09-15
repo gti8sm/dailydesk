@@ -164,19 +164,19 @@
                     Abonnement
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $plans->first()?->slug) }}' }">
                     @foreach($plans as $plan)
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer" @click="selected = '{{ $plan->slug }}'">
                         <input type="radio" 
                                name="subscription_plan" 
                                value="{{ $plan->slug }}" 
-                               {{ old('subscription_plan') === $plan->slug ? 'checked' : '' }}
-                               {{ $loop->first && !old('subscription_plan') ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <div class="border-2 border-gray-300 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all">
+                               x-model="selected"
+                               class="sr-only">
+                        <div :class="selected === '{{ $plan->slug }}' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-300'"
+                             class="border-2 rounded-lg p-4 transition-all">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="font-bold text-lg">{{ $plan->name }}</h3>
-                                <i class="fas fa-check-circle text-blue-500 hidden peer-checked:block"></i>
+                                <i class="fas fa-check-circle text-blue-500" x-show="selected === '{{ $plan->slug }}'" x-cloak></i>
                             </div>
                             <p class="text-2xl font-bold text-gray-900 mb-2">
                                 {{ number_format($plan->price_monthly, 0, ',', ' ') }}€

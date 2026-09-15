@@ -140,18 +140,19 @@
                     Abonnement
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $tenant->subscription_plan) }}' }">
                     @foreach($plans as $plan)
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer" @click="selected = '{{ $plan->slug }}'">
                         <input type="radio" 
                                name="subscription_plan" 
                                value="{{ $plan->slug }}" 
-                               {{ old('subscription_plan', $tenant->subscription_plan) === $plan->slug ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <div class="border-2 border-gray-300 rounded-lg p-4 peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all">
+                               x-model="selected"
+                               class="sr-only">
+                        <div :class="selected === '{{ $plan->slug }}' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-300'"
+                             class="border-2 rounded-lg p-4 transition-all">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="font-bold text-lg">{{ $plan->name }}</h3>
-                                <i class="fas fa-check-circle text-blue-500 hidden peer-checked:block"></i>
+                                <i class="fas fa-check-circle text-blue-500" x-show="selected === '{{ $plan->slug }}'" x-cloak></i>
                             </div>
                             <p class="text-2xl font-bold text-gray-900 mb-2">
                                 {{ number_format($plan->price, 0, ',', ' ') }}€
@@ -218,54 +219,57 @@
                     Statut
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <label class="relative cursor-pointer">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ status: '{{ old('status', $tenant->status) }}' }">
+                    <label class="relative cursor-pointer" @click="status = 'active'">
                         <input type="radio" 
                                name="status" 
                                value="active" 
-                               {{ old('status', $tenant->status) === 'active' ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <div class="border-2 border-gray-300 rounded-lg p-4 peer-checked:border-green-500 peer-checked:bg-green-50 hover:border-green-300 transition-all">
+                               x-model="status"
+                               class="sr-only">
+                        <div :class="status === 'active' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-300'"
+                             class="border-2 rounded-lg p-4 transition-all">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="font-bold text-lg text-green-600">Actif</h3>
                                     <p class="text-sm text-gray-600">Tenant opérationnel</p>
                                 </div>
-                                <i class="fas fa-check-circle text-green-500 text-2xl hidden peer-checked:block"></i>
+                                <i class="fas fa-check-circle text-green-500 text-2xl" x-show="status === 'active'" x-cloak></i>
                             </div>
                         </div>
                     </label>
 
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer" @click="status = 'suspended'">
                         <input type="radio" 
                                name="status" 
                                value="suspended" 
-                               {{ old('status', $tenant->status) === 'suspended' ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <div class="border-2 border-gray-300 rounded-lg p-4 peer-checked:border-orange-500 peer-checked:bg-orange-50 hover:border-orange-300 transition-all">
+                               x-model="status"
+                               class="sr-only">
+                        <div :class="status === 'suspended' ? 'border-orange-500 bg-orange-50' : 'border-gray-300 hover:border-orange-300'"
+                             class="border-2 rounded-lg p-4 transition-all">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="font-bold text-lg text-orange-600">Suspendu</h3>
                                     <p class="text-sm text-gray-600">Accès bloqué</p>
                                 </div>
-                                <i class="fas fa-pause-circle text-orange-500 text-2xl hidden peer-checked:block"></i>
+                                <i class="fas fa-pause-circle text-orange-500 text-2xl" x-show="status === 'suspended'" x-cloak></i>
                             </div>
                         </div>
                     </label>
 
-                    <label class="relative cursor-pointer">
+                    <label class="relative cursor-pointer" @click="status = 'cancelled'">
                         <input type="radio" 
                                name="status" 
                                value="cancelled" 
-                               {{ old('status', $tenant->status) === 'cancelled' ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <div class="border-2 border-gray-300 rounded-lg p-4 peer-checked:border-red-500 peer-checked:bg-red-50 hover:border-red-300 transition-all">
+                               x-model="status"
+                               class="sr-only">
+                        <div :class="status === 'cancelled' ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-red-300'"
+                             class="border-2 rounded-lg p-4 transition-all">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="font-bold text-lg text-red-600">Annulé</h3>
                                     <p class="text-sm text-gray-600">Abonnement terminé</p>
                                 </div>
-                                <i class="fas fa-times-circle text-red-500 text-2xl hidden peer-checked:block"></i>
+                                <i class="fas fa-times-circle text-red-500 text-2xl" x-show="status === 'cancelled'" x-cloak></i>
                             </div>
                         </div>
                     </label>
