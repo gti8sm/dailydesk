@@ -71,8 +71,14 @@
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
                         @php
-                            $dashboardRoute = auth()->user()->hasRole('super_admin') ? route('central.dashboard') : route('dashboard');
-                        $isTenantContext = function_exists('tenant') && tenant();
+                            $isTenantContext = function_exists('tenant') && tenant();
+                            if (auth()->user()->hasRole('super_admin')) {
+                                $dashboardRoute = route('central.dashboard');
+                            } elseif ($isTenantContext && tenant()->slug) {
+                                $dashboardRoute = route('dashboard', ['tenant' => tenant()->slug]);
+                            } else {
+                                $dashboardRoute = '/';
+                            }
                         @endphp
                         <a href="{{ $dashboardRoute }}" class="flex items-center gap-2">
                             @php
@@ -121,10 +127,34 @@
                                 </a>
                                 @endcan
                                 @can('view_cantine')
-                                <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
-                                    <i class="fas fa-utensils w-5"></i>
-                                    <span class="ml-3">Cantine</span>
-                                </a>
+                                <div class="relative" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
+                                    <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                        <i class="fas fa-utensils w-5"></i>
+                                        <span class="ml-3 flex-1">Cantine</span>
+                                        <i class="fas fa-chevron-right text-xs text-gray-400 ml-2"></i>
+                                    </a>
+                                    <div x-show="subOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                         class="absolute left-full top-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 -ml-1">
+                                        <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                            <i class="fas fa-clipboard-check w-4"></i>
+                                            <span class="ml-3">Présences</span>
+                                        </a>
+                                        @can('manage_cantine_menus')
+                                        <a href="{{ route('cantine.menus.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                            <i class="fas fa-clipboard-list w-4"></i>
+                                            <span class="ml-3">Menus</span>
+                                        </a>
+                                        <a href="{{ route('cantine.dishes.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                            <i class="fas fa-concierge-bell w-4"></i>
+                                            <span class="ml-3">Plats</span>
+                                        </a>
+                                        @endcan
+                                        <a href="{{ route('cantine.events.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                                            <i class="fas fa-exclamation-triangle w-4"></i>
+                                            <span class="ml-3">Signalements</span>
+                                        </a>
+                                    </div>
+                                </div>
                                 @endcan
                             </div>
                         </div>
@@ -181,6 +211,11 @@
                         <a href="{{ route('parent.dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-home mr-2"></i> Mon espace
                         </a>
+                        @can('view_cantine_menus')
+                        <a href="{{ route('parent.menus') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-utensils mr-2"></i> Menus
+                        </a>
+                        @endcan
                         @endhasrole
                         @endif
 
@@ -375,10 +410,33 @@
                                 </a>
                                 @endcan
                                 @can('view_cantine')
-                                <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
-                                    <i class="fas fa-utensils w-5"></i>
-                                    <span class="ml-3">Cantine</span>
-                                </a>
+                                <div x-data="{ cantineOpen: false }" class="space-y-1">
+                                    <button @click="cantineOpen = !cantineOpen" class="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                        <i class="fas fa-utensils w-5"></i>
+                                        <span class="ml-3 flex-1 text-left">Cantine</span>
+                                        <i class="fas fa-chevron-down text-xs" :class="{ 'rotate-180': cantineOpen }"></i>
+                                    </button>
+                                    <div x-show="cantineOpen" x-collapse class="pl-4 space-y-1">
+                                        <a href="{{ route('cantine.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                            <i class="fas fa-clipboard-check w-4"></i>
+                                            <span class="ml-3">Présences</span>
+                                        </a>
+                                        @can('manage_cantine_menus')
+                                        <a href="{{ route('cantine.menus.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                            <i class="fas fa-clipboard-list w-4"></i>
+                                            <span class="ml-3">Menus</span>
+                                        </a>
+                                        <a href="{{ route('cantine.dishes.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                            <i class="fas fa-concierge-bell w-4"></i>
+                                            <span class="ml-3">Plats</span>
+                                        </a>
+                                        @endcan
+                                        <a href="{{ route('cantine.events.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg">
+                                            <i class="fas fa-exclamation-triangle w-4"></i>
+                                            <span class="ml-3">Signalements</span>
+                                        </a>
+                                    </div>
+                                </div>
                                 @endcan
                             </div>
                         </div>
@@ -439,6 +497,12 @@
                             <i class="fas fa-home w-6"></i>
                             <span class="ml-3">Mon espace</span>
                         </a>
+                        @can('view_cantine_menus')
+                        <a href="{{ route('parent.menus') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-utensils w-6"></i>
+                            <span class="ml-3">Menus cantine</span>
+                        </a>
+                        @endcan
                         <a href="{{ route('parent.notifications') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-bell w-6"></i>
                             <span class="ml-3">Notifications</span>

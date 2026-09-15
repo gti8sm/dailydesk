@@ -9,6 +9,7 @@ use App\Modules\Garderie\Models\GarderieEvent;
 use App\Modules\Garderie\Models\GarderiePresence;
 use App\Modules\Cantine\Models\CantineEvent;
 use App\Modules\Cantine\Models\CantinePresence;
+use App\Modules\Cantine\Models\CantineMenu;
 use Illuminate\Http\Request;
 
 class ParentPortalController extends Controller
@@ -60,6 +61,12 @@ class ParentPortalController extends Controller
             ->get()
             ->groupBy(fn($p) => $p->date->format('Y-m-d'));
 
+        $menus = CantineMenu::published()
+            ->whereYear('menu_date', $year)
+            ->whereMonth('menu_date', $month)
+            ->get()
+            ->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
+
         $calendar = [];
         $firstDay = \Carbon\Carbon::create($year, $month, 1);
         $daysInMonth = $firstDay->daysInMonth;
@@ -75,6 +82,7 @@ class ParentPortalController extends Controller
                 'date' => $dateKey,
                 'garderie' => $garderiePresences->get($dateKey, collect()),
                 'cantine' => $cantinePresences->get($dateKey, collect()),
+                'menus' => $menus->get($dateKey, collect()),
             ];
         }
 
@@ -128,7 +136,7 @@ class ParentPortalController extends Controller
             'unreadEvents', 'recentEvents',
             'stats',
             'calendar', 'year', 'month', 'monthName',
-            'prevMonth', 'nextMonth'
+            'prevMonth', 'nextMonth', 'menus'
         ));
     }
 
@@ -252,6 +260,27 @@ class ParentPortalController extends Controller
             ->paginate(10, ['*'], 'cantine_page');
 
         return view('parent.events', compact('garderieEvents', 'cantineEvents'));
+    }
+
+    public function menus(Request $request)
+    {
+        $now = now();
+        $year = (int) $request->get('year', $now->year);
+        $month = (int) $request->get('month', $now->month);
+
+        $menus = CantineMenu::published()
+            ->whereYear('menu_date', $year)
+            ->whereMonth('menu_date', $month)
+            ->orderBy('menu_date')
+            ->orderBy('meal_type')
+            ->get();
+
+        $firstDay = \Carbon\Carbon::create($year, $month, 1);
+        $monthName = $firstDay->locale('fr')->monthName;
+        $prevMonth = $firstDay->copy()->subMonth();
+        $nextMonth = $firstDay->copy()->addMonth();
+
+        return view('parent.menus', compact('menus', 'year', 'month', 'monthName', 'prevMonth', 'nextMonth'));
     }
 
     public function notifications()

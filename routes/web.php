@@ -28,6 +28,8 @@ use App\Modules\Garderie\Controllers\GarderiePresenceController;
 use App\Modules\Garderie\Controllers\GarderieEventController;
 use App\Modules\Cantine\Controllers\CantinePresenceController;
 use App\Modules\Cantine\Controllers\CantineEventController;
+use App\Modules\Cantine\Controllers\CantineMenuController;
+use App\Modules\Cantine\Controllers\CantineDishController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -196,6 +198,26 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
         Route::post('/events', [CantineEventController::class, 'store'])->name('events.store');
         Route::get('/events/{event}', [CantineEventController::class, 'show'])->name('events.show');
         Route::post('/events/{event}/notify', [CantineEventController::class, 'markNotified'])->name('events.notify')->middleware('can:notify_event_parents');
+
+        Route::prefix('menus')->name('menus.')->middleware('can:manage_cantine_menus')->group(function () {
+            Route::get('/', [CantineMenuController::class, 'index'])->name('index')->withoutMiddleware('can:manage_cantine_menus')->middleware('can:view_cantine_menus');
+            Route::get('/create', [CantineMenuController::class, 'create'])->name('create');
+            Route::post('/', [CantineMenuController::class, 'store'])->name('store');
+            Route::get('/{menu}/edit', [CantineMenuController::class, 'edit'])->name('edit');
+            Route::put('/{menu}', [CantineMenuController::class, 'update'])->name('update');
+            Route::delete('/{menu}', [CantineMenuController::class, 'destroy'])->name('destroy');
+            Route::post('/{menu}/toggle-publish', [CantineMenuController::class, 'togglePublish'])->name('togglePublish');
+        });
+
+        Route::prefix('dishes')->name('dishes.')->middleware('can:manage_cantine_menus')->group(function () {
+            Route::get('/', [CantineDishController::class, 'index'])->name('index');
+            Route::get('/create', [CantineDishController::class, 'create'])->name('create');
+            Route::post('/', [CantineDishController::class, 'store'])->name('store');
+            Route::get('/{dish}/edit', [CantineDishController::class, 'edit'])->name('edit');
+            Route::put('/{dish}', [CantineDishController::class, 'update'])->name('update');
+            Route::delete('/{dish}', [CantineDishController::class, 'destroy'])->name('destroy');
+            Route::get('/search', [CantineDishController::class, 'search'])->name('search');
+        });
     });
 
     Route::resource('families', FamilyController::class)->middleware('can:manage_families');
@@ -223,6 +245,7 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
         Route::put('/children/{child}', [ParentPortalController::class, 'updateChild'])->name('children.update');
         Route::get('/events', [ParentPortalController::class, 'events'])->name('events');
         Route::post('/events/mark-viewed', [ParentPortalController::class, 'markEventsViewed'])->name('events.markViewed');
+        Route::get('/menus', [ParentPortalController::class, 'menus'])->name('menus');
         Route::get('/notifications', [ParentPortalController::class, 'notifications'])->name('notifications');
         Route::put('/notifications', [ParentPortalController::class, 'updateNotifications'])->name('notifications.update');
     });

@@ -155,6 +155,7 @@
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span>Garderie</span>
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span>Repas</span>
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-400"></span>Goûter</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-purple-500"></span>Menu</span>
             </div>
             <!-- Grille calendrier -->
             <div class="grid grid-cols-7 gap-1 text-center text-xs">
@@ -168,6 +169,8 @@
                 @php
                     $hasGarderie = $cell['garderie']->isNotEmpty();
                     $hasCantine = $cell['cantine']->isNotEmpty();
+                    $dayMenus = $cell['menus'] ?? collect();
+                    $hasMenu = $dayMenus->isNotEmpty();
                     $cantineLunch = $cell['cantine']->where('meal_type', 'lunch')->where('is_present', true)->isNotEmpty();
                     $cantineSnack = $cell['cantine']->where('meal_type', 'snack')->where('is_present', true)->isNotEmpty();
                     $garderiePresence = $cell['garderie']->first();
@@ -193,9 +196,9 @@
                         }
                     }
                 @endphp
-                <div class="border rounded-lg p-1 min-h-[60px] {{ $isToday ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200' }} {{ ($hasGarderie || $hasCantine) ? '' : 'bg-gray-50' }}">
+                <div class="border rounded-lg p-1 min-h-[60px] {{ $isToday ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200' }} {{ ($hasGarderie || $hasCantine || $hasMenu) ? '' : 'bg-gray-50' }}">
                     <div class="text-xs font-medium {{ $isToday ? 'text-indigo-700' : 'text-gray-600' }}">{{ $cell['day'] }}</div>
-                    @if($hasGarderie || $hasCantine)
+                    @if($hasGarderie || $hasCantine || $hasMenu)
                     <div class="mt-1 space-y-0.5">
                         @if($hasGarderie)
                         <div class="flex items-center gap-0.5">
@@ -223,6 +226,12 @@
                         <div class="flex items-center gap-0.5">
                             <span class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></span>
                             <span class="text-[10px] text-gray-600">Goûter</span>
+                        </div>
+                        @endif
+                        @if($hasMenu)
+                        <div class="flex items-center gap-0.5">
+                            <span class="w-2 h-2 rounded-full bg-purple-500 flex-shrink-0"></span>
+                            <a href="{{ route('parent.menus') }}" class="text-[10px] text-purple-600 hover:text-purple-800 font-medium">Menu</a>
                         </div>
                         @endif
                     </div>

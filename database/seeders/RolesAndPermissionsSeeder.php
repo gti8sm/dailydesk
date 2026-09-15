@@ -30,6 +30,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'record_cantine_presence',
             'create_cantine_event',
             'view_cantine_events',
+            'manage_cantine_menus',
+            'view_cantine_menus',
             'view_own_children',
             'view_own_events',
             'manage_notifications',
@@ -60,6 +62,31 @@ class RolesAndPermissionsSeeder extends Seeder
             'record_cantine_presence',
             'create_cantine_event',
             'view_cantine_events',
+            'manage_cantine_menus',
+            'view_cantine_menus',
+            'manage_notifications',
+            'notify_event_parents',
+        ]);
+
+        $admin = Role::create(['name' => 'admin']);
+        $admin->givePermissionTo([
+            'view_dashboard',
+            'manage_users',
+            'manage_families',
+            'manage_children',
+            'import_families',
+            'export_data',
+            'manage_settings',
+            'view_garderie',
+            'record_garderie_presence',
+            'create_garderie_event',
+            'view_garderie_events',
+            'view_cantine',
+            'record_cantine_presence',
+            'create_cantine_event',
+            'view_cantine_events',
+            'manage_cantine_menus',
+            'view_cantine_menus',
             'manage_notifications',
             'notify_event_parents',
         ]);
@@ -73,6 +100,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_cantine',
             'record_cantine_presence',
             'view_cantine_events',
+            'view_cantine_menus',
         ]);
 
         $enseignant = Role::create(['name' => 'enseignant']);
@@ -102,6 +130,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'record_cantine_presence',
             'create_cantine_event',
             'view_cantine_events',
+            'manage_cantine_menus',
+            'view_cantine_menus',
         ]);
 
         $parent = Role::create(['name' => 'parent']);
@@ -109,6 +139,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_dashboard',
             'view_own_children',
             'view_own_events',
+            'view_cantine_menus',
             'manage_notifications',
         ]);
 
