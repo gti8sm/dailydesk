@@ -88,6 +88,26 @@
                             </dd>
                         </div>
                         @endif
+                        @if($tenant->insee_code)
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Code INSEE</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono">{{ $tenant->insee_code }}</dd>
+                        </div>
+                        @endif
+                        @if($tenant->population)
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Population</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {{ number_format($tenant->population, 0, ',', ' ') }} habitants
+                                @php
+                                    $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first();
+                                @endphp
+                                @if($plan && $plan->population_min !== null)
+                                <span class="ml-2 text-xs text-gray-500">({{ $plan->name }})</span>
+                                @endif
+                            </dd>
+                        </div>
+                        @endif
                     </dl>
                 </div>
 
@@ -101,11 +121,8 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Plan</dt>
                             <dd class="mt-1">
-                                <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
-                                    {{ $tenant->subscription_plan === 'starter' ? 'bg-gray-100 text-gray-800' : '' }}
-                                    {{ $tenant->subscription_plan === 'pro' ? 'bg-blue-100 text-blue-800' : '' }}
-                                    {{ $tenant->subscription_plan === 'premium' ? 'bg-purple-100 text-purple-800' : '' }}">
-                                    {{ ucfirst($tenant->subscription_plan) }}
+                                <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    {{ $plan ? $plan->name : ucfirst($tenant->subscription_plan) }}
                                 </span>
                             </dd>
                         </div>

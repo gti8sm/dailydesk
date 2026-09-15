@@ -130,6 +130,38 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="insee_code" class="block text-sm font-medium text-gray-700 mb-2">
+                            Code INSEE
+                        </label>
+                        <input type="text" 
+                               name="insee_code" 
+                               id="insee_code" 
+                               value="{{ old('insee_code', $tenant->insee_code) }}"
+                               maxlength="5"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('insee_code') border-red-500 @enderror"
+                               placeholder="33063">
+                        @error('insee_code')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="population" class="block text-sm font-medium text-gray-700 mb-2">
+                            Population (habitants)
+                        </label>
+                        <input type="number" 
+                               name="population" 
+                               id="population" 
+                               value="{{ old('population', $tenant->population) }}"
+                               min="0"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('population') border-red-500 @enderror"
+                               placeholder="267991">
+                        @error('population')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -140,8 +172,14 @@
                     Abonnement
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $tenant->subscription_plan) }}' }">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $tenant->subscription_plan) }}' }">
                     @foreach($plans as $plan)
+                    @php
+                        $popLabel = $plan->population_max === null
+                            ? ($plan->population_min ? 'Plus de ' . number_format($plan->population_min, 0, ',', ' ') . ' hab.' : 'Toutes')
+                            : number_format($plan->population_min, 0, ',', ' ') . ' – ' . number_format($plan->population_max, 0, ',', ' ') . ' hab.';
+                        $isOnRequest = $plan->price_monthly == 0;
+                    @endphp
                     <label class="relative cursor-pointer" @click="selected = '{{ $plan->slug }}'">
                         <input type="radio" 
                                name="subscription_plan" 
@@ -154,15 +192,18 @@
                                 <h3 class="font-bold text-lg">{{ $plan->name }}</h3>
                                 <i class="fas fa-check-circle text-blue-500" x-show="selected === '{{ $plan->slug }}'" x-cloak></i>
                             </div>
+                            <p class="text-xs text-gray-500 mb-2">{{ $popLabel }}</p>
                             <p class="text-2xl font-bold text-gray-900 mb-2">
-                                {{ number_format($plan->price, 0, ',', ' ') }}€
+                                @if($isOnRequest)
+                                Sur devis
+                                @else
+                                {{ number_format($plan->price_monthly, 0, ',', ' ') }}€
                                 <span class="text-sm text-gray-500 font-normal">/mois</span>
+                                @endif
                             </p>
                             <ul class="text-sm text-gray-600 space-y-1">
-                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ $plan->max_children }} enfants max</li>
-                                @foreach($plan->modules as $module)
-                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ ucfirst($module) }}</li>
-                                @endforeach
+                                <li><i class="fas fa-check text-green-500 mr-1"></i> Tous les modules inclus</li>
+                                <li><i class="fas fa-check text-green-500 mr-1"></i> Enfants illimités</li>
                             </ul>
                         </div>
                     </label>

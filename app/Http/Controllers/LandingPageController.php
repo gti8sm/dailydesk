@@ -29,6 +29,8 @@ class LandingPageController extends Controller
             'city' => 'nullable|string|max:100',
             'postal_code' => 'nullable|string|max:10',
             'organization_name' => 'nullable|string|max:255',
+            'insee_code' => 'nullable|string|max:5',
+            'population' => 'nullable|integer|min:0',
         ]);
 
         $existingTenant = Tenant::where('email', $validated['email'])->first();
@@ -43,6 +45,15 @@ class LandingPageController extends Controller
 
             $slug = $this->generateUniqueSlug($validated['name'], $validated['organization_name'] ?? null);
 
+            // Suggérer le plan selon la population
+            $plan = 'village';
+            if (!empty($validated['population'])) {
+                $suggestedPlan = SubscriptionPlan::findByPopulation((int)$validated['population']);
+                if ($suggestedPlan) {
+                    $plan = $suggestedPlan->slug;
+                }
+            }
+
             $tenant = Tenant::create([
                 'id' => Str::uuid()->toString(),
                 'name' => $validated['organization_name'] ?? $validated['name'],
@@ -52,15 +63,17 @@ class LandingPageController extends Controller
                 'address' => $validated['address'],
                 'city' => $validated['city'] ?? null,
                 'postal_code' => $validated['postal_code'] ?? null,
+                'insee_code' => $validated['insee_code'] ?? null,
+                'population' => $validated['population'] ?? null,
                 'status' => 'active',
-                'subscription_plan' => 'starter',
+                'subscription_plan' => $plan,
                 'subscription_starts_at' => now(),
                 'subscription_expires_at' => now()->addYear(),
                 'trial_ends_at' => now()->addDays(30),
                 'primary_color' => '#3B82F6',
                 'secondary_color' => '#6366F1',
-                'modules_enabled' => ['garderie'],
-                'max_children' => 50,
+                'modules_enabled' => array_keys(config('modules', [])),
+                'max_children' => null,
                 'settings' => [
                     'contact_name' => $validated['name'],
                     'prospect_created_at' => now()->toIso8601String(),

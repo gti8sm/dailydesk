@@ -351,8 +351,8 @@
 <section id="modules" class="bg-gray-50 py-20 px-4" x-data="{ billing: 'monthly' }">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Des modules adaptés à vos besoins</h2>
-            <p class="text-gray-500 text-lg max-w-2xl mx-auto">Activez uniquement les modules dont vous avez besoin. Évoluez à votre rythme.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Une tarification adaptée à votre commune</h2>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto">Tous les modules sont inclus dans chaque offre. Le prix dépend uniquement de la taille de votre commune et du niveau de support dont vous avez besoin.</p>
         </div>
 
         <!-- Toggle Mensuel / Annuel -->
@@ -372,28 +372,35 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-{{ $plans->count() }} gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($plans as $index => $plan)
             @php
-                $isPopular = $plan->slug === 'pro';
-                $borderClass = $isPopular ? 'border-2 border-blue-500 relative scale-105 shadow-xl' : 'border-2 border-' . ($plan->slug === 'starter' ? 'blue-200' : 'gray-200') . ' shadow-lg';
-                $yearlySavings = $plan->getYearlySavingsPercentage();
+                $isPopular = $plan->slug === 'commune-moyenne';
+                $isOnRequest = $plan->price_monthly == 0;
+                $borderClass = $isPopular ? 'border-2 border-blue-500 relative scale-105 shadow-xl' : 'border-2 border-gray-200 shadow-lg';
+                $yearlySavings = $isOnRequest ? 0 : $plan->getYearlySavingsPercentage();
+                $popLabel = $plan->population_max === null
+                    ? ($plan->population_min ? 'Plus de ' . number_format($plan->population_min, 0, ',', ' ') . ' hab.' : 'Toutes communes')
+                    : number_format($plan->population_min, 0, ',', ' ') . ' – ' . number_format($plan->population_max, 0, ',', ' ') . ' hab.';
             @endphp
             <div class="bg-white rounded-2xl p-8 {{ $borderClass }}">
                 @if($isPopular)
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
-                    Populaire
+                    Le plus choisi
                 </div>
                 @endif
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-2">
                     <h3 class="text-xl font-bold text-gray-900">{{ $plan->name }}</h3>
-                    @if($plan->slug === 'premium')
+                    @if($isOnRequest)
                     <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">Sur devis</span>
                     @else
-                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Disponible</span>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Disponible</span>
                     @endif
                 </div>
-                @if($plan->slug === 'premium')
+                <p class="text-sm text-gray-500 mb-4">
+                    <i class="fas fa-users mr-1"></i>{{ $popLabel }}
+                </p>
+                @if($isOnRequest)
                 <p class="text-3xl font-bold text-gray-900 mb-1">Sur devis</p>
                 <p class="text-sm text-gray-500 mb-6">Contactez-nous</p>
                 @else
@@ -403,13 +410,7 @@
                             {{ number_format($plan->price_monthly, 0, ',', ' ') }}€
                             <span class="text-base font-normal text-gray-500">/mois</span>
                         </p>
-                        <p class="text-sm text-gray-500 mb-6">
-                            @if($plan->max_children)
-                                Jusqu'à {{ $plan->max_children }} enfants
-                            @else
-                                Enfants illimités
-                            @endif
-                        </p>
+                        <p class="text-sm text-gray-500 mb-6">Enfants & utilisateurs illimités</p>
                     </div>
                     <div x-show="billing === 'yearly'" x-transition.duration.200ms style="display: none;">
                         <p class="text-3xl font-bold text-gray-900 mb-1">
@@ -421,43 +422,31 @@
                             <i class="fas fa-tag mr-1"></i>Économisez {{ $yearlySavings }}%
                         </p>
                         @endif
-                        <p class="text-sm text-gray-500 mb-6">
-                            @if($plan->max_children)
-                                Jusqu'à {{ $plan->max_children }} enfants
-                            @else
-                                Enfants illimités
-                            @endif
-                        </p>
+                        <p class="text-sm text-gray-500 mb-6">Enfants & utilisateurs illimités</p>
                     </div>
                 </div>
                 @endif
                 <ul class="space-y-3 text-sm">
-                    @foreach($plan->modules as $module)
-                    <li class="flex items-center text-gray-700">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        Module {{ ucfirst($module) }}
-                    </li>
-                    @endforeach
-                    @if($plan->max_children)
-                    <li class="flex items-center text-gray-700">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        Jusqu'à {{ $plan->max_children }} enfants
-                    </li>
-                    @else
-                    <li class="flex items-center text-gray-700">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        Enfants illimités
-                    </li>
-                    @endif
                     @foreach($plan->features as $feature)
-                    <li class="flex items-center text-gray-700">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        {{ $feature }}
+                    <li class="flex items-start text-gray-700">
+                        <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                        <span>{{ $feature }}</span>
                     </li>
                     @endforeach
                 </ul>
             </div>
             @endforeach
+        </div>
+
+        <div class="text-center mt-12">
+            <p class="text-gray-500 text-sm mb-4">
+                <i class="fas fa-info-circle mr-1"></i>
+                Tous les modules (garderie, cantine, stock, et les futurs) sont inclus dans chaque offre. Vous les activez ou désactivez selon vos besoins depuis votre espace d'administration.
+            </p>
+            <a href="#contact" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                <i class="fas fa-rocket mr-2"></i>
+                Demander une démo
+            </a>
         </div>
     </div>
 </section>

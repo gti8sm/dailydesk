@@ -157,6 +157,91 @@
                 </div>
             </div>
 
+            <!-- Recherche INSEE + Population -->
+            <div class="border-b border-gray-200 pb-6" x-data="inseeSearch()">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-map-marked-alt text-indigo-600 mr-2"></i>
+                    Commune (INSEE) & Population
+                </h2>
+                <p class="text-sm text-gray-500 mb-4">Recherchez votre commune pour récupérer automatiquement le code INSEE et la population. Le plan sera suggéré en fonction de la tranche de population.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2 relative">
+                        <label for="insee_search" class="block text-sm font-medium text-gray-700 mb-2">
+                            Rechercher une commune
+                        </label>
+                        <input type="text"
+                               id="insee_search"
+                               @input.debounce.300ms="search()"
+                               x-model="query"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="Tapez le nom de la commune...">
+                        <div x-show="results.length > 0" x-cloak
+                             class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <template x-for="result in results" :key="result.code">
+                                <button type="button"
+                                        @click="selectCommune(result)"
+                                        class="w-full text-left px-4 py-2 hover:bg-indigo-50 border-b border-gray-100 last:border-0">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-900" x-text="result.nom"></span>
+                                        <span class="text-sm text-gray-500" x-text="'INSEE: ' + result.code"></span>
+                                    </div>
+                                    <span class="text-xs text-gray-500" x-text="result.population ? result.population.toLocaleString('fr-FR') + ' hab.' : 'Population inconnue'"></span>
+                                </button>
+                            </template>
+                        </div>
+                        <div x-show="loading" x-cloak class="absolute right-3 top-10">
+                            <i class="fas fa-spinner fa-spin text-indigo-500"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="insee_code" class="block text-sm font-medium text-gray-700 mb-2">
+                            Code INSEE
+                        </label>
+                        <input type="text"
+                               name="insee_code"
+                               id="insee_code"
+                               x-model="inseeCode"
+                               maxlength="5"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('insee_code') border-red-500 @enderror"
+                               placeholder="33063">
+                        @error('insee_code')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="population" class="block text-sm font-medium text-gray-700 mb-2">
+                            Population (habitants)
+                        </label>
+                        <input type="number"
+                               name="population"
+                               id="population"
+                               x-model="population"
+                               min="0"
+                               @input="suggestPlan()"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('population') border-red-500 @enderror"
+                               placeholder="267991">
+                        @error('population')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div x-show="suggestedPlan" x-cloak class="mt-4 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-lightbulb text-green-500 mr-3"></i>
+                        <div>
+                            <p class="text-sm text-green-800">
+                                Plan suggéré : <strong x-text="suggestedPlan"></strong>
+                            </p>
+                            <p class="text-xs text-green-600 mt-1">Basé sur la population de votre commune. Vous pouvez le modifier ci-dessous.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Abonnement -->
             <div class="border-b border-gray-200 pb-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">
@@ -164,8 +249,14 @@
                     Abonnement
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $plans->first()?->slug) }}' }">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" x-data="{ selected: '{{ old('subscription_plan', $plans->first()?->slug) }}' }">
                     @foreach($plans as $plan)
+                    @php
+                        $popLabel = $plan->population_max === null
+                            ? ($plan->population_min ? 'Plus de ' . number_format($plan->population_min, 0, ',', ' ') . ' hab.' : 'Toutes')
+                            : number_format($plan->population_min, 0, ',', ' ') . ' – ' . number_format($plan->population_max, 0, ',', ' ') . ' hab.';
+                        $isOnRequest = $plan->price_monthly == 0;
+                    @endphp
                     <label class="relative cursor-pointer" @click="selected = '{{ $plan->slug }}'">
                         <input type="radio" 
                                name="subscription_plan" 
@@ -178,15 +269,18 @@
                                 <h3 class="font-bold text-lg">{{ $plan->name }}</h3>
                                 <i class="fas fa-check-circle text-blue-500" x-show="selected === '{{ $plan->slug }}'" x-cloak></i>
                             </div>
+                            <p class="text-xs text-gray-500 mb-2">{{ $popLabel }}</p>
                             <p class="text-2xl font-bold text-gray-900 mb-2">
+                                @if($isOnRequest)
+                                Sur devis
+                                @else
                                 {{ number_format($plan->price_monthly, 0, ',', ' ') }}€
                                 <span class="text-sm text-gray-500 font-normal">/mois</span>
+                                @endif
                             </p>
                             <ul class="text-sm text-gray-600 space-y-1">
-                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ $plan->max_children ? $plan->max_children . ' enfants max' : 'Enfants illimités' }}</li>
-                                @foreach($plan->modules as $module)
-                                <li><i class="fas fa-check text-green-500 mr-1"></i> {{ ucfirst($module) }}</li>
-                                @endforeach
+                                <li><i class="fas fa-check text-green-500 mr-1"></i> Tous les modules inclus</li>
+                                <li><i class="fas fa-check text-green-500 mr-1"></i> Enfants illimités</li>
                             </ul>
                         </div>
                     </label>
@@ -329,5 +423,77 @@ document.getElementById('name').addEventListener('input', function(e) {
         .replace(/^-+|-+$/g, '');
     document.getElementById('slug').value = slug;
 });
+
+// Recherche INSEE via geo.api.gouv.fr
+function inseeSearch() {
+    return {
+        query: '',
+        results: [],
+        loading: false,
+        inseeCode: '{{ old('insee_code') }}',
+        population: '{{ old('population') }}',
+        suggestedPlan: '',
+
+        async search() {
+            if (this.query.length < 3) {
+                this.results = [];
+                return;
+            }
+            this.loading = true;
+            try {
+                const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(this.query)}&fields=nom,code,population&format=json&boost=population`);
+                const data = await res.json();
+                this.results = data.slice(0, 8);
+            } catch (e) {
+                console.error('Erreur recherche INSEE:', e);
+                this.results = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        selectCommune(result) {
+            this.inseeCode = result.code;
+            this.population = result.population || '';
+            this.query = result.nom;
+            this.results = [];
+            this.suggestPlan();
+            // Auto-remplir le nom de la ville
+            const cityField = document.getElementById('city');
+            if (cityField && !cityField.value) {
+                cityField.value = result.nom;
+            }
+        },
+
+        suggestPlan() {
+            const pop = parseInt(this.population);
+            if (!pop || isNaN(pop)) {
+                this.suggestedPlan = '';
+                return;
+            }
+            const plans = @json($plans->mapWithKeys(fn($p) => [$p->slug => ['min' => $p->population_min, 'max' => $p->population_max, 'name' => $p->name]]));
+            for (const [slug, data] of Object.entries(plans)) {
+                const min = data.min || 0;
+                const max = data.max;
+                if (pop >= min && (max === null || pop <= max)) {
+                    this.suggestedPlan = data.name;
+                    // Auto-select the radio
+                    const radio = document.querySelector(`input[name="subscription_plan"][value="${slug}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('input'));
+                        // Update Alpine state
+                        const alpine = radio.closest('[x-data]');
+                        if (alpine && alpine.__x) {
+                            alpine.__x.$data.selected = slug;
+                        }
+                    }
+                    return;
+                }
+            }
+            this.suggestedPlan = '';
+        }
+    };
+}
 </script>
 @endsection

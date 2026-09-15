@@ -17,6 +17,8 @@ class SubscriptionPlan extends Model
         'price_monthly',
         'price_yearly',
         'max_children',
+        'population_min',
+        'population_max',
         'modules',
         'features',
         'is_active',
@@ -29,6 +31,8 @@ class SubscriptionPlan extends Model
         'modules' => 'array',
         'features' => 'array',
         'is_active' => 'boolean',
+        'population_min' => 'integer',
+        'population_max' => 'integer',
     ];
 
     /**
@@ -53,6 +57,22 @@ class SubscriptionPlan extends Model
     public function hasModule(string $module): bool
     {
         return in_array($module, $this->modules ?? []);
+    }
+
+    /**
+     * Find the plan matching a given population.
+     * Returns the first active plan where population falls within [population_min, population_max].
+     */
+    public static function findByPopulation(int $population): ?self
+    {
+        return self::active()
+            ->where('population_min', '<=', $population)
+            ->where(function ($q) use ($population) {
+                $q->whereNull('population_max')
+                  ->orWhere('population_max', '>=', $population);
+            })
+            ->orderBy('sort_order')
+            ->first();
     }
 
     /**

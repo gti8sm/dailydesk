@@ -43,7 +43,7 @@ class TenantController extends Controller
             abort(403, 'Accès non autorisé');
         }
         
-        $plans = SubscriptionPlan::where('is_active', true)->get();
+        $plans = SubscriptionPlan::where('is_active', true)->orderBy('sort_order')->get();
         return view('central.tenants.create', compact('plans'));
     }
 
@@ -53,6 +53,8 @@ class TenantController extends Controller
             abort(403, 'Accès non autorisé');
         }
         
+        $planSlugs = SubscriptionPlan::where('is_active', true)->pluck('slug')->implode(',');
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:tenants,slug|alpha_dash',
@@ -61,7 +63,9 @@ class TenantController extends Controller
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
             'postal_code' => 'nullable|string|max:10',
-            'subscription_plan' => 'required|in:starter,pro,premium',
+            'insee_code' => 'nullable|string|max:5',
+            'population' => 'nullable|integer|min:0',
+            'subscription_plan' => "required|in:{$planSlugs}",
             'trial_days' => 'nullable|integer|min:0|max:90',
             'admin_name' => 'required|string|max:255',
             'admin_email' => 'required|email|max:255',
@@ -79,6 +83,8 @@ class TenantController extends Controller
                 'address' => $validated['address'] ?? null,
                 'city' => $validated['city'] ?? null,
                 'postal_code' => $validated['postal_code'] ?? null,
+                'insee_code' => $validated['insee_code'] ?? null,
+                'population' => $validated['population'] ?? null,
                 'status' => 'active',
                 'subscription_plan' => $validated['subscription_plan'],
                 'subscription_starts_at' => now(),
@@ -86,8 +92,8 @@ class TenantController extends Controller
                 'trial_ends_at' => (!empty($validated['trial_days']) && $validated['trial_days'] > 0) ? now()->addDays((int)$validated['trial_days']) : null,
                 'primary_color' => '#3B82F6',
                 'secondary_color' => '#6366F1',
-                'modules_enabled' => $this->getModulesForPlan($validated['subscription_plan']),
-                'max_children' => $this->getMaxChildrenForPlan($validated['subscription_plan']),
+                'modules_enabled' => array_keys(config('modules', [])),
+                'max_children' => null,
             ]);
 
             // Créer le domaine
@@ -123,7 +129,7 @@ class TenantController extends Controller
 
     public function edit(Tenant $tenant)
     {
-        $plans = SubscriptionPlan::where('is_active', true)->get();
+        $plans = SubscriptionPlan::where('is_active', true)->orderBy('sort_order')->get();
         
         // Récupérer l'admin du tenant (single-DB: filtrer par tenant_id)
         $admin = \App\Models\User::where('tenant_id', $tenant->id)
@@ -138,6 +144,8 @@ class TenantController extends Controller
         if (!auth()->user()->hasRole('super_admin')) {
             abort(403, 'Accès non autorisé');
         }
+
+        $planSlugs = SubscriptionPlan::where('is_active', true)->pluck('slug')->implode(',');
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -146,16 +154,16 @@ class TenantController extends Controller
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
             'postal_code' => 'nullable|string|max:10',
-            'subscription_plan' => 'required|in:starter,pro,premium',
+            'insee_code' => 'nullable|string|max:5',
+            'population' => 'nullable|integer|min:0',
+            'subscription_plan' => "required|in:{$planSlugs}",
             'status' => 'required|in:active,suspended,cancelled',
             'admin_login' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9_-]+$/',
         ]);
 
-        // Si le plan change, mettre à jour les modules et max_children
-        if ($validated['subscription_plan'] !== $tenant->subscription_plan) {
-            $validated['modules_enabled'] = $this->getModulesForPlan($validated['subscription_plan']);
-            $validated['max_children'] = $this->getMaxChildrenForPlan($validated['subscription_plan']);
-        }
+        // Tous les modules sont toujours activés (le plan ne limite plus les modules)
+        $validated['modules_enabled'] = array_keys(config('modules', []));
+        $validated['max_children'] = null;
 
         $tenant->update($validated);
 
@@ -234,26 +242,6 @@ class TenantController extends Controller
                 ->back()
                 ->with('error', 'Erreur lors de la suppression : ' . $e->getMessage());
         }
-    }
-
-    private function getModulesForPlan($plan)
-    {
-        return match($plan) {
-            'starter' => ['garderie'],
-            'pro' => ['garderie', 'cantine'],
-            'premium' => ['garderie', 'cantine', 'communication'],
-            default => ['garderie'],
-        };
-    }
-
-    private function getMaxChildrenForPlan($plan)
-    {
-        return match($plan) {
-            'starter' => 50,
-            'pro' => 150,
-            'premium' => 999999,
-            default => 50,
-        };
     }
 
     // In single-DB mode, tables are created via migrations, not per-tenant
