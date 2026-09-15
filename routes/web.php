@@ -11,6 +11,7 @@ use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\SubscriptionPlanController;
 use App\Http\Controllers\Central\ImpersonationController;
@@ -58,6 +59,8 @@ Route::get('/cgv', function () {
 })->name('legal.cgv');
 Route::get('/mentions-legales', fn() => view('legal.mentions'))->name('legal.mentions');
 Route::get('/rgpd', fn() => view('legal.rgpd'))->name('legal.rgpd');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('web');
 Route::post('/login', [LoginController::class, 'login'])->middleware(['web', 'throttle:5,1']);

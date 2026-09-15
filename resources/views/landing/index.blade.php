@@ -12,6 +12,53 @@
         }
     @endphp
     <title>{{ $appName }} — Gestion municipale pour les mairies</title>
+    <meta name="description" content="DailyDesk — Solution complète de gestion municipale pour les mairies et collectivités. Gestion des familles, cantine scolaire, garderie, et plus encore.">
+    <meta name="keywords" content="gestion municipale, mairie, cantine scolaire, garderie, administration, collectivités, logiciel mairie, gestion périscolaire">
+    <meta name="author" content="SmallWebConcept">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta name="theme-color" content="#2563eb">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $appName }} — Gestion municipale pour les mairies">
+    <meta property="og:description" content="Solution complète de gestion pour les mairies et collectivités.">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('og-image.png') }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="{{ $appName }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $appName }} — Gestion municipale pour les mairies">
+    <meta name="twitter:description" content="Solution complète de gestion pour les mairies et collectivités.">
+    <meta name="twitter:image" content="{{ asset('og-image.png') }}">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "{{ $appName }}",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Solution de gestion municipale pour les mairies et collectivités",
+        "url": "{{ url('/') }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "SmallWebConcept",
+            "url": "https://smallwebconcept.fr"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "SmallWebConcept",
+        "url": "https://smallwebconcept.fr",
+        "logo": "{{ asset('favicon.svg') }}"
+    }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>

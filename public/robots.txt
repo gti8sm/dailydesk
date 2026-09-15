@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+Allow: /accueil
+Allow: /accueil/merci
+Disallow: /central
+Disallow: /login
+Disallow: /password
+Disallow: /invitation
+Disallow: /*/dashboard
+Disallow: /*/garderie
+Disallow: /*/cantine
+Disallow: /*/families
+Disallow: /*/settings
+Disallow: /*/profile
+Disallow: /*/users
+Disallow: /*/classes
+Disallow: /*/imports
+Disallow: /*/exports
+Disallow: /*/support
+Disallow: /*/onboarding
+
+Sitemap: /sitemap.xml
+

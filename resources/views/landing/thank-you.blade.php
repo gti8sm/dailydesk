@@ -11,6 +11,16 @@
     }
 @endphp
     <title>Merci — {{ $appName }}</title>
+    <meta name="description" content="Merci pour votre demande de démonstration de DailyDesk, la solution de gestion municipale pour les mairies.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Merci — {{ $appName }}">
+    <meta property="og:description" content="Solution complète de gestion pour les mairies et collectivités.">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('og-image.png') }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="{{ $appName }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
