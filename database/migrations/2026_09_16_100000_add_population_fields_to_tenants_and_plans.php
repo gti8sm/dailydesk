@@ -14,6 +14,11 @@ return new class extends Migration
             $table->integer('population')->nullable()->after('insee_code');
         });
 
+        // Rendre max_children nullable sur tenants (null = illimité, nouveau modèle par population)
+        Schema::connection('central')->table('tenants', function (Blueprint $table) {
+            $table->integer('max_children')->nullable()->default(null)->change();
+        });
+
         // Rendre modules nullable (tous les modules sont inclus par défaut maintenant)
         Schema::connection('central')->table('subscription_plans', function (Blueprint $table) {
             $table->json('modules')->nullable()->change();
@@ -30,6 +35,7 @@ return new class extends Migration
     {
         Schema::connection('central')->table('tenants', function (Blueprint $table) {
             $table->dropColumn(['insee_code', 'population']);
+            $table->integer('max_children')->default(50)->nullable(false)->change();
         });
 
         Schema::connection('central')->table('subscription_plans', function (Blueprint $table) {
