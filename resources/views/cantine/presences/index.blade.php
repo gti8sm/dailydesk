@@ -6,40 +6,44 @@
 <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 
     <!-- Header -->
-    <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
-                <i class="fas fa-utensils text-green-600 mr-2"></i>
-                Cantine
-            </h1>
-            <p class="mt-1 text-xs sm:text-sm text-gray-600">
-                Les enfants inscrits sont pré-cochés présents — cliquez pour marquer absent
-            </p>
+    <div class="mb-4 flex flex-col gap-3">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+                    <i class="fas fa-utensils text-green-600 mr-2"></i>
+                    Cantine
+                </h1>
+                <p class="mt-1 text-xs sm:text-sm text-gray-600">
+                    Les enfants inscrits sont pré-cochés présents — cliquez pour marquer absent
+                </p>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <a href="{{ route('cantine.events.create') }}"
+                   class="flex-1 sm:flex-none px-4 py-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium transition-colors flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle sm:mr-2"></i>
+                    <span class="hidden sm:inline">Signaler</span>
+                </a>
+                <a href="{{ route('cantine.events.index') }}"
+                   class="flex-1 sm:flex-none px-4 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition-colors flex items-center justify-center">
+                    <i class="fas fa-list sm:mr-2"></i>
+                    <span class="hidden sm:inline">Événements</span>
+                </a>
+                <a href="{{ route('cantine.reports.monthly') }}"
+                   class="flex-1 sm:flex-none px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors flex items-center justify-center">
+                    <i class="fas fa-chart-bar sm:mr-2"></i>
+                    <span class="hidden sm:inline">Rapport</span>
+                </a>
+            </div>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto flex-wrap">
-            <a href="{{ route('cantine.events.create') }}"
-               class="px-4 py-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium transition-colors flex items-center">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span class="hidden sm:inline">Signaler</span>
-            </a>
-            <a href="{{ route('cantine.events.index') }}"
-               class="px-4 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition-colors flex items-center">
-                <i class="fas fa-list mr-2"></i>
-                <span class="hidden sm:inline">Événements</span>
-            </a>
-            <a href="{{ route('cantine.reports.monthly') }}"
-               class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors flex items-center">
-                <i class="fas fa-chart-bar mr-2"></i>
-                <span class="hidden sm:inline">Rapport</span>
-            </a>
-            <select id="meal-type-selector" class="text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+        <div class="flex gap-2 w-full sm:w-auto sm:ml-auto">
+            <select id="meal-type-selector" class="flex-1 sm:flex-none text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                 <option value="lunch" {{ $mealType === 'lunch' ? 'selected' : '' }}>Déjeuner</option>
                 @if(\App\Models\Setting::get('cantine_enable_snack', false))
                 <option value="snack" {{ $mealType === 'snack' ? 'selected' : '' }}>Goûter</option>
                 @endif
             </select>
             <input type="date" id="date-selector" value="{{ $date }}"
-                   class="text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                   class="flex-1 sm:flex-none text-lg px-4 py-3 rounded-lg border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
         </div>
     </div>
 
