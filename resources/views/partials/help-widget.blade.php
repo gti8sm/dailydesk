@@ -72,13 +72,13 @@
             $helpContent['cantine.index'] = [
                 'title' => 'Cantine',
                 'text' => 'Gérez les présences des enfants à la cantine et le type de repas. Les enfants affichés sont filtrés selon votre école.',
-                'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié'],
+                'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié', 'La saisie des présences est assurée par les agents ALSH'],
                 'roles' => null,
             ];
             $helpContent['cantine.menus.index'] = [
                 'title' => 'Menus cantine',
                 'text' => 'Créez et publiez les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda.',
-                'tips' => ['En mode "par école", chaque école a son propre menu', 'En mode "global", un seul menu sert toutes les écoles', 'Le mode est configurable dans Paramètres globaux'],
+                'tips' => ['En mode "par école", chaque école a son propre menu', 'En mode "global", un seul menu sert toutes les écoles', 'Le mode est configurable dans Paramètres globaux', 'Réservé au profil Cuisinier / Gestion menus'],
                 'roles' => null,
             ];
         }

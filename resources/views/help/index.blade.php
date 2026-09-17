@@ -89,11 +89,18 @@
                 <i class="fas fa-chevron-down text-gray-400" id="icon-section-cantine"></i>
             </button>
             <div id="section-cantine" class="hidden px-6 py-4 space-y-3">
-                <p class="text-sm text-gray-700"><strong>Marquer les présents :</strong> D'un clic, marquez chaque enfant comme présent ou absent pour le repas. Les enfants affichés sont filtrés selon votre école.</p>
+                <p class="text-sm text-gray-700"><strong>Présences cantine :</strong> Marquez chaque enfant comme présent ou absent pour le repas. Les enfants affichés sont filtrés selon votre école. <em>Saisie assurée par les agents ALSH (profil garderie).</em></p>
                 <p class="text-sm text-gray-700"><strong>Type de repas :</strong> Choisissez entre "Midi" et "Goûter" selon le moment de la journée.</p>
                 <p class="text-sm text-gray-700"><strong>Allergies & régimes :</strong> Les informations sur les allergies sont affichées à côté de chaque enfant.</p>
-                <p class="text-sm text-gray-700"><strong>Menus :</strong> Le cuisinier ou l'admin crée les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda.</p>
+                <p class="text-sm text-gray-700"><strong>Menus :</strong> Le cuisinier ou l'admin crée les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda. <em>Gestion réservée au profil Cuisinier / Gestion menus.</em></p>
                 <p class="text-sm text-gray-700"><strong>Mode de gestion des menus :</strong> En mode "global", un seul menu sert toutes les écoles. En mode "par école", chaque école a son propre menu (configurable dans Paramètres globaux).</p>
+                <div class="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <p class="text-xs text-orange-800"><strong>Répartition des rôles cantine :</strong></p>
+                    <ul class="mt-2 space-y-1 text-xs text-orange-700">
+                        <li><i class="fas fa-child mr-1"></i> <strong>Agent ALSH</strong> : saisie des présences + événements garderie/cantine</li>
+                        <li><i class="fas fa-utensils mr-1"></i> <strong>Cuisinier</strong> : création et publication des menus uniquement</li>
+                    </ul>
+                </div>
             </div>
         </div>
         @endcan
@@ -181,7 +188,7 @@
                 <i class="fas fa-chevron-down text-gray-400" id="icon-section-admin"></i>
             </button>
             <div id="section-admin" class="hidden px-6 py-4 space-y-3">
-                <p class="text-sm text-gray-700"><strong>Utilisateurs :</strong> Créez et gérez les comptes utilisateurs. Attribuez des rôles (admin, personnel, enseignant, parent), une école de rattachement et des écoles de remplacement.</p>
+                <p class="text-sm text-gray-700"><strong>Utilisateurs :</strong> Créez et gérez les comptes utilisateurs. Attribuez des rôles (admin, personnel, enseignant, agent ALSH, cuisinier, parent), une école de rattachement et des écoles de remplacement.</p>
                 <p class="text-sm text-gray-700"><strong>Écoles :</strong> Créez les écoles de votre commune (menu Gestion → Écoles). Chaque école regroupe des classes et des enfants.</p>
                 <p class="text-sm text-gray-700"><strong>Classes :</strong> Créez les classes scolaires par année. Associez les classes à une école et les enfants à leur classe.</p>
                 <p class="text-sm text-gray-700"><strong>Paramètres :</strong> Configurez les horaires de garderie, le mode de gestion des menus cantine (global ou par école), le SMTP pour les emails, les seuils de stock et les notifications.</p>

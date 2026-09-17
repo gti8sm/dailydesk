@@ -130,15 +130,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'record_garderie_presence',
             'create_garderie_event',
             'view_garderie_events',
+            'view_cantine',
+            'record_cantine_presence',
+            'view_cantine_events',
         ]);
 
         $cantine = Role::create(['name' => 'cantine']);
         $cantine->givePermissionTo([
             'view_dashboard',
             'view_cantine',
-            'record_cantine_presence',
-            'create_cantine_event',
-            'view_cantine_events',
             'manage_cantine_menus',
             'view_cantine_menus',
         ]);
