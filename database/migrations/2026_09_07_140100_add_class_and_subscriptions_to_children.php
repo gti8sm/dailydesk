@@ -8,11 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('children', 'class_id')) {
         Schema::table('children', function (Blueprint $table) {
             $table->foreignId('class_id')->nullable()->after('class')->constrained('school_classes')->nullOnDelete();
             $table->boolean('garderie_subscribed')->default(false)->after('is_active');
             $table->boolean('cantine_subscribed')->default(false)->after('garderie_subscribed');
         });
+        }
     }
 
     public function down(): void

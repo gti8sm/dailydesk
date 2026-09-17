@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('stock_locations')) {
         Schema::create('stock_locations', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id');
@@ -20,7 +21,9 @@ return new class extends Migration
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->index(['tenant_id', 'is_active']);
         });
+        }
 
+        if (!Schema::hasTable('stock_items')) {
         Schema::create('stock_items', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id');
@@ -40,7 +43,9 @@ return new class extends Migration
             $table->index(['tenant_id', 'location_id']);
             $table->index(['tenant_id', 'is_active']);
         });
+        }
 
+        if (!Schema::hasTable('stock_movements')) {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id');
@@ -56,6 +61,7 @@ return new class extends Migration
             $table->index(['tenant_id', 'stock_item_id']);
             $table->index(['tenant_id', 'created_at']);
         });
+        }
     }
 
     public function down(): void

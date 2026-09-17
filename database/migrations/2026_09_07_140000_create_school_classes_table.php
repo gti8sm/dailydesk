@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('school_classes', function (Blueprint $table) {
+        if (!Schema::hasTable('school_classes')) { Schema::create('school_classes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('teacher_name')->nullable();
@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->index(['school_year', 'is_active']);
         });
+        }
     }
 
     public function down(): void

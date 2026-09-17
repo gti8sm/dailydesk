@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cantine_menus', function (Blueprint $table) {
+        if (!Schema::hasTable('cantine_menus')) { Schema::create('cantine_menus', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id');
             $table->date('menu_date');
@@ -32,6 +32,7 @@ return new class extends Migration
             $table->unique(['tenant_id', 'menu_date', 'meal_type'], 'cantine_menus_unique');
             $table->index(['tenant_id', 'menu_date']);
         });
+        }
     }
 
     /**

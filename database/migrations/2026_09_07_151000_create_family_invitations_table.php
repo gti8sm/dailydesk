@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('family_invitations', function (Blueprint $table) {
+        if (!Schema::hasTable('family_invitations')) { Schema::create('family_invitations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('family_id')->constrained()->onDelete('cascade');
             $table->string('email');
@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->index(['family_id', 'status']);
         });
+        }
     }
 
     public function down(): void

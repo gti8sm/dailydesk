@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('children', function (Blueprint $table) {
+        if (!Schema::hasTable('children')) { Schema::create('children', function (Blueprint $table) {
             $table->id();
             $table->foreignId('family_id')->constrained()->onDelete('cascade');
             $table->string('first_name');
@@ -29,6 +29,7 @@ return new class extends Migration
             
             $table->index(['first_name', 'last_name']);
         });
+        }
     }
 
     /**

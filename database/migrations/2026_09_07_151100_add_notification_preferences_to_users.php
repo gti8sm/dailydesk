@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('users', 'notification_preferences')) {
         Schema::table('users', function (Blueprint $table) {
             $table->json('notification_preferences')->nullable()->after('remember_token');
         });
+        }
     }
 
     public function down(): void

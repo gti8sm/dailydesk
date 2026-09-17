@@ -8,12 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('parents', 'address')) {
         Schema::table('parents', function (Blueprint $table) {
             $table->string('address')->nullable()->after('mobile');
             $table->string('postal_code')->nullable()->after('address');
             $table->string('city')->nullable()->after('postal_code');
             $table->boolean('is_legal_guardian')->default(false)->after('can_pickup');
         });
+        }
     }
 
     public function down(): void

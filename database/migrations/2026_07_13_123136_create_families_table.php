@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('families', function (Blueprint $table) {
+        if (!Schema::hasTable('families')) { Schema::create('families', function (Blueprint $table) {
             $table->id();
             $table->string('family_name');
             $table->string('address')->nullable();
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        }
     }
 
     /**

@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('school_classes', 'teacher_name')) {
         Schema::table('school_classes', function (Blueprint $table) {
             $table->string('teacher_name')->nullable()->after('name');
         });
+        }
     }
 
     public function down(): void

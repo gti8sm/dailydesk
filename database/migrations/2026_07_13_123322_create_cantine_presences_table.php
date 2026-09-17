@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cantine_presences', function (Blueprint $table) {
+        if (!Schema::hasTable('cantine_presences')) { Schema::create('cantine_presences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('child_id')->constrained()->onDelete('cascade');
             $table->date('date');
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unique(['child_id', 'date', 'meal_type']);
             $table->index(['date', 'meal_type']);
         });
+        }
     }
 
     /**

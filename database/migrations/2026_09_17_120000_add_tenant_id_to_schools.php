@@ -9,6 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasColumn('schools', 'tenant_id')) {
         // Ajouter tenant_id sur schools (la table existait sans cette colonne)
         Schema::table('schools', function (Blueprint $table) {
             $table->uuid('tenant_id')->nullable()->after('id');
@@ -41,6 +42,7 @@ return new class extends Migration
             if ($tenantId) {
                 DB::table('schools')->where('id', $school->id)->update(['tenant_id' => $tenantId]);
             }
+        }
         }
     }
 
