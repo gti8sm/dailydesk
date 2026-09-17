@@ -49,10 +49,10 @@
                 <i class="fas fa-chevron-down text-gray-400" id="icon-section-superadmin"></i>
             </button>
             <div id="section-superadmin" class="hidden px-6 py-4 space-y-3">
-                <p class="text-sm text-gray-700"><strong>Tenants :</strong> Créez et gérez les mairies (tenants). Chaque tenant a son propre domaine, ses utilisateurs et ses données.</p>
-                <p class="text-sm text-gray-700"><strong>Plans d'abonnement :</strong> Définissez les plans (modules inclus, nombre max d'enfants, prix). Modifiez un plan pour mettre à jour tous les tenants qui l'utilisent.</p>
-                <p class="text-sm text-gray-700"><strong>Modules :</strong> Activez ou désactivez les modules (Garderie, Cantine) par tenant. Configurez les paramètres globaux par défaut.</p>
-                <p class="text-sm text-gray-700"><strong>Journal d'activité :</strong> Consultez toutes les actions effectuées sur la plateforme. Filtrez par tenant, action, utilisateur ou date.</p>
+                <p class="text-sm text-gray-700"><strong>Tenants :</strong> Créez et gérez les mairies (tenants). Chaque tenant a son propre domaine, ses utilisateurs et ses données. La recherche INSEE remplit automatiquement le code INSEE et la population, et suggère le plan adapté.</p>
+                <p class="text-sm text-gray-700"><strong>Plans d'abonnement :</strong> Les plans sont définis par tranche de population (Village, Petite commune, Commune moyenne, Grande commune, Agglomération). Tous les modules sont inclus dans chaque plan — la différenciation se fait sur le support et la taille de commune.</p>
+                <p class="text-sm text-gray-700"><strong>Modules :</strong> Activez ou désactivez les modules (Garderie, Cantine, Stock) par tenant. Configurez les paramètres globaux (horaires garderie, mode cantine, seuils stock).</p>
+                <p class="text-sm text-gray-700"><strong>Journal d'activité :</strong> Consultez toutes les actions effectuées sur la plateforme. Filtrez par tenant, module, action, utilisateur ou date.</p>
                 <p class="text-sm text-gray-700"><strong>Impersonation :</strong> Connectez-vous temporairement en tant qu'admin d'un tenant pour le dépanner. Utilisez "Retour Super Admin" pour revenir.</p>
                 <p class="text-sm text-gray-700"><strong>Statistiques :</strong> Vue d'ensemble des tenants actifs, revenus, croissance mensuelle et répartition par plan.</p>
             </div>
@@ -89,10 +89,49 @@
                 <i class="fas fa-chevron-down text-gray-400" id="icon-section-cantine"></i>
             </button>
             <div id="section-cantine" class="hidden px-6 py-4 space-y-3">
-                <p class="text-sm text-gray-700"><strong>Marquer les présents :</strong> D'un clic, marquez chaque enfant comme présent ou absent pour le repas.</p>
+                <p class="text-sm text-gray-700"><strong>Marquer les présents :</strong> D'un clic, marquez chaque enfant comme présent ou absent pour le repas. Les enfants affichés sont filtrés selon votre école.</p>
                 <p class="text-sm text-gray-700"><strong>Type de repas :</strong> Choisissez entre "Midi" et "Goûter" selon le moment de la journée.</p>
                 <p class="text-sm text-gray-700"><strong>Allergies & régimes :</strong> Les informations sur les allergies sont affichées à côté de chaque enfant.</p>
-                <p class="text-sm text-gray-700"><strong>Événements :</strong> Signalez un refus alimentaire, une réaction allergique ou un incident via l'onglet dédié.</p>
+                <p class="text-sm text-gray-700"><strong>Menus :</strong> Le cuisinier ou l'admin crée les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda.</p>
+                <p class="text-sm text-gray-700"><strong>Mode de gestion des menus :</strong> En mode "global", un seul menu sert toutes les écoles. En mode "par école", chaque école a son propre menu (configurable dans Paramètres globaux).</p>
+            </div>
+        </div>
+        @endcan
+
+        @hasrole('admin_mairie')
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <button onclick="toggleSection('section-ecoles')" class="w-full px-6 py-4 flex items-center justify-between bg-blue-50 hover:bg-blue-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-school text-blue-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Écoles & Multi-sites</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-ecoles"></i>
+            </button>
+            <div id="section-ecoles" class="hidden px-6 py-4 space-y-3">
+                <p class="text-sm text-gray-700"><strong>Écoles :</strong> Créez et gérez les écoles de votre commune (menu Gestion → Écoles). Chaque école a un nom, un type (maternelle, élémentaire, primaire, collège) et une adresse.</p>
+                <p class="text-sm text-gray-700"><strong>Classes par école :</strong> Chaque classe est rattachée à une école. Les enfants sont également rattachés à une école directement.</p>
+                <p class="text-sm text-gray-700"><strong>Sélecteur d'école :</strong> Dans le header, un sélecteur permet de basculer entre les écoles. Les admins globaux voient "Toutes les écoles" + chaque école. Les agents limités ne voient que leur école.</p>
+                <p class="text-sm text-gray-700"><strong>Attribution d'un agent à une école :</strong> Dans Utilisateurs → Modifier, définissez l'"École de rattachement". L'agent ne verra que les données de son école (enfants, présences, menus).</p>
+                <p class="text-sm text-gray-700"><strong>Remplacements :</strong> Dans le formulaire utilisateur, cochez les "Écoles de remplacement" pour autoriser un agent à accéder à d'autres écoles temporairement. L'agent pourra basculer entre ses écoles via le sélecteur du header.</p>
+                <p class="text-sm text-gray-700"><strong>École par défaut :</strong> Une "École principale" est créée automatiquement à l'installation. Pour les communes multi-écoles, créez les écoles supplémentaires via le CRUD.</p>
+            </div>
+        </div>
+        @endhasrole
+
+        @can('view_stock')
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <button onclick="toggleSection('section-stock')" class="w-full px-6 py-4 flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-boxes-stacked text-indigo-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Module Stock</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-stock"></i>
+            </button>
+            <div id="section-stock" class="hidden px-6 py-4 space-y-3">
+                <p class="text-sm text-gray-700"><strong>Lieux de stockage :</strong> Créez des lieux (cuisine, réserve, cellier) et suivez les quantités par article.</p>
+                <p class="text-sm text-gray-700"><strong>Mouvements :</strong> Enregistrez les entrées et sorties de stock. Chaque mouvement est horodaté et tracé.</p>
+                <p class="text-sm text-gray-700"><strong>Seuils d'alerte :</strong> Définissez un seuil minimum par article. En dessous du seuil, une alerte est générée (si activé dans Paramètres globaux).</p>
+                <p class="text-sm text-gray-700"><strong>Permissions :</strong> Les droits stock sont attribués individuellement par utilisateur (Voir, Saisir, Gérer) dans le formulaire Utilisateur.</p>
             </div>
         </div>
         @endcan
@@ -142,9 +181,10 @@
                 <i class="fas fa-chevron-down text-gray-400" id="icon-section-admin"></i>
             </button>
             <div id="section-admin" class="hidden px-6 py-4 space-y-3">
-                <p class="text-sm text-gray-700"><strong>Utilisateurs :</strong> Créez et gérez les comptes utilisateurs. Attribuez des rôles (admin, personnel, enseignant, parent).</p>
-                <p class="text-sm text-gray-700"><strong>Classes :</strong> Créez les classes scolaires par année. Associez les enfants à leur classe.</p>
-                <p class="text-sm text-gray-700"><strong>Paramètres :</strong> Configurez les horaires de garderie, le SMTP pour les emails, et les notifications.</p>
+                <p class="text-sm text-gray-700"><strong>Utilisateurs :</strong> Créez et gérez les comptes utilisateurs. Attribuez des rôles (admin, personnel, enseignant, parent), une école de rattachement et des écoles de remplacement.</p>
+                <p class="text-sm text-gray-700"><strong>Écoles :</strong> Créez les écoles de votre commune (menu Gestion → Écoles). Chaque école regroupe des classes et des enfants.</p>
+                <p class="text-sm text-gray-700"><strong>Classes :</strong> Créez les classes scolaires par année. Associez les classes à une école et les enfants à leur classe.</p>
+                <p class="text-sm text-gray-700"><strong>Paramètres :</strong> Configurez les horaires de garderie, le mode de gestion des menus cantine (global ou par école), le SMTP pour les emails, les seuils de stock et les notifications.</p>
                 <p class="text-sm text-gray-700"><strong>Imports/Exports :</strong> Importez des familles en CSV, exportez les présences en Excel/PDF.</p>
             </div>
         </div>

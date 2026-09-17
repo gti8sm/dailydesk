@@ -142,7 +142,14 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
             'school_id' => 'nullable|exists:schools,id',
+            'additional_school_ids' => 'nullable|array',
+            'additional_school_ids.*' => 'exists:schools,id',
         ]);
+
+        // Ne pas inclure l'école principale dans les écoles de remplacement
+        $additional = $validated['additional_school_ids'] ?? [];
+        $primarySchoolId = $validated['school_id'] ?? null;
+        $additional = array_values(array_filter($additional, fn($id) => $id != $primarySchoolId));
 
         $user->update([
             'name' => $validated['name'],
@@ -150,6 +157,7 @@ class UserController extends Controller
             'login' => $validated['login'] ?? null,
             'is_active' => $request->has('is_active'),
             'school_id' => $validated['school_id'] ?? null,
+            'additional_school_ids' => $additional,
         ]);
 
         if ($request->filled('password')) {

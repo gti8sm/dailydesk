@@ -155,6 +155,31 @@
                         <option value="{{ $school->id }}" {{ old('school_id', $user->school_id) == $school->id ? 'selected' : '' }}>{{ $school->name }} ({{ $school->type_label }})</option>
                         @endforeach
                     </select>
+
+                    @if($schools->count() > 1)
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-exchange-alt text-green-600 mr-1"></i>
+                            Écoles de remplacement
+                        </label>
+                        <p class="text-xs text-gray-500 mb-3">Autorisez l'accès à d'autres écoles pour les remplacements. L'agent pourra basculer entre ses écoles via le sélecteur du header.</p>
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
+                            @php $additional = old('additional_school_ids', $user->additional_school_ids ?? []); @endphp
+                            @foreach($schools as $school)
+                            @if(old('school_id', $user->school_id) != $school->id)
+                            <label class="flex items-center p-2 bg-white rounded border border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors">
+                                <input type="checkbox"
+                                       name="additional_school_ids[]"
+                                       value="{{ $school->id }}"
+                                       {{ in_array($school->id, $additional) ? 'checked' : '' }}
+                                       class="text-blue-600 focus:ring-blue-500 rounded">
+                                <span class="ml-3 text-sm text-gray-700">{{ $school->name }}</span>
+                            </label>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 @endif
 

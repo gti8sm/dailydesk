@@ -96,7 +96,7 @@ class SchoolController extends Controller
     }
 
     /**
-     * Sélectionne l'école active pour la session (admin global uniquement).
+     * Sélectionne l'école active pour la session.
      */
     public function select(Request $request)
     {
@@ -104,12 +104,22 @@ class SchoolController extends Controller
             'school_id' => 'nullable|exists:schools,id',
         ]);
 
-        if (auth()->user()->school_id) {
-            return redirect()->back()
-                ->with('error', 'Vous êtes limité à votre école.');
+        $user = auth()->user();
+
+        // Admin global (school_id null) : peut sélectionner n'importe quelle école
+        if (!$user->school_id) {
+            session(['selected_school_id' => $request->school_id]);
+            return redirect()->back();
         }
 
-        session(['selected_school_id' => $request->school_id]);
+        // Agent limité : ne peut sélectionner que son école ou ses écoles de remplacement
+        $schoolId = $request->school_id;
+        if ($schoolId && !$user->canAccessSchool((int) $schoolId)) {
+            return redirect()->back()
+                ->with('error', 'Vous n\'avez pas accès à cette école.');
+        }
+
+        session(['selected_school_id' => $schoolId]);
 
         return redirect()->back();
     }

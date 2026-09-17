@@ -29,14 +29,14 @@
         ];
         $helpContent['central.plans.index'] = [
             'title' => 'Plans d\'abonnement',
-            'text' => 'Définissez les plans d\'abonnement et les modules inclus dans chaque plan.',
-            'tips' => ['Chaque plan définit les modules disponibles et le nombre max d\'enfants', 'Désactivez un plan pour empêcher de nouvelles souscriptions'],
+            'text' => 'Les plans sont définis par tranche de population (Village, Petite commune, Commune moyenne, Grande commune, Agglomération). Tous les modules sont inclus dans chaque plan.',
+            'tips' => ['Le plan est suggéré automatiquement selon la population INSEE du tenant', 'Le prix et le niveau de support évoluent avec la taille de la commune'],
             'roles' => ['super_admin'],
         ];
         $helpContent['central.modules.overview'] = [
             'title' => 'Gestion des modules',
-            'text' => 'Activez ou désactivez les modules (Garderie, Cantine) pour chaque tenant.',
-            'tips' => ['Cliquez sur le bouton toggle pour activer/désactiver un module', 'Configurez les paramètres globaux via le bouton "Paramètres globaux"'],
+            'text' => 'Activez ou désactivez les modules (Garderie, Cantine, Stock) pour chaque tenant.',
+            'tips' => ['Cliquez sur le bouton toggle pour activer/désactiver un module', 'Configurez les paramètres globaux (horaires garderie, mode cantine, seuils stock) via le bouton "Paramètres globaux"'],
             'roles' => ['super_admin'],
         ];
         $helpContent['central.logs.index'] = [
@@ -71,8 +71,23 @@
         if ($user && $user->can('view_cantine')) {
             $helpContent['cantine.index'] = [
                 'title' => 'Cantine',
-                'text' => 'Gérez les présences des enfants à la cantine et le type de repas.',
+                'text' => 'Gérez les présences des enfants à la cantine et le type de repas. Les enfants affichés sont filtrés selon votre école.',
                 'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié'],
+                'roles' => null,
+            ];
+            $helpContent['cantine.menus.index'] = [
+                'title' => 'Menus cantine',
+                'text' => 'Créez et publiez les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda.',
+                'tips' => ['En mode "par école", chaque école a son propre menu', 'En mode "global", un seul menu sert toutes les écoles', 'Le mode est configurable dans Paramètres globaux'],
+                'roles' => null,
+            ];
+        }
+
+        if ($user && $user->can('view_stock')) {
+            $helpContent['stock.items.index'] = [
+                'title' => 'Stock',
+                'text' => 'Gérez les lieux de stockage, les articles et les mouvements (entrées/sorties).',
+                'tips' => ['Définissez un seuil minimum par article pour générer des alertes', 'Les droits stock sont attribués individuellement par utilisateur'],
                 'roles' => null,
             ];
         }
@@ -87,16 +102,22 @@
         }
 
         if ($isAdmin) {
+            $helpContent['schools.index'] = [
+                'title' => 'Écoles',
+                'text' => 'Créez et gérez les écoles de votre commune. Chaque école regroupe des classes et des enfants.',
+                'tips' => ['Une "École principale" est créée automatiquement à l\'installation', 'Pour les communes multi-écoles, créez les écoles supplémentaires ici'],
+                'roles' => ['admin_mairie'],
+            ];
             $helpContent['classes.index'] = [
                 'title' => 'Classes',
-                'text' => 'Gérez les classes scolaires et leurs enseignants.',
+                'text' => 'Gérez les classes scolaires et leurs enseignants. Chaque classe est rattachée à une école.',
                 'tips' => ['Créez une classe par année scolaire', 'Associez les enfants à leur classe lors de leur inscription'],
                 'roles' => ['admin_mairie'],
             ];
             $helpContent['users.index'] = [
                 'title' => 'Utilisateurs',
-                'text' => 'Gérez les comptes utilisateurs et leurs rôles (admin, personnel, enseignant, etc.).',
-                'tips' => ['Attribuez un code PIN pour un accès rapide', 'Activez la whitelist IP pour restreindre les connexions'],
+                'text' => 'Gérez les comptes utilisateurs, leurs rôles, leur école de rattachement et leurs écoles de remplacement.',
+                'tips' => ['Attribuez une école de rattachement pour limiter un agent à une école', 'Cochez les "Écoles de remplacement" pour autoriser un agent à accéder à d\'autres écoles (remplacements)', 'Attribuez un code PIN pour un accès rapide'],
                 'roles' => ['admin_mairie'],
             ];
         }
@@ -104,8 +125,8 @@
         if ($user && $user->can('manage_settings')) {
             $helpContent['settings.index'] = [
                 'title' => 'Paramètres',
-                'text' => 'Configurez les paramètres de votre instance : horaires, SMTP, notifications.',
-                'tips' => ['Les horaires de garderie définissent les plages par défaut', 'Configurez le SMTP pour activer les notifications email'],
+                'text' => 'Configurez les paramètres de votre instance : horaires garderie, mode de gestion des menus cantine, SMTP, notifications, seuils de stock.',
+                'tips' => ['Les horaires de garderie définissent les plages par défaut', 'Le mode cantine "par école" permet un menu différent par école', 'Configurez le SMTP pour activer les notifications email'],
                 'roles' => null,
             ];
         }

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'notification_preferences',
         'tenant_id',
         'school_id',
+        'additional_school_ids',
     ];
 
     protected $hidden = [
@@ -44,6 +45,7 @@ class User extends Authenticatable
         'ip_whitelist_enabled' => 'boolean',
         'is_active' => 'boolean',
         'notification_preferences' => 'array',
+        'additional_school_ids' => 'array',
     ];
 
     public function parent()
@@ -73,6 +75,46 @@ class User extends Authenticatable
         }
         // Sinon, session (sélecteur d'école pour les admins)
         return session('selected_school_id');
+    }
+
+    /**
+     * Renvoie la liste des écoles accessibles par l'utilisateur connecté.
+     * - admin global (school_id null) : toutes les écoles
+     * - agent limité : son école + ses écoles supplémentaires (remplacements)
+     */
+    public static function getAccessibleSchools()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return collect();
+        }
+
+        if (!$user->school_id) {
+            return \App\Models\School::active()->orderBy('name')->get();
+        }
+
+        $ids = array_filter(array_merge(
+            [$user->school_id],
+            $user->additional_school_ids ?? []
+        ));
+
+        return \App\Models\School::active()->whereIn('id', $ids)->orderBy('name')->get();
+    }
+
+    /**
+     * Vérifie si l'utilisateur a accès à une école donnée.
+     */
+    public function canAccessSchool(int $schoolId): bool
+    {
+        if (!$this->school_id) {
+            return true; // admin global
+        }
+
+        if ($this->school_id === $schoolId) {
+            return true;
+        }
+
+        return in_array($schoolId, $this->additional_school_ids ?? []);
     }
 
     public function isIpAllowed(string $ip): bool
