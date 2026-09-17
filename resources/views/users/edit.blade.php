@@ -112,29 +112,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-3">
                         Rôles <span class="text-red-500">*</span>
                     </label>
-                    <div class="space-y-3">
-                        @foreach($roles as $role)
-                        <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" 
-                                   name="roles[]" 
-                                   value="{{ $role->name }}"
-                                   {{ in_array($role->name, old('roles', $userRoles)) ? 'checked' : '' }}
-                                   class="mt-1 text-blue-600 focus:ring-blue-500 rounded">
-                            <div class="ml-3">
-                                <span class="font-medium text-gray-900">{{ ucfirst($role->name) }}</span>
-                                <p class="text-sm text-gray-500">
-                                    @if($role->name === 'admin')
-                                    Accès complet à toutes les fonctionnalités
-                                    @elseif($role->name === 'alsh')
-                                    Gestion de la garderie (ALSH)
-                                    @elseif($role->name === 'cantine')
-                                    Gestion de la cantine
-                                    @endif
-                                </p>
-                            </div>
-                        </label>
-                        @endforeach
-                    </div>
+                    @include('users._roles')
                     @error('roles')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
