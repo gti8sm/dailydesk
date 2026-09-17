@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyDesk — Présentation pour les mairies</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
@@ -20,22 +20,116 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .slide.active > * { animation: fadeInUp 0.5s ease-out; }
-        .screen-mock {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+
+        /* Mockup réaliste : navigateur */
+        .browser-mock {
+            background: #fff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
         }
-        .screen-mock-header {
-            background: #fff;
+        .browser-bar {
+            background: #f1f5f9;
             border-bottom: 1px solid #e2e8f0;
-            padding: 8px 12px;
+            padding: 8px 14px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .screen-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .browser-url {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: #64748b;
+            margin-left: 8px;
+        }
+
+        /* Mockup réaliste : header app */
+        .app-header {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-logo-icon {
+            background: #3b82f6;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-nav-item {
+            font-size: 13px;
+            color: #6b7280;
+            padding: 8px 12px;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .app-nav-item.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            font-weight: 500;
+        }
+        .app-content {
+            background: #f9fafb;
+            padding: 20px;
+        }
+
+        /* Cartes enfants cantine/garderie */
+        .child-card {
+            border-radius: 12px;
+            border-width: 2px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s;
+        }
+        .child-card.present {
+            border-color: #86efac;
+            background: #f0fdf4;
+        }
+        .child-card.absent {
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+        .child-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .child-avatar.present { background: #bbf7d0; color: #15803d; }
+        .child-avatar.absent { background: #fecaca; color: #b91c1c; }
+
+        /* Cartes stats dashboard */
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .stat-card-body { padding: 20px; display: flex; align-items: center; }
+        .stat-card-footer { background: #f9fafb; padding: 10px 20px; font-size: 12px; }
     </style>
 </head>
 <body class="bg-gray-900" x-data="{ current: 0, total: 14 }" x-init="window.addEventListener('keydown', (e) => {
@@ -45,7 +139,6 @@
     if (e.key === 'End') { current = total - 1; }
 })">
 
-<!-- Slides -->
 <div class="min-h-screen flex items-center justify-center p-4 sm:p-8 relative">
 
     <!-- SLIDE 0 : Page de garde -->
@@ -160,39 +253,84 @@
                         <div><h3 class="font-semibold">Filtré par école</h3><p class="text-sm text-gray-400">L'agent ne voit que les enfants de son école. L'admin voit toutes les écoles.</p></div>
                     </div>
                 </div>
-                <div class="screen-mock">
-                    <div class="screen-mock-header">
-                        <div class="screen-dot bg-red-400"></div>
-                        <div class="screen-dot bg-yellow-400"></div>
-                        <div class="screen-dot bg-green-400"></div>
-                        <span class="ml-2 text-xs text-gray-400">DailyDesk — Garderie</span>
+                <!-- Mockup réaliste : Garderie -->
+                <div class="browser-mock">
+                    <div class="browser-bar">
+                        <div class="browser-dot bg-red-400"></div>
+                        <div class="browser-dot bg-yellow-400"></div>
+                        <div class="browser-dot bg-green-400"></div>
+                        <div class="browser-url">localhost:8000/beauville/garderie</div>
                     </div>
-                    <div class="p-4 text-gray-800">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-bold text-blue-600"><i class="fas fa-child mr-1"></i> Garderie</h4>
-                            <input type="date" class="text-xs px-2 py-1 border rounded" value="2026-09-17" disabled>
+                    <div class="app-header">
+                        <div class="app-logo">
+                            <div class="app-logo-icon"><i class="fas fa-users text-white text-xs"></i></div>
+                            <span class="text-xl font-bold text-blue-600">DailyDesk</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 mb-3">
-                            <div class="bg-green-100 rounded p-2 text-center"><p class="text-lg font-bold text-green-600">24</p><p class="text-xs text-gray-500">Présents</p></div>
-                            <div class="bg-red-100 rounded p-2 text-center"><p class="text-lg font-bold text-red-500">3</p><p class="text-xs text-gray-500">Absents</p></div>
-                            <div class="bg-gray-100 rounded p-2 text-center"><p class="text-lg font-bold text-gray-700">27</p><p class="text-xs text-gray-500">Inscrits</p></div>
+                        <div class="flex items-center gap-4">
+                            <span class="app-nav-item active"><i class="fas fa-child mr-1"></i> Garderie</span>
+                            <span class="app-nav-item"><i class="fas fa-utensils mr-1"></i> Cantine</span>
+                            <span class="app-nav-item"><i class="fas fa-th-large mr-1"></i> Modules</span>
                         </div>
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Lucas Martin</span>
-                                <span class="text-xs text-green-600"><i class="fas fa-check-circle"></i> Arrivé 07:42</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600 text-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900"><i class="fas fa-child text-blue-600 mr-2"></i>Garderie</h3>
+                                <p class="text-xs text-gray-500 mt-1">Cliquez sur un enfant pour enregistrer son arrivée ou son départ</p>
                             </div>
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Emma Dubois</span>
-                                <span class="text-xs text-green-600"><i class="fas fa-check-circle"></i> Arrivé 07:55</span>
+                            <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" value="2026-09-17" disabled>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-green-600">24</p>
+                                <p class="text-xs text-gray-500">Présents</p>
                             </div>
-                            <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Léa Bernard</span>
-                                <span class="text-xs text-red-500"><i class="fas fa-times-circle"></i> Absente</span>
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-red-500">3</p>
+                                <p class="text-xs text-gray-500">Absents</p>
                             </div>
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Tom Petit</span>
-                                <span class="text-xs text-green-600"><i class="fas fa-check-circle"></i> Arrivé 08:10</span>
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-gray-700">27</p>
+                                <p class="text-xs text-gray-500">Inscrits</p>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                            <div class="px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white flex items-center justify-between">
+                                <h4 class="text-base font-bold"><i class="fas fa-school mr-2"></i>CP — École Jean Jaurès</h4>
+                                <span class="text-xs bg-white/20 px-3 py-1 rounded-full">8 enfants</span>
+                            </div>
+                            <div class="p-4 grid grid-cols-2 gap-2">
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">L</div>
+                                        <span class="text-sm font-medium text-gray-900">Lucas Martin</span>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Arrivé 07:42</span>
+                                </div>
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">E</div>
+                                        <span class="text-sm font-medium text-gray-900">Emma Dubois</span>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Arrivé 07:55</span>
+                                </div>
+                                <div class="child-card absent">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar absent">L</div>
+                                        <span class="text-sm font-medium text-gray-900">Léa Bernard</span>
+                                    </div>
+                                    <span class="text-xs text-red-500 font-medium"><i class="fas fa-times-circle"></i> Absente</span>
+                                </div>
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">T</div>
+                                        <span class="text-sm font-medium text-gray-900">Tom Petit</span>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Arrivé 08:10</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -210,39 +348,96 @@
                 <p class="text-gray-400 mt-3">Présences, menus et allergènes — tout est centralisé</p>
             </div>
             <div class="grid lg:grid-cols-2 gap-8 items-center">
-                <div class="screen-mock order-2 lg:order-1">
-                    <div class="screen-mock-header">
-                        <div class="screen-dot bg-red-400"></div>
-                        <div class="screen-dot bg-yellow-400"></div>
-                        <div class="screen-dot bg-green-400"></div>
-                        <span class="ml-2 text-xs text-gray-400">DailyDesk — Cantine</span>
+                <!-- Mockup réaliste : Cantine -->
+                <div class="browser-mock order-2 lg:order-1">
+                    <div class="browser-bar">
+                        <div class="browser-dot bg-red-400"></div>
+                        <div class="browser-dot bg-yellow-400"></div>
+                        <div class="browser-dot bg-green-400"></div>
+                        <div class="browser-url">localhost:8000/beauville/cantine</div>
                     </div>
-                    <div class="p-4 text-gray-800">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-bold text-orange-600"><i class="fas fa-utensils mr-1"></i> Cantine — Déjeuner</h4>
-                            <input type="date" class="text-xs px-2 py-1 border rounded" value="2026-09-17" disabled>
+                    <div class="app-header">
+                        <div class="app-logo">
+                            <div class="app-logo-icon"><i class="fas fa-users text-white text-xs"></i></div>
+                            <span class="text-xl font-bold text-blue-600">DailyDesk</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 mb-3">
-                            <div class="bg-green-100 rounded p-2 text-center"><p class="text-lg font-bold text-green-600">32</p><p class="text-xs text-gray-500">Présents</p></div>
-                            <div class="bg-red-100 rounded p-2 text-center"><p class="text-lg font-bold text-red-500">5</p><p class="text-xs text-gray-500">Absents</p></div>
-                            <div class="bg-orange-100 rounded p-2 text-center"><p class="text-lg font-bold text-orange-600">2</p><p class="text-xs text-gray-500">Allergies</p></div>
+                        <div class="flex items-center gap-4">
+                            <span class="app-nav-item"><i class="fas fa-child mr-1"></i> Garderie</span>
+                            <span class="app-nav-item active"><i class="fas fa-utensils mr-1"></i> Cantine</span>
+                            <span class="app-nav-item"><i class="fas fa-th-large mr-1"></i> Modules</span>
                         </div>
-                        <div class="bg-orange-50 rounded-lg p-3 mb-2">
-                            <p class="text-xs font-semibold text-orange-700 mb-1">Menu du jour</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600 text-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900"><i class="fas fa-utensils text-green-600 mr-2"></i>Cantine</h3>
+                                <p class="text-xs text-gray-500 mt-1">Les enfants inscrits sont pré-cochés présents — cliquez pour marquer absent</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium"><i class="fas fa-exclamation-triangle mr-1"></i>Signaler</button>
+                                <button class="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-xs font-medium"><i class="fas fa-list mr-1"></i>Événements</button>
+                                <select class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"><option>Déjeuner</option></select>
+                                <input type="date" class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm" value="2026-09-17" disabled>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-green-600">32</p>
+                                <p class="text-xs text-gray-500">Présents</p>
+                            </div>
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-red-500">5</p>
+                                <p class="text-xs text-gray-500">Absents</p>
+                            </div>
+                            <div class="bg-white shadow rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-orange-600">2</p>
+                                <p class="text-xs text-gray-500">Allergies</p>
+                            </div>
+                        </div>
+                        <div class="bg-orange-50 rounded-lg p-3 mb-3 border border-orange-200">
+                            <p class="text-xs font-semibold text-orange-700 mb-1"><i class="fas fa-utensils mr-1"></i> Menu du jour</p>
                             <p class="text-xs text-gray-600">Salade composée · Poulet rôti · Riz · Yaourt</p>
                         </div>
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Lucas Martin</span>
-                                <span class="text-xs text-green-600"><i class="fas fa-check-circle"></i> Présent</span>
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                            <div class="px-5 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white flex items-center justify-between">
+                                <h4 class="text-base font-bold"><i class="fas fa-school mr-2"></i>CE1 — École Jean Jaurès</h4>
+                                <span class="text-xs bg-white/20 px-3 py-1 rounded-full">12 enfants</span>
                             </div>
-                            <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Emma Dubois <span class="text-xs text-red-500">⚠ Allergie gluten</span></span>
-                                <span class="text-xs text-green-600"><i class="fas fa-check-circle"></i> Présent</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
-                                <span class="text-sm font-medium">Léa Bernard</span>
-                                <span class="text-xs text-red-500"><i class="fas fa-times-circle"></i> Absente</span>
+                            <div class="p-4 grid grid-cols-2 gap-2">
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">L</div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-900">Lucas Martin</span>
+                                            <p class="text-xs text-red-500"><i class="fas fa-exclamation-triangle"></i> Allergie gluten</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Présent</span>
+                                </div>
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">E</div>
+                                        <span class="text-sm font-medium text-gray-900">Emma Dubois</span>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Présent</span>
+                                </div>
+                                <div class="child-card absent">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar absent">L</div>
+                                        <span class="text-sm font-medium text-gray-900">Léa Bernard</span>
+                                    </div>
+                                    <span class="text-xs text-red-500 font-medium"><i class="fas fa-times-circle"></i> Absente</span>
+                                </div>
+                                <div class="child-card present">
+                                    <div class="flex items-center gap-2">
+                                        <div class="child-avatar present">T</div>
+                                        <span class="text-sm font-medium text-gray-900">Tom Petit</span>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-medium"><i class="fas fa-check-circle"></i> Présent</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -296,35 +491,72 @@
                         <div><h3 class="font-semibold">Permissions fines</h3><p class="text-sm text-gray-400">Voir, Saisir, Gérer — attribuez les droits stock individuellement par utilisateur.</p></div>
                     </div>
                 </div>
-                <div class="screen-mock">
-                    <div class="screen-mock-header">
-                        <div class="screen-dot bg-red-400"></div>
-                        <div class="screen-dot bg-yellow-400"></div>
-                        <div class="screen-dot bg-green-400"></div>
-                        <span class="ml-2 text-xs text-gray-400">DailyDesk — Stock</span>
+                <div class="browser-mock">
+                    <div class="browser-bar">
+                        <div class="browser-dot bg-red-400"></div>
+                        <div class="browser-dot bg-yellow-400"></div>
+                        <div class="browser-dot bg-green-400"></div>
+                        <div class="browser-url">localhost:8000/beauville/stock</div>
                     </div>
-                    <div class="p-4 text-gray-800">
-                        <h4 class="font-bold text-indigo-600 mb-3"><i class="fas fa-boxes-stacked mr-1"></i> Stock — Cuisine</h4>
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <div><span class="text-sm font-medium">Farine (kg)</span><p class="text-xs text-gray-400">Réserve</p></div>
-                                <div class="text-right"><span class="text-sm font-bold text-green-600">25</span><p class="text-xs text-gray-400">seuil: 10</p></div>
-                            </div>
-                            <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
-                                <div><span class="text-sm font-medium">Lait (L)</span><p class="text-xs text-gray-400">Cuisine</p></div>
-                                <div class="text-right"><span class="text-sm font-bold text-red-500">8</span><p class="text-xs text-red-500">⚠ seuil: 15</p></div>
-                            </div>
-                            <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
-                                <div><span class="text-sm font-medium">Pâtes (kg)</span><p class="text-xs text-gray-400">Réserve</p></div>
-                                <div class="text-right"><span class="text-sm font-bold text-green-600">40</span><p class="text-xs text-gray-400">seuil: 20</p></div>
-                            </div>
-                            <div class="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                                <div><span class="text-sm font-medium">Œufs (boîte)</span><p class="text-xs text-gray-400">Cuisine</p></div>
-                                <div class="text-right"><span class="text-sm font-bold text-yellow-600">12</span><p class="text-xs text-gray-400">seuil: 12</p></div>
-                            </div>
+                    <div class="app-header">
+                        <div class="app-logo">
+                            <div class="app-logo-icon"><i class="fas fa-users text-white text-xs"></i></div>
+                            <span class="text-xl font-bold text-blue-600">DailyDesk</span>
                         </div>
-                        <div class="mt-3 bg-red-50 border border-red-200 rounded-lg p-2">
-                            <p class="text-xs text-red-600"><i class="fas fa-bell mr-1"></i> 1 article sous le seuil d'alerte</p>
+                        <div class="flex items-center gap-4">
+                            <span class="app-nav-item"><i class="fas fa-child mr-1"></i> Garderie</span>
+                            <span class="app-nav-item"><i class="fas fa-utensils mr-1"></i> Cantine</span>
+                            <span class="app-nav-item active"><i class="fas fa-boxes-stacked mr-1"></i> Stock</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600 text-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-900"><i class="fas fa-boxes-stacked text-indigo-600 mr-2"></i>Stock</h3>
+                            <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium"><i class="fas fa-plus mr-1"></i>Nouveau mouvement</button>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                            <p class="text-sm text-red-600 font-medium"><i class="fas fa-bell mr-1"></i> 1 article sous le seuil d'alerte</p>
+                        </div>
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Lieu</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Qté</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Seuil</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Farine (kg)</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">Réserve</td>
+                                        <td class="px-4 py-3 text-sm font-bold text-green-600 text-right">25</td>
+                                        <td class="px-4 py-3 text-sm text-gray-400 text-right">10</td>
+                                    </tr>
+                                    <tr class="bg-red-50">
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Lait (L)</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">Cuisine</td>
+                                        <td class="px-4 py-3 text-sm font-bold text-red-600 text-right">8 ⚠</td>
+                                        <td class="px-4 py-3 text-sm text-gray-400 text-right">15</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Pâtes (kg)</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">Réserve</td>
+                                        <td class="px-4 py-3 text-sm font-bold text-green-600 text-right">40</td>
+                                        <td class="px-4 py-3 text-sm text-gray-400 text-right">20</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Œufs (boîte)</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">Cuisine</td>
+                                        <td class="px-4 py-3 text-sm font-bold text-yellow-600 text-right">12</td>
+                                        <td class="px-4 py-3 text-sm text-gray-400 text-right">12</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -338,7 +570,7 @@
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">Architecture</span>
                 <h2 class="text-3xl sm:text-5xl font-bold mt-4"><i class="fas fa-school text-blue-500 mr-3"></i>Multi-écoles</h2>
-                <p class="text-gray-400 mt-3">Pour les communes avec plusieurs écoles — chaque agent voit sa école</p>
+                <p class="text-gray-400 mt-3">Pour les communes avec plusieurs écoles — chaque agent voit son école</p>
             </div>
             <div class="grid sm:grid-cols-3 gap-6 mb-8">
                 <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 text-center">
@@ -455,36 +687,70 @@
                         <div><h3 class="font-semibold">Signalements</h3><p class="text-sm text-gray-400">Le parent signale une allergie, un régime ou une info médicale. L'équipe est notifiée immédiatement.</p></div>
                     </div>
                 </div>
-                <div class="screen-mock">
-                    <div class="screen-mock-header">
-                        <div class="screen-dot bg-red-400"></div>
-                        <div class="screen-dot bg-yellow-400"></div>
-                        <div class="screen-dot bg-green-400"></div>
-                        <span class="ml-2 text-xs text-gray-400">DailyDesk — Espace Parent</span>
+                <div class="browser-mock">
+                    <div class="browser-bar">
+                        <div class="browser-dot bg-red-400"></div>
+                        <div class="browser-dot bg-yellow-400"></div>
+                        <div class="browser-dot bg-green-400"></div>
+                        <div class="browser-url">localhost:8000/beauville/parent</div>
                     </div>
-                    <div class="p-4 text-gray-800">
-                        <div class="bg-indigo-50 rounded-lg p-3 mb-3">
-                            <h4 class="font-bold text-indigo-700">Bonjour, Famille Martin</h4>
-                            <p class="text-xs text-gray-500">2 enfants inscrits</p>
+                    <div class="app-header">
+                        <div class="app-logo">
+                            <div class="app-logo-icon"><i class="fas fa-users text-white text-xs"></i></div>
+                            <span class="text-xl font-bold text-blue-600">DailyDesk</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-indigo-600 text-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="bg-indigo-50 rounded-lg p-4 mb-4 border border-indigo-200">
+                            <h3 class="text-lg font-bold text-indigo-700">Bonjour, Famille Martin 👋</h3>
+                            <p class="text-xs text-gray-500 mt-1">2 enfants inscrits</p>
                         </div>
                         <div class="space-y-3">
-                            <div class="border rounded-lg p-3">
-                                <p class="text-sm font-semibold">Lucas — CP</p>
-                                <div class="mt-2 space-y-1">
-                                    <div class="flex justify-between text-xs"><span><i class="fas fa-child text-blue-500"></i> Garderie</span><span class="text-green-600">Arrivé 07:42</span></div>
-                                    <div class="flex justify-between text-xs"><span><i class="fas fa-utensils text-orange-500"></i> Cantine</span><span class="text-green-600">Présent (Déjeuner)</span></div>
+                            <div class="bg-white shadow rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="child-avatar present">L</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">Lucas Martin</p>
+                                        <p class="text-xs text-gray-500">CP — École Jean Jaurès</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 mt-2 pt-2 border-t border-gray-100">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span><i class="fas fa-child text-blue-500 mr-1"></i> Garderie</span>
+                                        <span class="text-green-600 font-medium"><i class="fas fa-check-circle"></i> Arrivé 07:42</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span><i class="fas fa-utensils text-orange-500 mr-1"></i> Cantine</span>
+                                        <span class="text-green-600 font-medium"><i class="fas fa-check-circle"></i> Présent (Déjeuner)</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="border rounded-lg p-3">
-                                <p class="text-sm font-semibold">Emma — CE1</p>
-                                <div class="mt-2 space-y-1">
-                                    <div class="flex justify-between text-xs"><span><i class="fas fa-child text-blue-500"></i> Garderie</span><span class="text-green-600">Arrivé 07:55</span></div>
-                                    <div class="flex justify-between text-xs"><span><i class="fas fa-utensils text-orange-500"></i> Cantine</span><span class="text-green-600">Présent (Déjeuner)</span></div>
+                            <div class="bg-white shadow rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="child-avatar present">E</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">Emma Martin</p>
+                                        <p class="text-xs text-gray-500">CE1 — École Jean Jaurès</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 mt-2 pt-2 border-t border-gray-100">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span><i class="fas fa-child text-blue-500 mr-1"></i> Garderie</span>
+                                        <span class="text-green-600 font-medium"><i class="fas fa-check-circle"></i> Arrivé 07:55</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span><i class="fas fa-utensils text-orange-500 mr-1"></i> Cantine</span>
+                                        <span class="text-green-600 font-medium"><i class="fas fa-check-circle"></i> Présent (Déjeuner)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3 bg-orange-50 rounded-lg p-2">
-                            <p class="text-xs text-orange-700"><i class="fas fa-utensils mr-1"></i> Menu du jour : Salade · Poulet rôti · Riz · Yaourt</p>
+                        <div class="mt-3 bg-orange-50 rounded-lg p-3 border border-orange-200">
+                            <p class="text-xs font-semibold text-orange-700 mb-1"><i class="fas fa-utensils mr-1"></i> Menu du jour</p>
+                            <p class="text-xs text-gray-600">Salade composée · Poulet rôti · Riz · Yaourt</p>
                         </div>
                     </div>
                 </div>
@@ -500,48 +766,110 @@
                 <h2 class="text-3xl sm:text-5xl font-bold mt-4"><i class="fas fa-chart-line text-green-500 mr-3"></i>Tableau de bord</h2>
                 <p class="text-gray-400 mt-3">Pilotez toute la commune d'un seul regard</p>
             </div>
-            <div class="screen-mock">
-                <div class="screen-mock-header">
-                    <div class="screen-dot bg-red-400"></div>
-                    <div class="screen-dot bg-yellow-400"></div>
-                    <div class="screen-dot bg-green-400"></div>
-                    <span class="ml-2 text-xs text-gray-400">DailyDesk — Dashboard</span>
+            <div class="browser-mock">
+                <div class="browser-bar">
+                    <div class="browser-dot bg-red-400"></div>
+                    <div class="browser-dot bg-yellow-400"></div>
+                    <div class="browser-dot bg-green-400"></div>
+                    <div class="browser-url">localhost:8000/beauville/dashboard</div>
                 </div>
-                <div class="p-6 text-gray-800">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-blue-50 rounded-lg p-4">
-                            <i class="fas fa-child text-blue-500 text-xl mb-1"></i>
-                            <p class="text-2xl font-bold text-blue-600">24</p>
-                            <p class="text-xs text-gray-500">Présents garderie</p>
-                        </div>
-                        <div class="bg-orange-50 rounded-lg p-4">
-                            <i class="fas fa-utensils text-orange-500 text-xl mb-1"></i>
-                            <p class="text-2xl font-bold text-orange-600">32</p>
-                            <p class="text-xs text-gray-500">Présents cantine</p>
-                        </div>
-                        <div class="bg-green-50 rounded-lg p-4">
-                            <i class="fas fa-users text-green-500 text-xl mb-1"></i>
-                            <p class="text-2xl font-bold text-green-600">187</p>
-                            <p class="text-xs text-gray-500">Enfants inscrits</p>
-                        </div>
-                        <div class="bg-red-50 rounded-lg p-4">
-                            <i class="fas fa-bell text-red-500 text-xl mb-1"></i>
-                            <p class="text-2xl font-bold text-red-600">1</p>
-                            <p class="text-xs text-gray-500">Alerte stock</p>
-                        </div>
+                <div class="app-header">
+                    <div class="app-logo">
+                        <div class="app-logo-icon"><i class="fas fa-users text-white text-xs"></i></div>
+                        <span class="text-xl font-bold text-blue-600">DailyDesk</span>
                     </div>
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="border rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-calendar-day text-blue-500 mr-1"></i> Événements récents</h4>
-                            <div class="space-y-1 text-xs text-gray-500">
-                                <div>• Sortie scolaire — 20/09</div>
-                                <div>• Réunion parents — 25/09</div>
-                                <div>• Vaccination CP — 28/09</div>
+                    <div class="flex items-center gap-4">
+                        <span class="app-nav-item active"><i class="fas fa-home mr-1"></i> Dashboard</span>
+                        <span class="app-nav-item"><i class="fas fa-th-large mr-1"></i> Modules</span>
+                        <span class="app-nav-item"><i class="fas fa-users mr-1"></i> Gestion</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600 text-xs"></i></div>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <div class="mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900">Bonjour, Marie Dubois 👋</h3>
+                        <p class="text-sm text-gray-500 mt-1">Rôle : <span class="font-medium">admin_mairie</span></p>
+                    </div>
+                    <!-- Carte abonnement -->
+                    <div class="mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-5 text-white">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-white/20 rounded-full p-2.5"><i class="fas fa-credit-card text-xl"></i></div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Abonnement Petite commune</h4>
+                                    <p class="text-sm text-indigo-100">149,00 €/mois · Limite : ∞ enfants</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 text-sm">
+                                <div class="text-center">
+                                    <p class="text-indigo-200 text-xs uppercase">Début</p>
+                                    <p class="font-semibold mt-1">14/09/2026</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-indigo-200 text-xs uppercase">Expiration</p>
+                                    <p class="font-semibold mt-1">14/09/2027</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="border rounded-lg p-4">
+                    </div>
+                    <!-- Stats cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <i class="fas fa-child text-3xl text-blue-600 mr-4"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Présences Garderie</p>
+                                    <p class="text-2xl font-bold text-gray-900">24</p>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer"><a class="text-blue-600">Voir détails →</a></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <i class="fas fa-utensils text-3xl text-green-600 mr-4"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Repas Cantine</p>
+                                    <p class="text-2xl font-bold text-gray-900">32</p>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer"><a class="text-green-600">Voir détails →</a></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <i class="fas fa-users text-3xl text-purple-600 mr-4"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Familles actives</p>
+                                    <p class="text-2xl font-bold text-gray-900">87</p>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer"><a class="text-purple-600">Voir détails →</a></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <i class="fas fa-boxes-stacked text-3xl text-indigo-600 mr-4"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Articles en stock</p>
+                                    <p class="text-2xl font-bold text-gray-900">45</p>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer"><a class="text-indigo-600">Voir détails →</a></div>
+                        </div>
+                    </div>
+                    <!-- Événements récents -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white shadow rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-calendar-day text-blue-500 mr-1"></i> Événements récents</h4>
+                            <div class="space-y-1.5 text-xs text-gray-500">
+                                <div class="flex justify-between"><span>Sortie scolaire</span><span class="text-gray-400">20/09</span></div>
+                                <div class="flex justify-between"><span>Réunion parents</span><span class="text-gray-400">25/09</span></div>
+                                <div class="flex justify-between"><span>Vaccination CP</span><span class="text-gray-400">28/09</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow rounded-lg p-4">
                             <h4 class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-utensils text-orange-500 mr-1"></i> Menu du jour</h4>
-                            <p class="text-xs text-gray-500">Salade · Poulet rôti · Riz · Yaourt</p>
+                            <p class="text-xs text-gray-500">Salade composée · Poulet rôti · Riz · Yaourt</p>
                             <p class="text-xs text-green-600 mt-1"><i class="fas fa-check"></i> Publié sur le portail parent</p>
                         </div>
                     </div>
@@ -634,7 +962,7 @@
         </div>
     </div>
 
-    <!-- SLIDE 12 : Tarification -->
+    <!-- SLIDE 12 : Tarification (prix dynamiques depuis la BDD) -->
     <div class="slide" :class="{ 'active': current === 12 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
@@ -643,37 +971,37 @@
                 <p class="text-gray-400 mt-3">Basée sur la population de votre commune — tous les modules inclus</p>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-300">Village</h3>
-                    <p class="text-xs text-gray-500 mb-3">< 1 000 habitants</p>
-                    <p class="text-3xl font-bold text-white">39 €<span class="text-sm font-normal text-gray-400">/mois</span></p>
-                    <p class="text-xs text-gray-400 mt-2">Support email (48h)</p>
-                </div>
-                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 border-2 border-blue-500 transform scale-105 relative">
+                @php
+                    $popularSlug = 'petite-commune';
+                    $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
+                @endphp
+                @foreach($plans as $plan)
+                <div class="rounded-xl p-6 border {{ $plan->slug === $popularSlug ? 'bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500 transform scale-105 relative' : 'bg-gray-800 border-gray-700' }}">
+                    @if($plan->slug === $popularSlug)
                     <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">Le plus choisi</span>
-                    <h3 class="text-lg font-bold">Petite commune</h3>
-                    <p class="text-xs text-blue-200 mb-3">1 000 - 4 999 hab.</p>
-                    <p class="text-3xl font-bold">79 €<span class="text-sm font-normal text-blue-200">/mois</span></p>
-                    <p class="text-xs text-blue-100 mt-2">Email + téléphone (24h)</p>
+                    @endif
+                    <h3 class="text-lg font-bold {{ $plan->slug === $popularSlug ? '' : 'text-gray-300' }}">{{ $plan->name }}</h3>
+                    <p class="text-xs {{ $plan->slug === $popularSlug ? 'text-blue-200' : 'text-gray-500' }} mb-3">
+                        @if($plan->population_max)
+                        {{ number_format($plan->population_min, 0, ',', ' ') }} - {{ number_format($plan->population_max, 0, ',', ' ') }} hab.
+                        @else
+                        {{ number_format($plan->population_min, 0, ',', ' ') }}+ hab.
+                        @endif
+                    </p>
+                    @if($plan->price_monthly > 0)
+                    <p class="text-3xl font-bold">{{ number_format($plan->price_monthly, 0, ',', ' ') }} €<span class="text-sm font-normal {{ $plan->slug === $popularSlug ? 'text-blue-200' : 'text-gray-400' }}">/mois</span></p>
+                    @else
+                    <p class="text-3xl font-bold">Sur devis</p>
+                    @endif
+                    @if($plan->features)
+                    <ul class="mt-3 space-y-1">
+                        @foreach($plan->features as $feature)
+                        <li class="text-xs {{ $plan->slug === $popularSlug ? 'text-blue-100' : 'text-gray-400' }}"><i class="fas fa-check text-green-500 mr-1"></i> {{ $feature }}</li>
+                        @endforeach
+                    </ul>
+                    @endif
                 </div>
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-300">Commune moyenne</h3>
-                    <p class="text-xs text-gray-500 mb-3">5 000 - 19 999 hab.</p>
-                    <p class="text-3xl font-bold text-white">149 €<span class="text-sm font-normal text-gray-400">/mois</span></p>
-                    <p class="text-xs text-gray-400 mt-2">Support prioritaire (J)</p>
-                </div>
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-300">Grande commune</h3>
-                    <p class="text-xs text-gray-500 mb-3">20 000 - 99 999 hab.</p>
-                    <p class="text-3xl font-bold text-white">299 €<span class="text-sm font-normal text-gray-400">/mois</span></p>
-                    <p class="text-xs text-gray-400 mt-2">Support dédié 7j/7</p>
-                </div>
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 sm:col-span-2">
-                    <h3 class="text-lg font-bold text-gray-300">Agglomération</h3>
-                    <p class="text-xs text-gray-500 mb-3">100 000+ habitants</p>
-                    <p class="text-3xl font-bold text-white">Sur devis</p>
-                    <p class="text-xs text-gray-400 mt-2">Support sur mesure · SLA personnalisé</p>
-                </div>
+                @endforeach
             </div>
             <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
                 <p class="text-sm text-gray-400"><i class="fas fa-check-circle text-green-500 mr-1"></i> Tous les modules inclus · <i class="fas fa-check-circle text-green-500 mr-1"></i> Enfants illimités · <i class="fas fa-check-circle text-green-500 mr-1"></i> Utilisateurs illimités · <i class="fas fa-check-circle text-green-500 mr-1"></i> Hébergement France</p>

@@ -60,7 +60,10 @@ Route::get('/', function () {
 Route::get('/accueil', [LandingPageController::class, 'index'])->name('landing');
 Route::post('/accueil/register', [LandingPageController::class, 'registerProspect'])->name('landing.register')->middleware('throttle:3,1');
 Route::get('/accueil/merci', [LandingPageController::class, 'thankYou'])->name('landing.thank-you');
-Route::get('/presentation', fn() => view('presentation.index'))->name('presentation');
+Route::get('/presentation', function () {
+    $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
+    return view('presentation.index', compact('plans'));
+})->name('presentation');
 
 Route::get('/cgv', function () {
     $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
