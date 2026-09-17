@@ -66,6 +66,8 @@ class DashboardController extends Controller
             'cantine_today' => 0,
             'families_count' => 0,
             'children_count' => 0,
+            'stock_items' => 0,
+            'stock_alerts' => 0,
         ];
 
         if ($user->can('view_garderie')) {
@@ -73,7 +75,7 @@ class DashboardController extends Controller
         }
 
         if ($user->can('view_cantine')) {
-            $stats['cantine_today'] = CantinePresence::forDate(today())->count();
+            $stats['cantine_today'] = CantinePresence::forDate(today())->where('is_present', true)->count();
         }
 
         if ($user->can('manage_families')) {
@@ -107,6 +109,124 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        // --- Nouvelles données pour le dashboard enrichi ---
+
+        // 1. Répartition par école (pour les admins)
+        $schoolStats = collect();
+        if ($user->hasRole(['admin', 'admin_mairie']) && $user->can('view_garderie')) {
+            $schools = \App\Models\School::active()->orderBy('name')->get();
+            foreach ($schools as $school) {
+                $childIds = \App\Models\Child::where('school_id', $school->id)->where('is_active', true)->pluck('id');
+                $garderiePresent = GarderiePresence::forDate(today())->whereIn('child_id', $childIds)->count();
+                $cantinePresent = 0;
+                if ($user->can('view_cantine')) {
+                    $cantinePresent = CantinePresence::forDate(today())
+                        ->whereIn('child_id', $childIds)
+                        ->where('is_present', true)
+                        ->count();
+                }
+                $schoolStats->push([
+                    'id' => $school->id,
+                    'name' => $school->name,
+                    'type' => $school->type_label,
+                    'children_count' => $childIds->count(),
+                    'garderie_present' => $garderiePresent,
+                    'cantine_present' => $cantinePresent,
+                ]);
+            }
+        }
+
+        // 2. Présences 7 derniers jours (pour mini-graphique)
+        $weeklyStats = [];
+        if ($user->can('view_garderie') || $user->can('view_cantine')) {
+            for ($i = 6; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $dayKey = $date->format('Y-m-d');
+                $garderie = 0;
+                $cantine = 0;
+                if ($user->can('view_garderie')) {
+                    $garderie = GarderiePresence::forDate($date)->count();
+                }
+                if ($user->can('view_cantine')) {
+                    $cantine = CantinePresence::forDate($date)->where('is_present', true)->count();
+                }
+                $weeklyStats[] = [
+                    'date' => $dayKey,
+                    'day' => $date->translatedFormat('D'),
+                    'day_num' => $date->format('d/m'),
+                    'garderie' => $garderie,
+                    'cantine' => $cantine,
+                    'total' => $garderie + $cantine,
+                ];
+            }
+        }
+
+        // 3. Actions en attente (à traiter)
+        $pendingActions = collect();
+        if ($user->can('view_garderie_events')) {
+            $unnotifiedGarderie = GarderieEvent::unnotified()
+                ->whereDate('event_date', '>=', today()->subDays(7))
+                ->count();
+            if ($unnotifiedGarderie > 0) {
+                $pendingActions->push([
+                    'label' => $unnotifiedGarderie . ' événement(s) garderie non notifié(s)',
+                    'url' => route('garderie.events.index'),
+                    'icon' => 'fa-exclamation-triangle',
+                    'color' => 'yellow',
+                ]);
+            }
+        }
+        if ($user->can('view_cantine_events')) {
+            $unnotifiedCantine = CantineEvent::unnotified()
+                ->whereDate('event_date', '>=', today()->subDays(7))
+                ->count();
+            if ($unnotifiedCantine > 0) {
+                $pendingActions->push([
+                    'label' => $unnotifiedCantine . ' événement(s) cantine non notifié(s)',
+                    'url' => route('cantine.events.index'),
+                    'icon' => 'fa-exclamation-triangle',
+                    'color' => 'orange',
+                ]);
+            }
+        }
+        if ($user->can('view_stock') && $stats['stock_alerts'] > 0) {
+            $pendingActions->push([
+                'label' => $stats['stock_alerts'] . ' article(s) en alerte stock',
+                'url' => route('stock.alerts.index'),
+                'icon' => 'fa-bell',
+                'color' => 'red',
+            ]);
+        }
+        if ($user->hasRole(['admin', 'admin_mairie'])) {
+            $pendingInvitations = \App\Models\FamilyInvitation::whereNull('accepted_at')
+                ->where('expires_at', '>', now())
+                ->count();
+            if ($pendingInvitations > 0) {
+                $pendingActions->push([
+                    'label' => $pendingInvitations . ' invitation(s) famille en attente',
+                    'url' => route('invitations.index'),
+                    'icon' => 'fa-envelope-open-text',
+                    'color' => 'blue',
+                ]);
+            }
+        }
+
+        // 4. Tickets de support non lus (côté tenant)
+        if (class_exists(\App\Models\SupportTicket::class)) {
+            $unreadTickets = \App\Models\SupportTicket::unreadByUser()->count();
+            if ($unreadTickets > 0) {
+                $pendingActions->push([
+                    'label' => $unreadTickets . ' réponse(s) support non lue(s)',
+                    'url' => route('support.index'),
+                    'icon' => 'fa-life-ring',
+                    'color' => 'purple',
+                ]);
+            }
+        }
+
+        // 5. Valeur max pour le graphique
+        $weeklyMax = max(array_map(fn($d) => $d['total'], $weeklyStats)) ?: 1;
+
         $my_children = null;
         if ($user->hasRole('parent') && $user->parent) {
             $my_children = Child::where('family_id', $user->parent->family_id)
@@ -132,7 +252,11 @@ class DashboardController extends Controller
             'my_children',
             'tenant',
             'plan',
-            'activeModules'
+            'activeModules',
+            'schoolStats',
+            'weeklyStats',
+            'weeklyMax',
+            'pendingActions'
         ));
     }
 

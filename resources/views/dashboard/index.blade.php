@@ -10,6 +10,7 @@
         </h1>
         <p class="mt-1 text-sm text-gray-600">
             Rôle : <span class="font-medium">{{ Auth::user()->roles->pluck('name')->join(', ') }}</span>
+            · {{ now()->translatedFormat('l d F Y') }}
         </p>
     </div>
 
@@ -72,6 +73,71 @@
     </div>
     @endif
 
+    @if($pendingActions && $pendingActions->count() > 0)
+    <!-- Section À traiter -->
+    <div class="mb-6 bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 bg-yellow-50">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                <i class="fas fa-tasks text-yellow-500 mr-2"></i>
+                À traiter
+                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-200 text-yellow-800">
+                    {{ $pendingActions->count() }}
+                </span>
+            </h3>
+        </div>
+        <div class="px-4 py-4 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                @foreach($pendingActions as $action)
+                <a href="{{ $action['url'] }}" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:shadow-md transition-all hover:border-{{ $action['color'] }}-300">
+                    <div class="w-10 h-10 rounded-full bg-{{ $action['color'] }}-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas {{ $action['icon'] }} text-{{ $action['color'] }}-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">{{ $action['label'] }}</p>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Actions rapides -->
+    @if(auth()->user()->hasRole(['admin', 'admin_mairie']))
+    <div class="mb-6">
+        <div class="flex flex-wrap gap-2">
+            @can('view_garderie')
+            <a href="{{ route('garderie.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm transition-colors">
+                <i class="fas fa-child mr-2"></i> Saisir présences garderie
+            </a>
+            @endcan
+            @can('view_cantine')
+            <a href="{{ route('cantine.index') }}" class="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium text-sm transition-colors">
+                <i class="fas fa-utensils mr-2"></i> Saisir présences cantine
+            </a>
+            @endcan
+            @can('manage_cantine_menus')
+            <a href="{{ route('cantine.menus.index') }}" class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm transition-colors">
+                <i class="fas fa-file-lines mr-2"></i> Créer un menu
+            </a>
+            @endcan
+            @can('manage_families')
+            <a href="{{ route('families.index') }}" class="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm transition-colors">
+                <i class="fas fa-users mr-2"></i> Gérer les familles
+            </a>
+            @endcan
+            @can('manage_users')
+            <a href="{{ route('users.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm transition-colors">
+                <i class="fas fa-user-cog mr-2"></i> Utilisateurs
+            </a>
+            @endcan
+            @can('view_stock')
+            <a href="{{ route('stock.items.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 font-medium text-sm transition-colors">
+                <i class="fas fa-boxes-stacked mr-2"></i> Stock
+            </a>
+            @endcan
+        </div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         @foreach($activeModules as $key => $module)
         @if($key === 'garderie' && auth()->user()->can('view_garderie'))
@@ -125,7 +191,7 @@
             </div>
         </div>
         @elseif($key === 'stock' && auth()->user()->can('view_stock'))
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow rounded-lg {{ ($stats['stock_alerts'] ?? 0) > 0 ? 'ring-2 ring-red-400' : '' }}">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -143,10 +209,15 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-gray-50 px-5 py-3">
+            <div class="bg-gray-50 px-5 py-3 flex items-center justify-between">
                 <a href="{{ route('stock.items.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                     Voir détails <i class="fas fa-arrow-right ml-1"></i>
                 </a>
+                @if(($stats['stock_alerts'] ?? 0) > 0)
+                <a href="{{ route('stock.alerts.index') }}" class="text-sm font-medium text-red-600 hover:text-red-500">
+                    <i class="fas fa-bell mr-1"></i>{{ $stats['stock_alerts'] }} alerte(s)
+                </a>
+                @endif
             </div>
         </div>
         @endif
@@ -206,6 +277,101 @@
         </div>
         @endcan
     </div>
+
+    @if(!empty($weeklyStats) && auth()->user()->hasRole(['admin', 'admin_mairie']))
+    <!-- Mini-graphique : présences 7 derniers jours -->
+    <div class="mb-8 bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                Présences des 7 derniers jours
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-end justify-between gap-2 h-48">
+                @foreach($weeklyStats as $day)
+                <div class="flex-1 flex flex-col items-center gap-1">
+                    <div class="w-full flex flex-col items-center justify-end h-40 gap-0.5">
+                        <div class="w-full max-w-[2rem] bg-blue-500 rounded-t transition-all hover:bg-blue-600"
+                             style="height: {{ $weeklyMax > 0 ? ($day['garderie'] / $weeklyMax * 100) : 0 }}%; min-height: {{ $day['garderie'] > 0 ? '4px' : '0' }};"
+                             title="Garderie : {{ $day['garderie'] }}"></div>
+                        <div class="w-full max-w-[2rem] bg-green-500 rounded-b transition-all hover:bg-green-600"
+                             style="height: {{ $weeklyMax > 0 ? ($day['cantine'] / $weeklyMax * 100) : 0 }}%; min-height: {{ $day['cantine'] > 0 ? '4px' : '0' }};"
+                             title="Cantine : {{ $day['cantine'] }}"></div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs font-medium text-gray-700">{{ $day['total'] }}</p>
+                        <p class="text-[10px] text-gray-400">{{ $day['day'] }}</p>
+                        <p class="text-[10px] text-gray-400">{{ $day['day_num'] }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            <div class="mt-4 flex items-center justify-center gap-6 text-xs">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-blue-500 rounded"></div>
+                    <span class="text-gray-600">Garderie</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-green-500 rounded"></div>
+                    <span class="text-gray-600">Cantine</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($schoolStats && $schoolStats->count() > 0)
+    <!-- Répartition par école -->
+    <div class="mb-8 bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                <i class="fas fa-school text-indigo-500 mr-2"></i>
+                Répartition par école — Aujourd'hui
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">École</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Enfants</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Garderie</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cantine</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($schoolStats as $school)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $school['name'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $school['type'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ $school['children_count'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ $school['garderie_present'] }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ $school['cantine_present'] }}
+                            </span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <td class="px-6 py-3 text-sm font-semibold text-gray-900" colspan="2">Total</td>
+                        <td class="px-6 py-3 text-sm text-center font-semibold text-gray-900">{{ $schoolStats->sum('children_count') }}</td>
+                        <td class="px-6 py-3 text-sm text-center font-semibold text-blue-700">{{ $schoolStats->sum('garderie_present') }}</td>
+                        <td class="px-6 py-3 text-sm text-center font-semibold text-green-700">{{ $schoolStats->sum('cantine_present') }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    @endif
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         @can('view_garderie_events')
