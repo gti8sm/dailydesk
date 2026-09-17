@@ -116,6 +116,8 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::get('support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('support/{ticket}/comment', [SupportTicketController::class, 'comment'])->name('support.comment');
+    Route::post('support/{ticket}/archive', [SupportTicketController::class, 'archive'])->name('support.archive');
+    Route::post('support/{ticket}/unarchive', [SupportTicketController::class, 'unarchive'])->name('support.unarchive');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');

@@ -32,10 +32,17 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @forelse($tickets as $ticket)
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 {{ $ticket->is_unread_by_user ? 'bg-orange-50' : '' }}">
                     <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-gray-900">{{ $ticket->subject }}</div>
-                        <div class="text-xs text-gray-500">{{ ucfirst($ticket->priority) }}</div>
+                        <div class="flex items-center">
+                            @if($ticket->is_unread_by_user)
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0" title="Nouvelle réponse"></span>
+                            @endif
+                            <div>
+                                <div class="text-sm font-medium {{ $ticket->is_unread_by_user ? 'text-orange-700' : 'text-gray-900' }}">{{ $ticket->subject }}</div>
+                                <div class="text-xs text-gray-500">{{ ucfirst($ticket->priority) }}</div>
+                            </div>
+                        </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {{ ucfirst($ticket->category) }}

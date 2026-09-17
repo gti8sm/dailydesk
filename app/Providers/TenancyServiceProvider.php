@@ -67,7 +67,18 @@ class TenancyServiceProvider extends ServiceProvider
             $openTicketCount = 0;
             if (auth()->check() && auth()->user()->hasRole('super_admin')) {
                 try {
-                    $openTicketCount = \App\Models\SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
+                    // Badge = tickets non archivés et non lus par le staff
+                    $openTicketCount = \App\Models\SupportTicket::notArchived()->unreadByStaff()->count();
+                } catch (\Exception $e) {
+                    $openTicketCount = 0;
+                }
+            } elseif (auth()->check() && !auth()->user()->hasRole('super_admin') && !auth()->user()->hasRole('parent')) {
+                try {
+                    // Badge tenant = tickets de l'utilisateur avec réponses staff non lues
+                    $openTicketCount = \App\Models\SupportTicket::where('user_id', auth()->id())
+                        ->notArchived()
+                        ->unreadByUser()
+                        ->count();
                 } catch (\Exception $e) {
                     $openTicketCount = 0;
                 }

@@ -74,6 +74,7 @@ class TenantSupportController extends Controller
         }
 
         $ticket->load(['comments.user']);
+        $ticket->markAsReadByUser();
 
         return view('support.show', compact('ticket'));
     }

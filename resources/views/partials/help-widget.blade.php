@@ -130,6 +130,30 @@
                 'roles' => null,
             ];
         }
+
+        // Support (tenant)
+        $helpContent['support.index'] = [
+            'title' => 'Support',
+            'text' => 'Consultez vos tickets de support et les réponses de l\'équipe.',
+            'tips' => ['Les tickets avec un point orange ont une nouvelle réponse non lue', 'Créez un nouveau ticket via le bouton "Nouveau ticket"', 'Si un ticket résolu reçoit votre commentaire, il est automatiquement rouvert'],
+            'roles' => null,
+        ];
+        $helpContent['support.create'] = [
+            'title' => 'Nouveau ticket',
+            'text' => 'Décrivez votre demande à l\'équipe support. Plus le ticket est précis, plus rapide sera la réponse.',
+            'tips' => ['Joignez une capture d\'écran si vous signalez un bug', 'Choisissez la catégorie la plus pertinente', 'La priorité "Urgent" est réservée aux blocages complets'],
+            'roles' => null,
+        ];
+    }
+
+    // Support (super admin)
+    if ($user && $user->hasRole('super_admin')) {
+        $helpContent['central.support.index'] = [
+            'title' => 'Tickets de support',
+            'text' => 'Gérez les demandes de support des utilisateurs. Les tickets non lus sont mis en évidence en rouge.',
+            'tips' => ['Le badge rouge dans le menu indique les tickets non lus (nouveau ou nouvelle réponse)', 'Archivez les tickets résolus ou obsolètes', 'Les tickets des tenants suspendus/supprimés sont auto-archivés'],
+            'roles' => null,
+        ];
     }
 
     if ($isParent) {

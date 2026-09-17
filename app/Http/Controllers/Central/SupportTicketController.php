@@ -18,7 +18,12 @@ class SupportTicketController extends Controller
         }
 
         $statusFilter = request()->get('status', 'all');
-        $query = SupportTicket::with(['user', 'comments']);
+        $archivedFilter = request()->boolean('archived');
+
+        $query = SupportTicket::with(['user', 'comments', 'tenant']);
+
+        // Filtre archive
+        $query->where('is_archived', $archivedFilter);
 
         if ($statusFilter !== 'all') {
             $query->where('status', $statusFilter);
@@ -27,13 +32,15 @@ class SupportTicketController extends Controller
         $tickets = $query->latest()->paginate(15);
 
         $stats = [
-            'total' => SupportTicket::count(),
-            'open' => SupportTicket::where('status', 'open')->count(),
-            'in_progress' => SupportTicket::where('status', 'in_progress')->count(),
-            'resolved' => SupportTicket::where('status', 'resolved')->count(),
+            'total' => SupportTicket::notArchived()->count(),
+            'open' => SupportTicket::notArchived()->where('status', 'open')->count(),
+            'in_progress' => SupportTicket::notArchived()->where('status', 'in_progress')->count(),
+            'resolved' => SupportTicket::notArchived()->whereIn('status', ['resolved', 'closed'])->count(),
+            'archived' => SupportTicket::archived()->count(),
+            'unread' => SupportTicket::notArchived()->unreadByStaff()->count(),
         ];
 
-        return view('central.support.index', compact('tickets', 'stats', 'statusFilter'));
+        return view('central.support.index', compact('tickets', 'stats', 'statusFilter', 'archivedFilter'));
     }
 
     public function show(SupportTicket $ticket)
@@ -42,7 +49,8 @@ class SupportTicketController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
-        $ticket->load(['user', 'comments.user']);
+        $ticket->load(['user', 'comments.user', 'tenant']);
+        $ticket->markAsReadByStaff();
 
         return view('central.support.show', compact('ticket'));
     }
@@ -93,5 +101,29 @@ class SupportTicketController extends Controller
         }
 
         return redirect()->route('central.support.show', $ticket)->with('success', 'Réponse ajoutée.');
+    }
+
+    public function archive(SupportTicket $ticket)
+    {
+        if (!auth()->user()->hasRole('super_admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $ticket->archive();
+
+        return redirect()->route('central.support.index', ['archived' => 1])
+            ->with('success', 'Ticket archivé.');
+    }
+
+    public function unarchive(SupportTicket $ticket)
+    {
+        if (!auth()->user()->hasRole('super_admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $ticket->unarchive();
+
+        return redirect()->route('central.support.show', $ticket)
+            ->with('success', 'Ticket désarchivé et rouvert.');
     }
 }

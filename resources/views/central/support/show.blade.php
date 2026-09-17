@@ -36,14 +36,41 @@
                         ];
                     @endphp
                     <span class="px-3 py-1 text-xs rounded-full {{ $statusColors[$ticket->status] ?? '' }}">{{ $statusLabels[$ticket->status] ?? ucfirst($ticket->status) }}</span>
+                    @if($ticket->is_archived)
+                    <span class="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-600"><i class="fas fa-archive mr-1"></i>Archivé</span>
+                    @endif
                 </div>
             </div>
             <div class="mt-2 flex flex-wrap gap-3 text-sm text-gray-500">
                 <span><i class="fas fa-user mr-1"></i> {{ $ticket->user_name }}</span>
+                @if($ticket->tenant)
+                <span><i class="fas fa-building mr-1"></i> {{ $ticket->tenant->name }}
+                    @if($ticket->tenant->status === 'suspended')
+                    <span class="text-orange-600 font-medium">(suspendu)</span>
+                    @endif
+                </span>
+                @endif
                 <span><i class="fas fa-tag mr-1"></i> {{ ucfirst($ticket->category) }}</span>
                 <span><i class="fas fa-flag mr-1"></i> {{ ucfirst($ticket->priority) }}</span>
                 <span><i class="fas fa-clock mr-1"></i> {{ $ticket->created_at->format('d/m/Y H:i') }}</span>
             </div>
+        </div>
+        <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+            @if($ticket->is_archived)
+            <form action="{{ route('central.support.unarchive', $ticket) }}" method="POST">
+                @csrf
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-box-open mr-1"></i> Désarchiver et rouvrir
+                </button>
+            </form>
+            @else
+            <form action="{{ route('central.support.archive', $ticket) }}" method="POST" onsubmit="return confirm('Archiver ce ticket ? Il sera marqué comme fermé.')">
+                @csrf
+                <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-archive mr-1"></i> Archiver
+                </button>
+            </form>
+            @endif
         </div>
         <div class="p-6">
             <p class="text-gray-700 whitespace-pre-line">{{ $ticket->description }}</p>

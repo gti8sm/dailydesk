@@ -193,15 +193,123 @@
                 <p class="text-sm text-gray-700"><strong>Classes :</strong> Créez les classes scolaires par année. Associez les classes à une école et les enfants à leur classe.</p>
                 <p class="text-sm text-gray-700"><strong>Paramètres :</strong> Configurez les horaires de garderie, le mode de gestion des menus cantine (global ou par école), le SMTP pour les emails, les seuils de stock et les notifications.</p>
                 <p class="text-sm text-gray-700"><strong>Imports/Exports :</strong> Importez des familles en CSV, exportez les présences en Excel/PDF.</p>
+                <p class="text-sm text-gray-700"><strong>Onboarding :</strong> Au premier lancement, un assistant en 4 étapes vous guide : informations de la mairie, création des classes, personnalisation (couleurs, logo), notifications. Vous pouvez le skipper et le reprendre plus tard.</p>
             </div>
         </div>
         @endhasrole
+
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <button onclick="toggleSection('section-support')" class="w-full px-6 py-4 flex items-center justify-between bg-orange-50 hover:bg-orange-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-life-ring text-orange-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Support & Demandes d'aide</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-support"></i>
+            </button>
+            <div id="section-support" class="hidden px-6 py-4 space-y-3">
+                @if($isSuperAdmin)
+                <p class="text-sm text-gray-700"><strong>Tickets de support :</strong> Consultez et répondez aux demandes des utilisateurs depuis le menu Support. Les tickets sont organisés par statut (Ouvert, En cours, Résolu) et par archive.</p>
+                <p class="text-sm text-gray-700"><strong>Badge de notification :</strong> Le chiffre rouge à côté de "Support" dans le menu indique le nombre de tickets <strong>non lus</strong> (nouveau ticket ou nouvelle réponse de l'utilisateur). Le badge disparaît dès que vous ouvrez le ticket.</p>
+                <p class="text-sm text-gray-700"><strong>Archivage :</strong> Archivez manuellement un ticket (bouton "Archiver" sur la fiche ou dans la liste). Les tickets archivés sont conservés pour historique et visibles via le filtre "Archivés". Désarchivez un ticket pour le rouvrir.</p>
+                <p class="text-sm text-gray-700"><strong>Auto-archivage :</strong> Quand un tenant est suspendu ou supprimé, ses tickets ouverts sont automatiquement archivés. Le nom du tenant reste visible dans la liste des tickets archivés.</p>
+                <p class="text-sm text-gray-700"><strong>Indicateur "Non lu" :</strong> Les tickets non lus apparaissent en surbrillance rouge dans la liste, avec un point rouge à côté du sujet. Le compteur "Non lus" en haut de la page récapitule le total.</p>
+                @else
+                <p class="text-sm text-gray-700"><strong>Créer un ticket :</strong> Cliquez sur "Nouveau ticket" dans la section Support. Décrivez votre demande, choisissez une catégorie (général, technique, facturation, suggestion, bug) et une priorité. Vous pouvez joindre des captures d'écran ou documents.</p>
+                <p class="text-sm text-gray-700"><strong>Suivre vos tickets :</strong> Consultez vos tickets et les réponses de l'équipe support depuis la page Support. Les tickets avec une nouvelle réponse du support apparaissent en surbrillance orange avec un point orange.</p>
+                <p class="text-sm text-gray-700"><strong>Badge de notification :</strong> Un chiffre orange à côté de "Support" dans le menu indique qu'une nouvelle réponse a été apportée à l'un de vos tickets. Le badge disparaît dès que vous ouvrez le ticket.</p>
+                <p class="text-sm text-gray-700"><strong>Répondre :</strong> Ajoutez un commentaire sur votre ticket pour répondre à l'équipe support ou apporter des précisions. Si le ticket était résolu, il sera automatiquement rouvert.</p>
+                <p class="text-sm text-gray-700"><strong>Catégories :</strong> Général (question diverse), Technique (bug, erreur), Facturation (abonnement, paiement), Suggestion (demande de fonctionnalité), Bug (signalement d'anomalie).</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <button onclick="toggleSection('section-roles')" class="w-full px-6 py-4 flex items-center justify-between bg-purple-50 hover:bg-purple-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-id-badge text-purple-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Rôles & Permissions</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-roles"></i>
+            </button>
+            <div id="section-roles" class="hidden px-6 py-4 space-y-3">
+                <p class="text-sm text-gray-700">Chaque utilisateur a un ou plusieurs rôles qui déterminent ses accès. Voici le détail de chaque profil :</p>
+                <div class="space-y-2 mt-3">
+                    <div class="flex items-start p-2 bg-red-50 rounded">
+                        <i class="fas fa-user-shield text-red-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Admin / Admin mairie</strong> <span class="text-xs text-gray-500">(admin, admin_mairie)</span><p class="text-xs text-gray-600 mt-1">Accès complet : utilisateurs, écoles, classes, familles, paramètres, imports/exports. Recommandé : maire, secrétaire de mairie.</p></div>
+                    </div>
+                    <div class="flex items-start p-2 bg-blue-50 rounded">
+                        <i class="fas fa-user-clock text-blue-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Personnel de mairie</strong> <span class="text-xs text-gray-500">(personnel_mairie)</span><p class="text-xs text-gray-600 mt-1">Saisie des présences garderie + cantine, consultation de l'historique. Recommandé : agent d'accueil.</p></div>
+                    </div>
+                    <div class="flex items-start p-2 bg-green-50 rounded">
+                        <i class="fas fa-chalkboard-teacher text-green-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Enseignant</strong> <span class="text-xs text-gray-500">(enseignant)</span><p class="text-xs text-gray-600 mt-1">Création d'événements sur ses élèves. Recommandé : instituteur, professeur des écoles.</p></div>
+                    </div>
+                    <div class="flex items-start p-2 bg-purple-50 rounded">
+                        <i class="fas fa-child text-purple-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Agent ALSH / Garderie</strong> <span class="text-xs text-gray-500">(alsh)</span><p class="text-xs text-gray-600 mt-1">Présences garderie + cantine, événements, exports. Recommandé : animateur ALSH, agent polyvalent.</p></div>
+                    </div>
+                    <div class="flex items-start p-2 bg-orange-50 rounded">
+                        <i class="fas fa-utensils text-orange-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Cuisinier / Gestion menus</strong> <span class="text-xs text-gray-500">(cantine)</span><p class="text-xs text-gray-600 mt-1">Création et publication des menus cantine uniquement. Recommandé : cuisinier, responsable restauration.</p></div>
+                    </div>
+                    <div class="flex items-start p-2 bg-indigo-50 rounded">
+                        <i class="fas fa-home text-indigo-600 mt-1 mr-2"></i>
+                        <div><strong class="text-sm text-gray-900">Parent</strong> <span class="text-xs text-gray-500">(parent)</span><p class="text-xs text-gray-600 mt-1">Portail parent : consultation des présences de ses enfants, menus, signalements. Recommandé : parents des enfants inscrits.</p></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i> Un utilisateur peut avoir plusieurs rôles (ex: un agent qui gère la garderie et la cantine). Les permissions stock (Voir, Saisir, Gérer) sont attribuées individuellement en plus du rôle.</p>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <button onclick="toggleSection('section-abonnements')" class="w-full px-6 py-4 flex items-center justify-between bg-green-50 hover:bg-green-100 transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-tags text-green-600 text-xl mr-3"></i>
+                    <h2 class="text-lg font-semibold text-gray-900">Abonnements & Tarification</h2>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400" id="icon-section-abonnements"></i>
+            </button>
+            <div id="section-abonnements" class="hidden px-6 py-4 space-y-3">
+                <p class="text-sm text-gray-700">La tarification de DailyDesk est basée sur la <strong>population de la commune</strong> (données INSEE), pas sur le nombre de modules. Tous les modules sont inclus dans chaque plan.</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-gray-600">Plan</th>
+                                <th class="px-3 py-2 text-left text-gray-600">Population</th>
+                                <th class="px-3 py-2 text-left text-gray-600">Prix/mois</th>
+                                <th class="px-3 py-2 text-left text-gray-600">Support</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr><td class="px-3 py-2 font-medium">Village</td><td class="px-3 py-2">< 1 000 hab.</td><td class="px-3 py-2">39 €</td><td class="px-3 py-2 text-xs">Email (48h)</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Petite commune</td><td class="px-3 py-2">1 000 - 4 999</td><td class="px-3 py-2">79 €</td><td class="px-3 py-2 text-xs">Email + tel (24h)</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Commune moyenne</td><td class="px-3 py-2">5 000 - 19 999</td><td class="px-3 py-2">149 €</td><td class="px-3 py-2 text-xs">Prioritaire (J)</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Grande commune</td><td class="px-3 py-2">20 000 - 99 999</td><td class="px-3 py-2">299 €</td><td class="px-3 py-2 text-xs">Dédié 7j/7</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Agglomération</td><td class="px-3 py-2">100 000+</td><td class="px-3 py-2">Sur devis</td><td class="px-3 py-2 text-xs">Sur mesure</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-gray-700"><strong>Tous les modules inclus :</strong> Garderie, Cantine, Stock et les futurs modules. Les enfants et utilisateurs sont illimités (la population est le facteur limitant naturel).</p>
+                <p class="text-sm text-gray-700"><strong>Activation/Désactivation des modules :</strong> Le tenant peut activer ou désactiver individuellement chaque module selon ses besoins, indépendamment du plan.</p>
+                @if($isSuperAdmin)
+                <p class="text-sm text-gray-700"><strong>Recherche INSEE :</strong> À la création d'un tenant, tapez le nom de la commune — le code INSEE et la population sont récupérés automatiquement via l'API geo.api.gouv.fr, et le plan adapté est suggéré.</p>
+                @endif
+            </div>
+        </div>
     </div>
 
     <div class="mt-8 text-center">
         <p class="text-sm text-gray-500">
             <i class="fas fa-info-circle mr-1"></i>
-            Besoin d'aide supplémentaire ? Contactez votre administrateur.
+            Besoin d'aide supplémentaire ?
+            @if($isSuperAdmin)
+            Consultez les tickets de support ou la documentation interne.
+            @else
+            Ouvrez un ticket via le menu Support, ou contactez votre administrateur.
+            @endif
         </p>
     </div>
 </div>

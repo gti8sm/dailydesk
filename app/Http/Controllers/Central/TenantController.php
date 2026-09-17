@@ -192,9 +192,18 @@ class TenantController extends Controller
             $newStatus = $tenant->status === 'active' ? 'suspended' : 'active';
             $tenant->update(['status' => $newStatus]);
 
+            // Auto-archive des tickets de support quand le tenant est suspendu
+            if ($newStatus === 'suspended') {
+                \App\Models\SupportTicket::withoutGlobalScope('tenant')
+                    ->where('tenant_id', $tenant->id)
+                    ->where('is_archived', false)
+                    ->whereNotIn('status', ['closed'])
+                    ->each(fn($t) => $t->archive());
+            }
+
             $message = $newStatus === 'active' 
                 ? "Tenant '{$tenant->name}' activé avec succès !" 
-                : "Tenant '{$tenant->name}' suspendu avec succès !";
+                : "Tenant '{$tenant->name}' suspendu avec succès ! (tickets de support archivés)";
 
             return redirect()
                 ->back()
@@ -229,6 +238,12 @@ class TenantController extends Controller
             \App\Modules\Garderie\Models\GarderieEvent::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
             \App\Modules\Cantine\Models\CantinePresence::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
             \App\Modules\Cantine\Models\CantineEvent::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+
+            // Archiver les tickets de support (conservés pour historique)
+            \App\Models\SupportTicket::withoutGlobalScope('tenant')
+                ->where('tenant_id', $tenantId)
+                ->where('is_archived', false)
+                ->each(fn($t) => $t->archive());
 
             // Supprimer le tenant (les domaines seront supprimés en cascade)
             $tenant->delete();
