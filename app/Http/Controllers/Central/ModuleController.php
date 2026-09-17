@@ -29,6 +29,10 @@ class ModuleController extends Controller
                 'soir' => 'Soir',
             ]],
             'cantine_enable_snack' => ['label' => 'Activer le goûter', 'type' => 'boolean', 'default' => '0'],
+            'cantine_menu_mode' => ['label' => 'Mode de gestion des menus', 'type' => 'select', 'default' => 'global', 'options' => [
+                'global' => 'Menu global (une cuisine pour toutes les écoles)',
+                'per_school' => 'Menu par école (chaque école a son menu)',
+            ]],
         ],
         'notifications' => [
             'notify_arrival' => ['label' => 'Notifier arrivée garderie', 'type' => 'boolean', 'default' => '0'],

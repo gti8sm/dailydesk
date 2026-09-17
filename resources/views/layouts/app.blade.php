@@ -211,6 +211,10 @@
                                     <span class="ml-3">Familles</span>
                                 </a>
                                 @hasrole('admin')
+                                <a href="{{ route('schools.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-building w-5"></i>
+                                    <span class="ml-3">Écoles</span>
+                                </a>
                                 <a href="{{ route('classes.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                                     <i class="fas fa-school w-5"></i>
                                     <span class="ml-3">Classes</span>
@@ -311,6 +315,48 @@
                 </div>
                 
                 <div class="flex items-center">
+                    <!-- Sélecteur d'école (admin global uniquement, si school_id null) -->
+                    @php
+                        $isTenantContext = function_exists('tenant') && tenant();
+                        $showSchoolSelector = $isTenantContext
+                            && !auth()->user()->hasRole('super_admin')
+                            && !auth()->user()->hasRole('parent')
+                            && is_null(auth()->user()->school_id);
+                        $allSchools = $showSchoolSelector ? \App\Models\School::orderBy('name')->get() : collect();
+                        $selectedSchoolId = session('selected_school_id');
+                        $currentSchool = $selectedSchoolId ? $allSchools->firstWhere('id', $selectedSchoolId) : null;
+                    @endphp
+                    @if($showSchoolSelector && $allSchools->count() > 1)
+                    <div class="hidden sm:block mr-3" x-data="{ open: false }">
+                        <button @click="open = !open" @click.away="open = false"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-600 bg-white hover:bg-gray-50">
+                            <i class="fas fa-school mr-2 text-blue-500"></i>
+                            <span>{{ $currentSchool ? $currentSchool->name : 'Toutes les écoles' }}</span>
+                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" x-transition class="origin-top-right absolute mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <form action="{{ route('schools.select') }}" method="POST">
+                                @csrf
+                                <button type="submit" name="school_id" value="" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 {{ !$selectedSchoolId ? 'bg-blue-50 font-semibold' : '' }}">
+                                    <i class="fas fa-globe mr-2 text-gray-400"></i> Toutes les écoles
+                                </button>
+                                @foreach($allSchools as $school)
+                                <button type="submit" name="school_id" value="{{ $school->id }}" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 {{ $selectedSchoolId === $school->id ? 'bg-blue-50 font-semibold' : '' }}">
+                                    <i class="fas fa-school mr-2 text-blue-400"></i> {{ $school->name }}
+                                </button>
+                                @endforeach
+                            </form>
+                        </div>
+                    </div>
+                    @elseif(auth()->user()->school_id && $isTenantContext)
+                    <div class="hidden sm:block mr-3">
+                        <span class="inline-flex items-center px-3 py-2 text-sm text-gray-500">
+                            <i class="fas fa-school mr-2 text-blue-500"></i>
+                            {{ optional(auth()->user()->school)->name }}
+                        </span>
+                    </div>
+                    @endif
+
                     <!-- Bouton menu mobile -->
                     <div class="sm:hidden mr-2">
                         <button @click="mobileMenuOpen = true" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">

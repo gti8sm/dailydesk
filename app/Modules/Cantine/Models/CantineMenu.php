@@ -2,6 +2,7 @@
 
 namespace App\Modules\Cantine\Models;
 
+use App\Models\School;
 use App\Models\User;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ class CantineMenu extends Model
     use HasFactory, BelongsToTenant;
 
     protected $fillable = [
+        'school_id',
         'menu_date',
         'meal_type',
         'title',
@@ -36,6 +38,11 @@ class CantineMenu extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
     }
 
     public function scopePublished($query)

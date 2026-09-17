@@ -27,6 +27,7 @@ class User extends Authenticatable
         'last_login_at',
         'notification_preferences',
         'tenant_id',
+        'school_id',
     ];
 
     protected $hidden = [
@@ -48,6 +49,30 @@ class User extends Authenticatable
     public function parent()
     {
         return $this->hasOne(ParentModel::class);
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
+
+    /**
+     * Renvoie l'école filtrante pour l'utilisateur connecté.
+     * - null = toutes les écoles (admin global)
+     * - id = limité à cette école
+     */
+    public static function getCurrentSchoolId(): ?int
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        // Priorité au school_id de l'utilisateur (limitation permanente)
+        if ($user->school_id) {
+            return $user->school_id;
+        }
+        // Sinon, session (sélecteur d'école pour les admins)
+        return session('selected_school_id');
     }
 
     public function isIpAllowed(string $ip): bool

@@ -15,7 +15,23 @@ class CantineMenuController extends Controller
         $year = (int) $request->get('year', now()->year);
         $month = (int) $request->get('month', now()->month);
 
-        $query = CantineMenu::with('createdBy')->forMonth($year, $month);
+        $schoolId = \App\Models\User::getCurrentSchoolId();
+        $menuMode = \App\Models\Setting::get('cantine_menu_mode', 'global');
+
+        $query = CantineMenu::with('createdBy', 'school')->forMonth($year, $month);
+
+        // Filtre par école si mode per_school ou si l'utilisateur est limité
+        if ($menuMode === 'per_school' || $schoolId) {
+            if ($schoolId) {
+                $query->where('school_id', $schoolId);
+            } else {
+                // admin global en mode per_school : filtre par école sélectionnée si présente
+                $selectedSchool = session('selected_school_id');
+                if ($selectedSchool) {
+                    $query->where('school_id', $selectedSchool);
+                }
+            }
+        }
 
         if ($request->filled('meal_type')) {
             $query->where('meal_type', $request->meal_type);
@@ -32,8 +48,10 @@ class CantineMenuController extends Controller
         $prevMonth = $firstDay->copy()->subMonth();
         $nextMonth = $firstDay->copy()->addMonth();
 
+        $schools = \App\Models\School::active()->orderBy('name')->get();
+
         return view('cantine.menus.index', compact(
-            'menus', 'year', 'month', 'monthName', 'prevMonth', 'nextMonth'
+            'menus', 'year', 'month', 'monthName', 'prevMonth', 'nextMonth', 'schools', 'menuMode'
         ));
     }
 
@@ -54,6 +72,15 @@ class CantineMenuController extends Controller
         $validated['created_by'] = auth()->id();
         $validated['is_published'] = $request->boolean('is_published');
         $validated['allergens'] = $this->parseAllergens($request->get('allergens_input'));
+
+        // Assigner school_id selon le mode
+        $menuMode = \App\Models\Setting::get('cantine_menu_mode', 'global');
+        $schoolId = \App\Models\User::getCurrentSchoolId();
+        if ($menuMode === 'per_school') {
+            $validated['school_id'] = $schoolId ?? $request->input('school_id');
+        } else {
+            $validated['school_id'] = null; // global
+        }
 
         $menu = CantineMenu::create($validated);
 

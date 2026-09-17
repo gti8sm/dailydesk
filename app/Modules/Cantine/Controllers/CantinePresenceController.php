@@ -17,17 +17,29 @@ class CantinePresenceController extends Controller
 
         $this->autoGeneratePresences($date, $mealType);
 
-        $presences = CantinePresence::with(['child.family', 'child.schoolClass', 'recordedBy'])
+        $schoolId = \App\Models\User::getCurrentSchoolId();
+
+        $presencesQuery = CantinePresence::with(['child.family', 'child.schoolClass', 'recordedBy'])
             ->forDate($date)
-            ->where('meal_type', $mealType)
-            ->orderBy('created_at')
-            ->get();
+            ->where('meal_type', $mealType);
+
+        if ($schoolId) {
+            $presencesQuery->whereHas('child', fn($q) => $q->where('school_id', $schoolId));
+        }
+
+        $presences = $presencesQuery->orderBy('created_at')->get();
 
         $presenceByChildId = $presences->keyBy('child_id');
 
-        $children = Child::active()
+        $childrenQuery = Child::active()
             ->with(['family', 'schoolClass'])
-            ->where('cantine_subscribed', true)
+            ->where('cantine_subscribed', true);
+
+        if ($schoolId) {
+            $childrenQuery->where('school_id', $schoolId);
+        }
+
+        $children = $childrenQuery
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();

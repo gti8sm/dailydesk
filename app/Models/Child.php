@@ -18,6 +18,7 @@ class Child extends Model
 
     protected $fillable = [
         'family_id',
+        'school_id',
         'first_name',
         'last_name',
         'birth_date',
@@ -43,6 +44,11 @@ class Child extends Model
     public function family()
     {
         return $this->belongsTo(Family::class);
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
     }
 
     public function schoolClass()

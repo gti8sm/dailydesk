@@ -73,6 +73,22 @@
                     @enderror
                 </div>
 
+                @php $schools = \App\Models\School::active()->orderBy('name')->get(); @endphp
+                @if($schools->count() > 0)
+                <div>
+                    <label for="school_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        École
+                    </label>
+                    <select name="school_id" id="school_id"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Aucune --</option>
+                        @foreach($schools as $school)
+                            <option value="{{ $school->id }}" {{ old('school_id', $child->school_id) == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
                 <div>
                     <label for="class_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Classe

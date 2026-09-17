@@ -54,6 +54,7 @@ class UserController extends Controller
             'is_active' => 'boolean',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
+            'school_id' => 'nullable|exists:schools,id',
         ]);
 
         $user = User::create([
@@ -63,6 +64,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'is_active' => $request->has('is_active'),
             'tenant_id' => auth()->user()->tenant_id,
+            'school_id' => $validated['school_id'] ?? null,
         ]);
 
         $user->syncRoles($validated['roles']);
@@ -139,6 +141,7 @@ class UserController extends Controller
             'is_active' => 'boolean',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
+            'school_id' => 'nullable|exists:schools,id',
         ]);
 
         $user->update([
@@ -146,6 +149,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'login' => $validated['login'] ?? null,
             'is_active' => $request->has('is_active'),
+            'school_id' => $validated['school_id'] ?? null,
         ]);
 
         if ($request->filled('password')) {

@@ -8,15 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SchoolClass extends Model
+class School extends Model
 {
     use HasFactory, SoftDeletes, BelongsToTenant, LogsActivity;
 
     protected $fillable = [
         'name',
-        'teacher_name',
-        'school_year',
-        'school_id',
+        'address',
+        'type',
         'is_active',
     ];
 
@@ -24,14 +23,19 @@ class SchoolClass extends Model
         'is_active' => 'boolean',
     ];
 
-    public function school()
+    public function classes()
     {
-        return $this->belongsTo(School::class);
+        return $this->hasMany(SchoolClass::class);
     }
 
     public function children()
     {
-        return $this->hasMany(Child::class, 'class_id');
+        return $this->hasMany(Child::class);
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
     }
 
     public function scopeActive($query)
@@ -39,8 +43,14 @@ class SchoolClass extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeForYear($query, $year)
+    public function getTypeLabelAttribute(): string
     {
-        return $query->where('school_year', $year);
+        return match ($this->type) {
+            'maternelle' => 'Maternelle',
+            'elementaire' => 'Élémentaire',
+            'primaire' => 'Primaire',
+            'college' => 'Collège',
+            default => ucfirst($this->type),
+        };
     }
 }

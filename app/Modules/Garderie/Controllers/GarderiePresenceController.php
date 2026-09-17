@@ -14,9 +14,17 @@ class GarderiePresenceController extends Controller
     {
         $date = $request->get('date', today()->format('Y-m-d'));
 
-        $children = Child::active()
+        $schoolId = \App\Models\User::getCurrentSchoolId();
+
+        $childrenQuery = Child::active()
             ->with(['family', 'schoolClass'])
-            ->where('garderie_subscribed', true)
+            ->where('garderie_subscribed', true);
+
+        if ($schoolId) {
+            $childrenQuery->where('school_id', $schoolId);
+        }
+
+        $children = $childrenQuery
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get()

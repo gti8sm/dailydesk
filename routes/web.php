@@ -8,6 +8,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\FamilyInvitationController;
 use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TenantModuleController;
 use App\Http\Controllers\UserController;
@@ -275,6 +276,10 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
     Route::delete('/children/{child}', [ChildController::class, 'destroy'])->name('children.destroy')->middleware('can:manage_families');
 
     Route::resource('classes', SchoolClassController::class);
+
+    // Écoles (multi-écoles par tenant)
+    Route::resource('schools', SchoolController::class);
+    Route::post('/schools/select', [SchoolController::class, 'select'])->name('schools.select');
 
     Route::get('/invitations', [FamilyInvitationController::class, 'index'])->name('invitations.index');
     Route::post('/invitations/send', [FamilyInvitationController::class, 'send'])->name('invitations.send');
