@@ -13,8 +13,8 @@ class SubscriptionPlansSeeder extends Seeder
             [
                 'name' => 'Village',
                 'slug' => 'village',
-                'price_monthly' => 39.00,
-                'price_yearly' => 390.00,
+                'price_monthly' => 99.00,
+                'price_yearly' => 990.00,
                 'max_children' => null,
                 'population_min' => 0,
                 'population_max' => 999,
@@ -34,8 +34,8 @@ class SubscriptionPlansSeeder extends Seeder
             [
                 'name' => 'Petite commune',
                 'slug' => 'petite-commune',
-                'price_monthly' => 79.00,
-                'price_yearly' => 790.00,
+                'price_monthly' => 149.00,
+                'price_yearly' => 1490.00,
                 'max_children' => null,
                 'population_min' => 1000,
                 'population_max' => 4999,
@@ -55,8 +55,8 @@ class SubscriptionPlansSeeder extends Seeder
             [
                 'name' => 'Commune moyenne',
                 'slug' => 'commune-moyenne',
-                'price_monthly' => 149.00,
-                'price_yearly' => 1490.00,
+                'price_monthly' => 349.00,
+                'price_yearly' => 3490.00,
                 'max_children' => null,
                 'population_min' => 5000,
                 'population_max' => 19999,
@@ -77,8 +77,8 @@ class SubscriptionPlansSeeder extends Seeder
             [
                 'name' => 'Grande commune',
                 'slug' => 'grande-commune',
-                'price_monthly' => 299.00,
-                'price_yearly' => 2990.00,
+                'price_monthly' => 599.00,
+                'price_yearly' => 5990.00,
                 'max_children' => null,
                 'population_min' => 20000,
                 'population_max' => 99999,
