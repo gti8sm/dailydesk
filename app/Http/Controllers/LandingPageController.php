@@ -194,8 +194,10 @@ class LandingPageController extends Controller
             'import_families', 'export_data', 'manage_licenses', 'manage_settings',
             'view_garderie', 'record_garderie_presence', 'create_garderie_event', 'view_garderie_events',
             'view_cantine', 'record_cantine_presence', 'create_cantine_event', 'view_cantine_events',
+            'manage_cantine_menus', 'view_cantine_menus',
             'view_own_children', 'view_own_events', 'manage_notifications',
             'manage_stock', 'view_stock', 'record_stock_movement',
+            'notify_event_parents',
         ];
 
         foreach ($permissions as $perm) {
@@ -205,10 +207,23 @@ class LandingPageController extends Controller
         $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions($permissions);
 
+        $adminMairieRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin_mairie', 'guard_name' => 'web']);
+        $adminMairieRole->syncPermissions($permissions);
+
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'web']);
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'personnel_mairie', 'guard_name' => 'web']);
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'enseignant', 'guard_name' => 'web']);
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'alsh', 'guard_name' => 'web']);
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'cantine', 'guard_name' => 'web']);
+
+        $alshRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'alsh', 'guard_name' => 'web']);
+        $alshRole->syncPermissions([
+            'view_dashboard', 'view_garderie', 'record_garderie_presence',
+            'create_garderie_event', 'view_garderie_events',
+            'view_cantine', 'record_cantine_presence', 'view_cantine_events',
+        ]);
+
+        $cantineRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'cantine', 'guard_name' => 'web']);
+        $cantineRole->syncPermissions([
+            'view_dashboard', 'view_cantine', 'manage_cantine_menus', 'view_cantine_menus',
+        ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Child;
 use App\Models\Family;
+use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Setting;
 use App\Models\Tenant;
@@ -24,8 +25,9 @@ class OnboardingController extends Controller
         $step = $this->getCurrentStep($tenant);
 
         $classes = SchoolClass::orderBy('name')->get();
+        $schools = School::orderBy('name')->get();
 
-        return view('onboarding.wizard', compact('tenant', 'step', 'classes'));
+        return view('onboarding.wizard', compact('tenant', 'step', 'classes', 'schools'));
     }
 
     public function store(Request $request)
@@ -93,6 +95,8 @@ class OnboardingController extends Controller
     private function saveStep2(Request $request, Tenant $tenant)
     {
         $validated = $request->validate([
+            'school_name' => 'nullable|string|max:255',
+            'school_type' => 'nullable|string|in:maternelle,elementaire,primaire,college',
             'classes' => 'nullable|array',
             'classes.*.name' => 'required|string|max:100',
             'classes.*.teacher_name' => 'nullable|string|max:100',
@@ -101,6 +105,19 @@ class OnboardingController extends Controller
 
         $schoolYear = $validated['school_year'] ?? date('Y') . '-' . (date('Y') + 1);
 
+        // Créer ou réutiliser une école par défaut
+        $school = School::first();
+        if (!$school) {
+            $schoolName = !empty($validated['school_name'])
+                ? $validated['school_name']
+                : 'École principale';
+            $school = School::create([
+                'name' => $schoolName,
+                'type' => $validated['school_type'] ?? 'primaire',
+                'is_active' => true,
+            ]);
+        }
+
         if (!empty($validated['classes'])) {
             foreach ($validated['classes'] as $classData) {
                 if (!empty($classData['name'])) {
@@ -108,6 +125,7 @@ class OnboardingController extends Controller
                         'name' => $classData['name'],
                         'teacher_name' => $classData['teacher_name'] ?? null,
                         'school_year' => $schoolYear,
+                        'school_id' => $school->id,
                         'is_active' => true,
                     ]);
                 }

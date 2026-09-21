@@ -123,6 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="text" name="school_year" value="{{ date('Y') }}-{{ date('Y') + 1 }}"
                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom de l'école</label>
+                    <input type="text" name="school_name" placeholder="Ex: École Jean Jaurès"
+                           value="{{ $schools->first()?->name ?? '' }}"
+                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type d'école</label>
+                    <select name="school_type" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                        <option value="primaire" @selected(($schools->first()?->type ?? 'primaire') === 'primaire')>Primaire</option>
+                        <option value="maternelle" @selected(($schools->first()?->type ?? '') === 'maternelle')>Maternelle</option>
+                        <option value="elementaire" @selected(($schools->first()?->type ?? '') === 'elementaire')>Élémentaire</option>
+                        <option value="college" @selected(($schools->first()?->type ?? '') === 'college')>Collège</option>
+                    </select>
+                </div>
+            </div>
             <div id="classes-container" class="space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 class-row">
                     <input type="text" name="classes[0][name]" placeholder="Nom de la classe (ex: CP)"

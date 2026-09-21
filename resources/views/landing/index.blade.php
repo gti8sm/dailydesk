@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @php
-        try {
-            $appName = \App\Models\Setting::get('app_name', config('app.name', 'DailyDesk'));
-        } catch (\Exception $e) {
-            $appName = config('app.name', 'DailyDesk');
-        }
+        $appName = config('app.name', 'DailyDesk');
     @endphp
     <title>{{ $appName }} — Gestion municipale pour les mairies</title>
     <meta name="description" content="DailyDesk — Solution complète de gestion municipale pour les mairies et collectivités. Gestion des familles, cantine scolaire, garderie, stocks et plus encore.">
