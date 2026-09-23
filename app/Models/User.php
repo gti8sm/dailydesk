@@ -79,7 +79,7 @@ class User extends Authenticatable
 
     /**
      * Renvoie la liste des écoles accessibles par l'utilisateur connecté.
-     * - admin global (school_id null) : toutes les écoles
+     * - admin global (school_id null) : toutes les écoles du tenant + interco
      * - agent limité : son école + ses écoles supplémentaires (remplacements)
      */
     public static function getAccessibleSchools()
@@ -90,6 +90,7 @@ class User extends Authenticatable
         }
 
         if (!$user->school_id) {
+            // Le scope global de School inclut déjà owner + interco
             return \App\Models\School::active()->orderBy('name')->get();
         }
 
@@ -98,7 +99,12 @@ class User extends Authenticatable
             $user->additional_school_ids ?? []
         ));
 
-        return \App\Models\School::active()->whereIn('id', $ids)->orderBy('name')->get();
+        // Sans le scope tenant pour pouvoir accéder aux écoles d'autres tenants (interco)
+        return \App\Models\School::active()
+            ->withoutGlobalScope('tenant_or_interco')
+            ->whereIn('id', $ids)
+            ->orderBy('name')
+            ->get();
     }
 
     /**
@@ -107,7 +113,20 @@ class User extends Authenticatable
     public function canAccessSchool(int $schoolId): bool
     {
         if (!$this->school_id) {
-            return true; // admin global
+            // Admin global : vérifie via le scope School (owner + interco)
+            return \App\Models\School::withoutGlobalScope('tenant_or_interco')
+                ->where('id', $schoolId)
+                ->where(function ($q) {
+                    $tenant = \App\Models\Tenant::find($this->tenant_id);
+                    if ($tenant) {
+                        $intercoIds = $tenant->getIntercommunalityIds();
+                        $q->where('owner_tenant_id', $this->tenant_id);
+                        if (!empty($intercoIds)) {
+                            $q->orWhereIn('intercommunality_id', $intercoIds);
+                        }
+                    }
+                })
+                ->exists();
         }
 
         if ($this->school_id === $schoolId) {

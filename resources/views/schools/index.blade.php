@@ -52,9 +52,16 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-xl font-bold text-gray-900">{{ $school->name }}</h3>
-                            <span class="px-2 py-1 text-xs font-semibold rounded {{ $school->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $school->is_active ? 'Active' : 'Inactive' }}
-                            </span>
+                            <div class="flex items-center gap-1">
+                                @if($school->is_shared)
+                                <span class="px-2 py-1 text-xs font-semibold rounded bg-indigo-100 text-indigo-800" title="École mutualisée dans {{ $school->intercommunality?->name }}">
+                                    <i class="fas fa-handshake mr-0.5"></i>Partagée
+                                </span>
+                                @endif
+                                <span class="px-2 py-1 text-xs font-semibold rounded {{ $school->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $school->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
                         </div>
                         <p class="text-sm text-gray-500 mb-4">
                             <i class="fas fa-tag mr-1"></i>{{ $school->type_label }}

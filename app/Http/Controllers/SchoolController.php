@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\School;
+use App\Models\Intercommunality;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
@@ -14,6 +15,7 @@ class SchoolController extends Controller
         }
 
         $schools = School::withCount(['children', 'classes', 'users'])
+            ->with('intercommunality')
             ->orderBy('name')
             ->get();
 
@@ -26,7 +28,9 @@ class SchoolController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
-        return view('schools.create');
+        $intercommunalities = Intercommunality::active()->orderBy('name')->get();
+
+        return view('schools.create', compact('intercommunalities'));
     }
 
     public function store(Request $request)
@@ -39,6 +43,7 @@ class SchoolController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'type' => 'required|in:maternelle,elementaire,primaire,college',
+            'intercommunality_id' => 'nullable|exists:intercommunalities,id',
         ]);
 
         $school = School::create($validated);
@@ -53,7 +58,9 @@ class SchoolController extends Controller
             abort(403, 'Accès non autorisé');
         }
 
-        return view('schools.edit', compact('school'));
+        $intercommunalities = Intercommunality::active()->orderBy('name')->get();
+
+        return view('schools.edit', compact('school', 'intercommunalities'));
     }
 
     public function update(Request $request, School $school)
@@ -67,9 +74,11 @@ class SchoolController extends Controller
             'address' => 'nullable|string|max:255',
             'type' => 'required|in:maternelle,elementaire,primaire,college',
             'is_active' => 'boolean',
+            'intercommunality_id' => 'nullable|exists:intercommunalities,id',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['intercommunality_id'] = $request->input('intercommunality_id') ?: null;
 
         $school->update($validated);
 

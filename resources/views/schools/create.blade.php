@@ -62,6 +62,24 @@
                 @enderror
             </div>
 
+            @if($intercommunalities->isNotEmpty())
+            <div>
+                <label for="intercommunality_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Intercommunalité (école partagée)
+                </label>
+                <select name="intercommunality_id" id="intercommunality_id"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">— École propriétaire uniquement —</option>
+                    @foreach($intercommunalities as $interco)
+                    <option value="{{ $interco->id }}" {{ old('intercommunality_id') == $interco->id ? 'selected' : '' }}>
+                        {{ $interco->name }} ({{ $interco->type_label }})
+                    </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Si l'école est mutualisée avec d'autres communes, sélectionnez l'intercommunalité.</p>
+            </div>
+            @endif
+
             <div class="flex items-center justify-between pt-6 border-t border-gray-200">
                 <a href="{{ route('schools.index') }}" class="text-gray-600 hover:text-gray-800 font-medium">
                     <i class="fas fa-times mr-2"></i> Annuler

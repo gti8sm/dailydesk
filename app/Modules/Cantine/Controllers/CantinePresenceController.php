@@ -15,16 +15,18 @@ class CantinePresenceController extends Controller
         $date = $request->get('date', today()->format('Y-m-d'));
         $mealType = $request->get('meal_type', 'lunch');
 
-        $this->autoGeneratePresences($date, $mealType);
-
         $schoolId = \App\Models\User::getCurrentSchoolId();
+
+        $this->autoGeneratePresences($date, $mealType, $schoolId);
 
         $presencesQuery = CantinePresence::with(['child.family', 'child.schoolClass', 'recordedBy'])
             ->forDate($date)
             ->where('meal_type', $mealType);
 
         if ($schoolId) {
-            $presencesQuery->whereHas('child', fn($q) => $q->where('school_id', $schoolId));
+            // Cross-tenant: école partagée peut avoir des enfants d'autres communes
+            $presencesQuery->withoutGlobalScope('tenant')
+                ->whereHas('child', fn($q) => $q->where('school_id', $schoolId));
         }
 
         $presences = $presencesQuery->orderBy('created_at')->get();
@@ -36,7 +38,7 @@ class CantinePresenceController extends Controller
             ->where('cantine_subscribed', true);
 
         if ($schoolId) {
-            $childrenQuery->where('school_id', $schoolId);
+            $childrenQuery->withoutGlobalScope('tenant')->where('school_id', $schoolId);
         }
 
         $children = $childrenQuery
@@ -51,17 +53,24 @@ class CantinePresenceController extends Controller
         return view('cantine.presences.index', compact('presences', 'date', 'mealType', 'groupedChildren', 'presenceByChildId'));
     }
 
-    private function autoGeneratePresences($date, $mealType)
+    private function autoGeneratePresences($date, $mealType, $schoolId = null)
     {
-        $existingChildIds = CantinePresence::forDate($date)
-            ->where('meal_type', $mealType)
-            ->pluck('child_id')
-            ->toArray();
+        $query = CantinePresence::forDate($date)->where('meal_type', $mealType);
+        if ($schoolId) {
+            $query->withoutGlobalScope('tenant')
+                ->whereHas('child', fn($q) => $q->where('school_id', $schoolId));
+        }
+        $existingChildIds = $query->pluck('child_id')->toArray();
 
-        $subscribedChildren = Child::active()
+        $childrenQuery = Child::active()
             ->where('cantine_subscribed', true)
-            ->whereNotIn('id', $existingChildIds)
-            ->get();
+            ->whereNotIn('id', $existingChildIds);
+
+        if ($schoolId) {
+            $childrenQuery->withoutGlobalScope('tenant')->where('school_id', $schoolId);
+        }
+
+        $subscribedChildren = $childrenQuery->get();
 
         foreach ($subscribedChildren as $child) {
             CantinePresence::create([

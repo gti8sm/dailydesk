@@ -31,13 +31,17 @@ class ParentPortalController extends Controller
         $children = $family->children()->active()->with('schoolClass')->get();
 
         $childIds = $children->pluck('id');
+        $schoolIds = $children->pluck('school_id')->filter()->unique();
 
-        $garderieEvents = GarderieEvent::whereIn('child_id', $childIds)
+        // Cross-tenant: un enfant peut être scolarisé dans une école d'une autre commune (interco)
+        $garderieEvents = GarderieEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->orderBy('event_date', 'desc')
             ->limit(10)
             ->get();
 
-        $cantineEvents = CantineEvent::whereIn('child_id', $childIds)
+        $cantineEvents = CantineEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->orderBy('event_date', 'desc')
             ->limit(10)
             ->get();
@@ -50,23 +54,29 @@ class ParentPortalController extends Controller
         $year = (int) request()->get('year', $now->year);
         $month = (int) request()->get('month', $now->month);
 
-        $garderiePresences = GarderiePresence::whereIn('child_id', $childIds)
+        $garderiePresences = GarderiePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get()
             ->groupBy(fn($p) => $p->date->format('Y-m-d'));
 
-        $cantinePresences = CantinePresence::whereIn('child_id', $childIds)
+        $cantinePresences = CantinePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->get()
             ->groupBy(fn($p) => $p->date->format('Y-m-d'));
 
-        $menus = CantineMenu::published()
+        // Menus: récupérés via les écoles des enfants (potentiellement cross-tenant)
+        $menusQuery = CantineMenu::published()
+            ->withoutGlobalScope('tenant')
             ->whereYear('menu_date', $year)
-            ->whereMonth('menu_date', $month)
-            ->get()
-            ->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
+            ->whereMonth('menu_date', $month);
+        if ($schoolIds->isNotEmpty()) {
+            $menusQuery->whereIn('school_id', $schoolIds);
+        }
+        $menus = $menusQuery->get()->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
 
         $calendar = [];
         $firstDay = \Carbon\Carbon::create($year, $month, 1);
@@ -91,12 +101,14 @@ class ParentPortalController extends Controller
         $prevMonth = $firstDay->copy()->subMonth();
         $nextMonth = $firstDay->copy()->addMonth();
 
-        // Stats for current month
-        $currentGarderieMinutes = GarderiePresence::whereIn('child_id', $childIds)
+        // Stats for current month (cross-tenant via child_id)
+        $currentGarderieMinutes = GarderiePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->sum('duration_minutes');
-        $currentCantineMeals = CantinePresence::whereIn('child_id', $childIds)
+        $currentCantineMeals = CantinePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->where('is_present', true)
@@ -106,11 +118,13 @@ class ParentPortalController extends Controller
 
         // Stats for previous month (M-1)
         $prevDate = $firstDay->copy()->subMonth();
-        $prevGarderieMinutes = GarderiePresence::whereIn('child_id', $childIds)
+        $prevGarderieMinutes = GarderiePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $prevDate->year)
             ->whereMonth('date', $prevDate->month)
             ->sum('duration_minutes');
-        $prevCantineMeals = CantinePresence::whereIn('child_id', $childIds)
+        $prevCantineMeals = CantinePresence::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->whereYear('date', $prevDate->year)
             ->whereMonth('date', $prevDate->month)
             ->where('is_present', true)
@@ -146,12 +160,14 @@ class ParentPortalController extends Controller
         $parent = $this->getParent();
         $childIds = $parent->family->children()->active()->pluck('id');
 
-        GarderieEvent::whereIn('child_id', $childIds)
+        GarderieEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->where('parents_notified', true)
             ->whereNull('parent_viewed_at')
             ->update(['parent_viewed_at' => now()]);
 
-        CantineEvent::whereIn('child_id', $childIds)
+        CantineEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->where('parents_notified', true)
             ->whereNull('parent_viewed_at')
             ->update(['parent_viewed_at' => now()]);
@@ -250,12 +266,15 @@ class ParentPortalController extends Controller
         $parent = $this->getParent();
         $childIds = $parent->family->children()->active()->pluck('id');
 
-        $garderieEvents = GarderieEvent::whereIn('child_id', $childIds)
+        // Cross-tenant: un enfant peut être scolarisé dans une école d'une autre commune
+        $garderieEvents = GarderieEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->with(['child', 'createdBy'])
             ->orderBy('event_date', 'desc')
             ->paginate(10, ['*'], 'garderie_page');
 
-        $cantineEvents = CantineEvent::whereIn('child_id', $childIds)
+        $cantineEvents = CantineEvent::withoutGlobalScope('tenant')
+            ->whereIn('child_id', $childIds)
             ->with(['child', 'createdBy'])
             ->orderBy('event_date', 'desc')
             ->paginate(10, ['*'], 'cantine_page');
@@ -269,12 +288,21 @@ class ParentPortalController extends Controller
         $year = (int) $request->get('year', $now->year);
         $month = (int) $request->get('month', $now->month);
 
-        $menus = CantineMenu::published()
+        // Cross-tenant: menus des écoles des enfants (potentiellement interco)
+        $parent = $this->getParent();
+        $childIds = $parent->family->children()->active()->pluck('id');
+        $schoolIds = $parent->family->children()->active()->pluck('school_id')->filter()->unique();
+
+        $query = CantineMenu::published()
+            ->withoutGlobalScope('tenant')
             ->whereYear('menu_date', $year)
             ->whereMonth('menu_date', $month)
             ->orderBy('menu_date')
-            ->orderBy('meal_type')
-            ->get();
+            ->orderBy('meal_type');
+        if ($schoolIds->isNotEmpty()) {
+            $query->whereIn('school_id', $schoolIds);
+        }
+        $menus = $query->get();
 
         $firstDay = \Carbon\Carbon::create($year, $month, 1);
         $monthName = $firstDay->locale('fr')->monthName;
@@ -290,12 +318,19 @@ class ParentPortalController extends Controller
         $year = (int) $request->get('year', $now->year);
         $month = (int) $request->get('month', $now->month);
 
-        $menus = CantineMenu::published()
+        $parent = $this->getParent();
+        $schoolIds = $parent->family->children()->active()->pluck('school_id')->filter()->unique();
+
+        $query = CantineMenu::published()
+            ->withoutGlobalScope('tenant')
             ->whereYear('menu_date', $year)
             ->whereMonth('menu_date', $month)
             ->orderBy('menu_date')
-            ->orderBy('meal_type')
-            ->get();
+            ->orderBy('meal_type');
+        if ($schoolIds->isNotEmpty()) {
+            $query->whereIn('school_id', $schoolIds);
+        }
+        $menus = $query->get();
 
         $firstDay = \Carbon\Carbon::create($year, $month, 1);
         $monthName = $firstDay->locale('fr')->monthName;
@@ -310,12 +345,19 @@ class ParentPortalController extends Controller
         $year = (int) $request->get('year', $now->year);
         $month = (int) $request->get('month', $now->month);
 
-        $menus = CantineMenu::published()
+        $parent = $this->getParent();
+        $schoolIds = $parent->family->children()->active()->pluck('school_id')->filter()->unique();
+
+        $query = CantineMenu::published()
+            ->withoutGlobalScope('tenant')
             ->whereYear('menu_date', $year)
             ->whereMonth('menu_date', $month)
             ->orderBy('menu_date')
-            ->orderBy('meal_type')
-            ->get();
+            ->orderBy('meal_type');
+        if ($schoolIds->isNotEmpty()) {
+            $query->whereIn('school_id', $schoolIds);
+        }
+        $menus = $query->get();
 
         $firstDay = \Carbon\Carbon::create($year, $month, 1);
         $monthName = $firstDay->locale('fr')->monthName;

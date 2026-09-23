@@ -344,7 +344,14 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($schoolStats as $school)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $school['name'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ $school['name'] }}
+                            @if(!empty($school['is_shared']))
+                            <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800" title="{{ $school['intercommunality_name'] ?? '' }}">
+                                <i class="fas fa-handshake mr-0.5"></i>Partagée
+                            </span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $school['type'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">{{ $school['children_count'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center">

@@ -114,9 +114,13 @@ class DashboardController extends Controller
         // 1. Répartition par école (pour les admins)
         $schoolStats = collect();
         if ($user->hasRole(['admin', 'admin_mairie']) && $user->can('view_garderie')) {
-            $schools = \App\Models\School::active()->orderBy('name')->get();
+            $schools = \App\Models\School::active()->with('intercommunality')->orderBy('name')->get();
             foreach ($schools as $school) {
-                $childIds = \App\Models\Child::where('school_id', $school->id)->where('is_active', true)->pluck('id');
+                // Cross-tenant: les écoles partagées peuvent avoir des enfants d'autres communes
+                $childIds = \App\Models\Child::withoutGlobalScope('tenant')
+                    ->where('school_id', $school->id)
+                    ->where('is_active', true)
+                    ->pluck('id');
                 $garderiePresent = GarderiePresence::forDate(today())->whereIn('child_id', $childIds)->count();
                 $cantinePresent = 0;
                 if ($user->can('view_cantine')) {
@@ -129,6 +133,8 @@ class DashboardController extends Controller
                     'id' => $school->id,
                     'name' => $school->name,
                     'type' => $school->type_label,
+                    'is_shared' => $school->is_shared,
+                    'intercommunality_name' => $school->intercommunality?->name,
                     'children_count' => $childIds->count(),
                     'garderie_present' => $garderiePresent,
                     'cantine_present' => $cantinePresent,

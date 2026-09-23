@@ -103,6 +103,8 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])->name('tenants.toggle-status');
     Route::resource('tenants', TenantController::class);
 
+    Route::resource('intercommunalities', \App\Http\Controllers\Central\IntercommunalityController::class);
+
     Route::post('plans/{plan}/toggle-status', [SubscriptionPlanController::class, 'toggleStatus'])->name('plans.toggle-status');
     Route::resource('plans', SubscriptionPlanController::class);
 

@@ -21,7 +21,8 @@ class GarderiePresenceController extends Controller
             ->where('garderie_subscribed', true);
 
         if ($schoolId) {
-            $childrenQuery->where('school_id', $schoolId);
+            // Cross-tenant: école partagée peut avoir des enfants d'autres communes
+            $childrenQuery->withoutGlobalScope('tenant')->where('school_id', $schoolId);
         }
 
         $children = $childrenQuery
@@ -29,7 +30,8 @@ class GarderiePresenceController extends Controller
             ->orderBy('first_name')
             ->get()
             ->map(function ($child) use ($date) {
-                $presence = GarderiePresence::where('child_id', $child->id)
+                $presence = GarderiePresence::withoutGlobalScope('tenant')
+                    ->where('child_id', $child->id)
                     ->whereDate('date', $date)
                     ->with(['recordedByArrival', 'recordedByDeparture'])
                     ->first();

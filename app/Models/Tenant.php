@@ -151,4 +151,25 @@ class Tenant extends BaseTenant
     {
         return $this->domains()->first()?->domain;
     }
+
+    /**
+     * Intercommunalités dont fait partie ce tenant.
+     */
+    public function intercommunalities()
+    {
+        return $this->belongsToMany(Intercommunality::class, 'tenant_intercommunality')
+            ->withPivot('joined_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Renvoie les IDs des intercommunalités actives du tenant.
+     */
+    public function getIntercommunalityIds(): array
+    {
+        return $this->intercommunalities()
+            ->where('is_active', true)
+            ->pluck('intercommunalities.id')
+            ->all();
+    }
 }
