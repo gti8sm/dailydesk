@@ -233,8 +233,10 @@
                             <span class="w-2 h-2 rounded-full bg-purple-500 flex-shrink-0"></span>
                             <span class="text-[10px] text-purple-600 font-medium cursor-help relative group">
                                 Menu
+                                <!-- Pont transparent pour combler le vide et garder le hover -->
+                                <div class="absolute z-40 left-0 bottom-full h-2 w-full"></div>
                                 <!-- Tooltip au survol -->
-                                <div class="absolute z-50 left-0 bottom-full mb-1 hidden group-hover:block w-56 bg-white border border-purple-200 rounded-lg shadow-xl p-2 text-left">
+                                <div class="absolute z-50 left-0 bottom-full hidden group-hover:block w-56 bg-white border border-purple-200 rounded-lg shadow-xl p-2 text-left">
                                     @foreach($dayMenus as $menu)
                                     <div class="mb-1.5 last:mb-0">
                                         <div class="text-[10px] font-bold text-purple-700">{{ $menu->meal_type === 'lunch' ? 'Déjeuner' : 'Goûter' }}</div>
