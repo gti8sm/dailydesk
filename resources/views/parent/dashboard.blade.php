@@ -231,7 +231,26 @@
                         @if($hasMenu)
                         <div class="flex items-center gap-0.5">
                             <span class="w-2 h-2 rounded-full bg-purple-500 flex-shrink-0"></span>
-                            <a href="{{ route('parent.menus') }}" class="text-[10px] text-purple-600 hover:text-purple-800 font-medium">Menu</a>
+                            <span class="text-[10px] text-purple-600 font-medium cursor-help relative group">
+                                Menu
+                                <!-- Tooltip au survol -->
+                                <div class="absolute z-50 left-0 bottom-full mb-1 hidden group-hover:block w-56 bg-white border border-purple-200 rounded-lg shadow-xl p-2 text-left">
+                                    @foreach($dayMenus as $menu)
+                                    <div class="mb-1.5 last:mb-0">
+                                        <div class="text-[10px] font-bold text-purple-700">{{ $menu->meal_type === 'lunch' ? 'Déjeuner' : 'Goûter' }}</div>
+                                        @if($menu->title)<div class="text-[10px] font-semibold text-gray-800">{{ $menu->title }}</div>@endif
+                                        <div class="text-[10px] text-gray-600 space-y-0.5">
+                                            @if($menu->starter)<div> Entrée : {{ $menu->starter }}</div>@endif
+                                            @if($menu->main_course)<div> Plat : {{ $menu->main_course }}</div>@endif
+                                            @if($menu->side_dish)<div> Garniture : {{ $menu->side_dish }}</div>@endif
+                                            @if($menu->dessert)<div> Dessert : {{ $menu->dessert }}</div>@endif
+                                        </div>
+                                        @if($menu->vegetarian)<span class="inline-block text-[9px] bg-green-100 text-green-700 rounded px-1">Végé</span>@endif
+                                    </div>
+                                    @endforeach
+                                    <a href="{{ route('parent.menus') }}" class="block text-[10px] text-purple-600 hover:text-purple-800 font-medium text-center pt-1 border-t border-purple-100">Voir tous les menus →</a>
+                                </div>
+                            </span>
                         </div>
                         @endif
                     </div>
