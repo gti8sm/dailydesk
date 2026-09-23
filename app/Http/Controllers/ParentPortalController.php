@@ -11,6 +11,7 @@ use App\Modules\Cantine\Models\CantineEvent;
 use App\Modules\Cantine\Models\CantinePresence;
 use App\Modules\Cantine\Models\CantineMenu;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ParentPortalController extends Controller
 {
@@ -281,6 +282,50 @@ class ParentPortalController extends Controller
         $nextMonth = $firstDay->copy()->addMonth();
 
         return view('parent.menus', compact('menus', 'year', 'month', 'monthName', 'prevMonth', 'nextMonth'));
+    }
+
+    public function menusPrint(Request $request)
+    {
+        $now = now();
+        $year = (int) $request->get('year', $now->year);
+        $month = (int) $request->get('month', $now->month);
+
+        $menus = CantineMenu::published()
+            ->whereYear('menu_date', $year)
+            ->whereMonth('menu_date', $month)
+            ->orderBy('menu_date')
+            ->orderBy('meal_type')
+            ->get();
+
+        $firstDay = \Carbon\Carbon::create($year, $month, 1);
+        $monthName = $firstDay->locale('fr')->monthName;
+        $tenantName = \App\Models\Tenant::find(auth()->user()->tenant_id)?->name;
+
+        return view('parent.menus-print', compact('menus', 'year', 'month', 'monthName', 'firstDay', 'tenantName'));
+    }
+
+    public function menusPdf(Request $request)
+    {
+        $now = now();
+        $year = (int) $request->get('year', $now->year);
+        $month = (int) $request->get('month', $now->month);
+
+        $menus = CantineMenu::published()
+            ->whereYear('menu_date', $year)
+            ->whereMonth('menu_date', $month)
+            ->orderBy('menu_date')
+            ->orderBy('meal_type')
+            ->get();
+
+        $firstDay = \Carbon\Carbon::create($year, $month, 1);
+        $monthName = $firstDay->locale('fr')->monthName;
+        $tenantName = \App\Models\Tenant::find(auth()->user()->tenant_id)?->name;
+
+        $pdf = Pdf::loadView('parent.menus-print', compact('menus', 'year', 'month', 'monthName', 'firstDay', 'tenantName'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'menus-' . $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.pdf';
+        return $pdf->download($filename);
     }
 
     public function notifications()

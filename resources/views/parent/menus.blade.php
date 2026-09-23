@@ -23,7 +23,19 @@
         <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="text-gray-500 hover:text-gray-700 px-2 py-1">
             <i class="fas fa-chevron-left"></i>
         </a>
-        <span class="font-bold text-gray-900 capitalize">{{ $monthName }} {{ $year }}</span>
+        <div class="flex items-center gap-4">
+            <span class="font-bold text-gray-900 capitalize">{{ $monthName }} {{ $year }}</span>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('parent.menus.print', ['year' => $year, 'month' => $month]) }}" target="_blank"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                    <i class="fas fa-print"></i> Imprimer
+                </a>
+                <a href="{{ route('parent.menus.pdf', ['year' => $year, 'month' => $month]) }}"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+            </div>
+        </div>
         <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="text-gray-500 hover:text-gray-700 px-2 py-1">
             <i class="fas fa-chevron-right"></i>
         </a>

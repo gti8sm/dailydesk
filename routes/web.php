@@ -300,6 +300,8 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
         Route::get('/events', [ParentPortalController::class, 'events'])->name('events');
         Route::post('/events/mark-viewed', [ParentPortalController::class, 'markEventsViewed'])->name('events.markViewed');
         Route::get('/menus', [ParentPortalController::class, 'menus'])->name('menus');
+        Route::get('/menus/print', [ParentPortalController::class, 'menusPrint'])->name('menus.print');
+        Route::get('/menus/pdf', [ParentPortalController::class, 'menusPdf'])->name('menus.pdf');
         Route::get('/notifications', [ParentPortalController::class, 'notifications'])->name('notifications');
         Route::put('/notifications', [ParentPortalController::class, 'updateNotifications'])->name('notifications.update');
     });
