@@ -33,4 +33,12 @@ return [
         'route' => 'stock.items.index',
         'permission' => 'view_stock',
     ],
+    'public_site' => [
+        'label' => 'Site Public',
+        'icon' => 'fas fa-globe',
+        'color' => 'emerald',
+        'description' => 'Site web public de la commune avec pages éditables et actualités',
+        'route' => 'site.pages.index',
+        'permission' => 'manage_public_site',
+    ],
 ];

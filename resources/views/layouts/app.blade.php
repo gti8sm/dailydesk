@@ -237,6 +237,13 @@
                                     <span class="ml-3">Exports</span>
                                 </a>
                                 @endhasrole
+                                @can('manage_public_site')
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-globe w-5"></i>
+                                    <span class="ml-3">Site public</span>
+                                </a>
+                                @endcan
                                 @can('manage_settings')
                                 <div class="border-t border-gray-100 my-1"></div>
                                 <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
@@ -601,6 +608,12 @@
                                     <i class="fas fa-file-download w-5"></i>
                                     <span class="ml-3">Exports</span>
                                 </a>
+                                @can('manage_public_site')
+                                <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-globe w-5"></i>
+                                    <span class="ml-3">Site public</span>
+                                </a>
+                                @endcan
                                 <a href="{{ route('support.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
                                     <i class="fas fa-life-ring w-5"></i>
                                     <span class="ml-3">Support</span>

@@ -5,13 +5,23 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">
-            Bonjour, {{ Auth::user()->name }} 👋
-        </h1>
-        <p class="mt-1 text-sm text-gray-600">
-            Rôle : <span class="font-medium">{{ Auth::user()->roles->pluck('name')->join(', ') }}</span>
-            · {{ now()->translatedFormat('l d F Y') }}
-        </p>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    Bonjour, {{ Auth::user()->name }} 👋
+                </h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    Rôle : <span class="font-medium">{{ Auth::user()->roles->pluck('name')->join(', ') }}</span>
+                    · {{ now()->translatedFormat('l d F Y') }}
+                </p>
+            </div>
+            @if($tenant && auth()->user()->can('manage_public_site'))
+            <a href="{{ route('public.site', ['tenant' => $tenant->slug]) }}" target="_blank"
+               class="hidden sm:inline-flex items-center px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg font-medium text-sm transition-colors">
+                <i class="fas fa-globe mr-2"></i>Voir le site public
+            </a>
+            @endif
+        </div>
     </div>
 
     @if(auth()->user()->hasRole(['admin', 'admin_mairie']) && $tenant)

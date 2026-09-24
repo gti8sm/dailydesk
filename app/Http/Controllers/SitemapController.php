@@ -36,6 +36,31 @@ class SitemapController extends Controller
             ],
         ];
 
+        // Sites publics des tenants actifs
+        $tenants = \App\Models\Tenant::where('status', 'active')->get();
+        foreach ($tenants as $tenant) {
+            $urls[] = [
+                'loc' => url('/' . $tenant->slug),
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
+            ];
+            $urls[] = [
+                'loc' => url('/' . $tenant->slug . '/actualites'),
+                'changefreq' => 'daily',
+                'priority' => '0.6',
+            ];
+            $urls[] = [
+                'loc' => url('/' . $tenant->slug . '/menus'),
+                'changefreq' => 'weekly',
+                'priority' => '0.6',
+            ];
+            $urls[] = [
+                'loc' => url('/' . $tenant->slug . '/ecoles'),
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ];
+        }
+
         $content = view('sitemap.xml', compact('urls'))->render();
 
         return response($content, 200, [

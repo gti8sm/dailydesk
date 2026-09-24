@@ -36,6 +36,9 @@ use App\Modules\Stock\Controllers\StockLocationController;
 use App\Modules\Stock\Controllers\StockItemController;
 use App\Modules\Stock\Controllers\StockMovementController;
 use App\Modules\Stock\Controllers\StockAlertController;
+use App\Http\Controllers\PublicSiteController;
+use App\Http\Controllers\SitePageController;
+use App\Http\Controllers\SiteNewsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,6 +67,20 @@ Route::get('/presentation', function () {
     $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
     return view('presentation.index', compact('plans'));
 })->name('presentation');
+
+/*
+|--------------------------------------------------------------------------
+| Public site routes (no auth, tenancy initialized by slug)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
+    Route::get('/', [PublicSiteController::class, 'index'])->name('public.site');
+    Route::get('/page/{pageSlug}', [PublicSiteController::class, 'page'])->name('public.site.page');
+    Route::get('/actualites', [PublicSiteController::class, 'news'])->name('public.site.news');
+    Route::get('/actualites/{newsSlug}', [PublicSiteController::class, 'newsShow'])->name('public.site.news.show');
+    Route::get('/menus', [PublicSiteController::class, 'menus'])->name('public.site.menus');
+    Route::get('/ecoles', [PublicSiteController::class, 'schools'])->name('public.site.schools');
+});
 
 Route::get('/cgv', function () {
     $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
@@ -288,6 +305,12 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
     // Écoles (multi-écoles par tenant)
     Route::resource('schools', SchoolController::class);
     Route::post('/schools/select', [SchoolController::class, 'select'])->name('schools.select');
+
+    // Site public (pages + actualités)
+    Route::prefix('site')->name('site.')->middleware('can:manage_public_site')->group(function () {
+        Route::resource('pages', SitePageController::class);
+        Route::resource('news', SiteNewsController::class);
+    });
 
     Route::get('/invitations', [FamilyInvitationController::class, 'index'])->name('invitations.index');
     Route::post('/invitations/send', [FamilyInvitationController::class, 'send'])->name('invitations.send');

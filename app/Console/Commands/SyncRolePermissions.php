@@ -21,7 +21,7 @@ class SyncRolePermissions extends Command
                 'manage_cantine_menus', 'view_cantine_menus',
                 'view_own_children', 'view_own_events', 'manage_notifications',
                 'manage_stock', 'view_stock', 'record_stock_movement',
-                'notify_event_parents',
+                'notify_event_parents', 'manage_public_site',
             ],
             'admin_mairie' => [
                 'view_dashboard', 'manage_users', 'manage_families', 'manage_children',
@@ -31,7 +31,7 @@ class SyncRolePermissions extends Command
                 'manage_cantine_menus', 'view_cantine_menus',
                 'view_own_children', 'view_own_events', 'manage_notifications',
                 'manage_stock', 'view_stock', 'record_stock_movement',
-                'notify_event_parents',
+                'notify_event_parents', 'manage_public_site',
             ],
             'alsh' => [
                 'view_dashboard',

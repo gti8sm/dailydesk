@@ -197,7 +197,7 @@ class LandingPageController extends Controller
             'manage_cantine_menus', 'view_cantine_menus',
             'view_own_children', 'view_own_events', 'manage_notifications',
             'manage_stock', 'view_stock', 'record_stock_movement',
-            'notify_event_parents',
+            'notify_event_parents', 'manage_public_site',
         ];
 
         foreach ($permissions as $perm) {
