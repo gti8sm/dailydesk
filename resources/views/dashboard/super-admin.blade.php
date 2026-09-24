@@ -239,6 +239,10 @@
                     <i class="fas fa-plus mr-2"></i>
                     Nouveau Tenant
                 </a>
+                <a href="{{ route('central.intercommunalities.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-block ml-2">
+                    <i class="fas fa-handshake mr-2"></i>
+                    Nouvelle Interco
+                </a>
             </div>
         </div>
 
