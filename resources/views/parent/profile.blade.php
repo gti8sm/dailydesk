@@ -52,22 +52,38 @@
             </div>
         </div>
 
-        <div class="border-t pt-4">
+        <div class="border-t pt-4" x-data="parentAddressAutocomplete()">
             <h3 class="text-sm font-bold text-gray-700 mb-3">Adresse de la famille</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
+                <div class="md:col-span-2 relative">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
                     <input type="text" name="family_address" value="{{ old('family_address', $family->address) }}"
+                           @input.debounce.300ms="search()"
+                           x-model="query"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <div x-show="loading" x-cloak class="absolute right-3 top-9">
+                        <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                    </div>
+                    <div x-show="results.length > 0" x-cloak
+                         class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <template x-for="result in results" :key="result.id">
+                            <button type="button"
+                                    @click="selectAddress(result)"
+                                    class="w-full text-left px-4 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-0">
+                                <span class="text-sm font-medium text-gray-900" x-text="result.label"></span>
+                                <span class="block text-xs text-gray-500" x-text="result.context"></span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
-                    <input type="text" name="family_postal_code" value="{{ old('family_postal_code', $family->postal_code) }}"
+                    <input type="text" name="family_postal_code" id="family_postal_code" value="{{ old('family_postal_code', $family->postal_code) }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-                    <input type="text" name="family_city" value="{{ old('family_city', $family->city) }}"
+                    <input type="text" name="family_city" id="family_city" value="{{ old('family_city', $family->city) }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
@@ -90,4 +106,52 @@
         </div>
     </form>
 </div>
+
+<script>
+function parentAddressAutocomplete() {
+    return {
+        query: document.querySelector('input[name="family_address"]')?.value || '',
+        results: [],
+        loading: false,
+
+        async search() {
+            if (this.query.length < 3) {
+                this.results = [];
+                return;
+            }
+            this.loading = true;
+            try {
+                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.query)}&limit=5`);
+                const data = await res.json();
+                this.results = (data.features || []).map(f => ({
+                    id: f.properties.id,
+                    label: f.properties.label,
+                    name: f.properties.name,
+                    postcode: f.properties.postcode,
+                    city: f.properties.city,
+                    context: f.properties.context,
+                }));
+            } catch (e) {
+                console.error('Erreur autocomplétion adresse:', e);
+                this.results = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        selectAddress(result) {
+            this.query = result.label;
+            this.results = [];
+
+            const addrEl = document.querySelector('input[name="family_address"]');
+            const postalEl = document.getElementById('family_postal_code');
+            const cityEl = document.getElementById('family_city');
+
+            if (addrEl) addrEl.value = result.name;
+            if (postalEl) postalEl.value = result.postcode;
+            if (cityEl) cityEl.value = result.city;
+        }
+    };
+}
+</script>
 @endsection

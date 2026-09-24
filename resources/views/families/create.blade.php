@@ -31,12 +31,28 @@
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                         </div>
 
-                        <div>
+                        <div x-data="familyCreateAddressAutocomplete()" class="relative">
                             <label for="address" class="block text-sm font-medium text-gray-700">
-                                Adresse *
+                                Adresse * <span class="text-xs text-gray-400">(autocomplétion)</span>
                             </label>
                             <input type="text" name="address" id="address" required
+                                   @input.debounce.300ms="search()"
+                                   x-model="query"
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                            <div x-show="loading" x-cloak class="absolute right-3 top-10">
+                                <i class="fas fa-spinner fa-spin text-purple-500"></i>
+                            </div>
+                            <div x-show="results.length > 0" x-cloak
+                                 class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <template x-for="result in results" :key="result.id">
+                                    <button type="button"
+                                            @click="selectAddress(result)"
+                                            class="w-full text-left px-4 py-2 hover:bg-purple-50 border-b border-gray-100 last:border-0">
+                                        <span class="text-sm font-medium text-gray-900" x-text="result.label"></span>
+                                        <span class="block text-xs text-gray-500" x-text="result.context"></span>
+                                    </button>
+                                </template>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -191,4 +207,48 @@
         </form>
     </div>
 </div>
+
+<script>
+function familyCreateAddressAutocomplete() {
+    return {
+        query: '',
+        results: [],
+        loading: false,
+
+        async search() {
+            if (this.query.length < 3) {
+                this.results = [];
+                return;
+            }
+            this.loading = true;
+            try {
+                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.query)}&limit=5`);
+                const data = await res.json();
+                this.results = (data.features || []).map(f => ({
+                    id: f.properties.id,
+                    label: f.properties.label,
+                    name: f.properties.name,
+                    postcode: f.properties.postcode,
+                    city: f.properties.city,
+                    context: f.properties.context,
+                }));
+            } catch (e) {
+                console.error('Erreur autocomplétion adresse:', e);
+                this.results = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        selectAddress(result) {
+            this.query = result.label;
+            this.results = [];
+
+            document.getElementById('address').value = result.name;
+            document.getElementById('postal_code').value = result.postcode;
+            document.getElementById('city').value = result.city;
+        }
+    };
+}
+</script>
 @endsection

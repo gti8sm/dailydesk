@@ -522,7 +522,7 @@
         </div>
         @endif
 
-        <form action="{{ route('landing.register') }}" method="POST" class="bg-white rounded-2xl shadow-2xl p-8 space-y-5">
+        <form action="{{ route('landing.register') }}" method="POST" class="bg-white rounded-2xl shadow-2xl p-8 space-y-5" x-data="landingForm()">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -550,26 +550,53 @@
                            placeholder="Mairie de...">
                 </div>
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Adresse *</label>
                 <input type="text" name="address" required value="{{ old('address') }}"
+                       @input.debounce.300ms="searchAddress()"
+                       x-model="addrQuery"
                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm"
-                       placeholder="12 rue de la Mairie">
+                       placeholder="Commencez à taper l'adresse...">
+                <div x-show="addrLoading" x-cloak class="absolute right-3 top-9">
+                    <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                </div>
+                <div x-show="addrResults.length > 0" x-cloak
+                     class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <template x-for="result in addrResults" :key="result.id">
+                        <button type="button"
+                                @click="selectAddr(result)"
+                                class="w-full text-left px-4 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-0">
+                            <span class="text-sm font-medium text-gray-900" x-text="result.label"></span>
+                            <span class="block text-xs text-gray-500" x-text="result.context"></span>
+                        </button>
+                    </template>
+                </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-                    <input type="text" name="city" value="{{ old('city') }}"
+                    <input type="text" name="city" id="landing_city" value="{{ old('city') }}"
                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm"
                            placeholder="Paris">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
-                    <input type="text" name="postal_code" value="{{ old('postal_code') }}"
+                    <input type="text" name="postal_code" id="landing_postal" value="{{ old('postal_code') }}"
                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm"
                            placeholder="75001">
                 </div>
             </div>
+            <!-- Champs cachés auto-remplis -->
+            <input type="hidden" name="insee_code" id="landing_insee" value="{{ old('insee_code') }}">
+            <input type="hidden" name="population" id="landing_population" value="{{ old('population') }}">
+
+            <div x-show="suggestedPlanName" x-cloak class="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                <p class="text-sm text-green-800">
+                    <i class="fas fa-lightbulb mr-1"></i> Plan suggéré : <strong x-text="suggestedPlanName"></strong>
+                    <span class="text-green-600 text-xs">— basé sur la population de votre commune</span>
+                </p>
+            </div>
+
             <div class="pt-2">
                 <button type="submit"
                         class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl">
@@ -634,6 +661,105 @@
         </div>
     </div>
 </footer>
+
+<script>
+// Autocomplétion adresse + auto-INSEE/population pour le formulaire de démo
+function landingForm() {
+    return {
+        addrQuery: document.querySelector('input[name="address"]')?.value || '',
+        addrResults: [],
+        addrLoading: false,
+        suggestedPlanName: '',
+
+        async searchAddress() {
+            if (this.addrQuery.length < 3) {
+                this.addrResults = [];
+                return;
+            }
+            this.addrLoading = true;
+            try {
+                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.addrQuery)}&limit=5`);
+                const data = await res.json();
+                this.addrResults = (data.features || []).map(f => ({
+                    id: f.properties.id,
+                    label: f.properties.label,
+                    name: f.properties.name,
+                    postcode: f.properties.postcode,
+                    city: f.properties.city,
+                    citycode: f.properties.citycode,
+                    context: f.properties.context,
+                }));
+            } catch (e) {
+                console.error('Erreur autocomplétion adresse:', e);
+                this.addrResults = [];
+            } finally {
+                this.addrLoading = false;
+            }
+        },
+
+        async selectAddr(result) {
+            this.addrQuery = result.label;
+            this.addrResults = [];
+
+            const addrEl = document.querySelector('input[name="address"]');
+            const postalEl = document.getElementById('landing_postal');
+            const cityEl = document.getElementById('landing_city');
+
+            if (addrEl) addrEl.value = result.name;
+            if (postalEl) postalEl.value = result.postcode;
+            if (cityEl) cityEl.value = result.city;
+
+            // Auto-remplir organization_name si vide
+            const orgEl = document.querySelector('input[name="organization_name"]');
+            if (orgEl && !orgEl.value) {
+                orgEl.value = 'Mairie de ' + result.city;
+            }
+
+            // Recherche INSEE + population automatique
+            await this.autoSearchInsee(result.city);
+        },
+
+        async autoSearchInsee(cityName) {
+            if (!cityName || cityName.length < 2) return;
+
+            const inseeEl = document.getElementById('landing_insee');
+            const popEl = document.getElementById('landing_population');
+
+            try {
+                const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(cityName)}&fields=nom,code,population&format=json&boost=population`);
+                const data = await res.json();
+
+                if (data.length > 0) {
+                    const commune = data[0];
+                    if (inseeEl) inseeEl.value = commune.code;
+                    if (popEl) popEl.value = commune.population || '';
+                    this.suggestPlan(commune.population || 0);
+                }
+            } catch (e) {
+                console.error('Erreur recherche INSEE auto:', e);
+            }
+        },
+
+        suggestPlan(pop) {
+            const plans = @json($plans->mapWithKeys(fn($p) => [$p->slug => ['min' => $p->population_min, 'max' => $p->population_max, 'name' => $p->name]]));
+            const p = parseInt(pop);
+            if (!p || isNaN(p)) {
+                this.suggestedPlanName = '';
+                return;
+            }
+            for (const [slug, data] of Object.entries(plans)) {
+                const min = data.min || 0;
+                const max = data.max;
+                if (p >= min && (max === null || p <= max)) {
+                    this.suggestedPlanName = data.name;
+                    return;
+                }
+            }
+            this.suggestedPlanName = '';
+        }
+    };
+}
+</script>
 
 </body>
 </html>

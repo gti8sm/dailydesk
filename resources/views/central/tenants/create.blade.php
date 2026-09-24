@@ -110,16 +110,34 @@
                         @enderror
                     </div>
 
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-2" x-data="addressAutocomplete('address', 'postal_code', 'city')">
                         <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                            Adresse
+                            Adresse <span class="text-xs text-gray-400">(autocomplétion)</span>
                         </label>
-                        <input type="text" 
-                               name="address" 
-                               id="address" 
-                               value="{{ old('address') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('address') border-red-500 @enderror"
-                               placeholder="1 Place de la Mairie">
+                        <div class="relative">
+                            <input type="text"
+                                   name="address"
+                                   id="address"
+                                   value="{{ old('address') }}"
+                                   @input.debounce.300ms="search()"
+                                   x-model="query"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('address') border-red-500 @enderror"
+                                   placeholder="Commencez à taper l'adresse...">
+                            <div x-show="loading" x-cloak class="absolute right-3 top-2.5">
+                                <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                            </div>
+                            <div x-show="results.length > 0" x-cloak
+                                 class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <template x-for="result in results" :key="result.id">
+                                    <button type="button"
+                                            @click="selectAddress(result)"
+                                            class="w-full text-left px-4 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-0">
+                                        <span class="text-sm font-medium text-gray-900" x-text="result.label"></span>
+                                        <span class="block text-xs text-gray-500" x-text="result.context"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
                         @error('address')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -144,10 +162,11 @@
                         <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
                             Ville
                         </label>
-                        <input type="text" 
-                               name="city" 
-                               id="city" 
+                        <input type="text"
+                               name="city"
+                               id="city"
                                value="{{ old('city') }}"
+                               @input.debounce.500ms="autoSearchInsee($event.target.value)"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('city') border-red-500 @enderror"
                                placeholder="Paris">
                         @error('city')
@@ -423,6 +442,89 @@ document.getElementById('name').addEventListener('input', function(e) {
         .replace(/^-+|-+$/g, '');
     document.getElementById('slug').value = slug;
 });
+
+// Autocomplétion d'adresse via api.adresse.data.gouv.fr (gratuit, sans clé)
+function addressAutocomplete(addressId, postalId, cityId) {
+    return {
+        query: document.getElementById(addressId)?.value || '',
+        results: [],
+        loading: false,
+
+        async search() {
+            if (this.query.length < 3) {
+                this.results = [];
+                return;
+            }
+            this.loading = true;
+            try {
+                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.query)}&limit=5`);
+                const data = await res.json();
+                this.results = (data.features || []).map(f => ({
+                    id: f.properties.id,
+                    label: f.properties.label,
+                    name: f.properties.name,
+                    postcode: f.properties.postcode,
+                    city: f.properties.city,
+                    citycode: f.properties.citycode,
+                    context: f.properties.context,
+                }));
+            } catch (e) {
+                console.error('Erreur autocomplétion adresse:', e);
+                this.results = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        selectAddress(result) {
+            this.query = result.label;
+            this.results = [];
+
+            const addrEl = document.getElementById(addressId);
+            const postalEl = document.getElementById(postalId);
+            const cityEl = document.getElementById(cityId);
+
+            if (addrEl) addrEl.value = result.name;
+            if (postalEl) postalEl.value = result.postcode;
+            if (cityEl) {
+                cityEl.value = result.city;
+                // Déclencher la recherche INSEE automatiquement
+                autoSearchInsee(result.city);
+            }
+        }
+    };
+}
+
+// Recherche INSEE automatique depuis le nom de ville
+async function autoSearchInsee(cityName) {
+    if (!cityName || cityName.length < 2) return;
+
+    const inseeCodeEl = document.getElementById('insee_code');
+    const populationEl = document.getElementById('population');
+
+    try {
+        const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(cityName)}&fields=nom,code,population&format=json&boost=population`);
+        const data = await res.json();
+
+        if (data.length > 0) {
+            const commune = data[0]; // Le plus peuplé en premier (boost=population)
+            if (inseeCodeEl) inseeCodeEl.value = commune.code;
+            if (populationEl) {
+                populationEl.value = commune.population || '';
+                populationEl.dispatchEvent(new Event('input'));
+            }
+            // Mettre à jour la suggestion de plan
+            const inseeComponent = document.querySelector('[x-data^="inseeSearch"]');
+            if (inseeComponent && inseeComponent.__x) {
+                inseeComponent.__x.$data.inseeCode = commune.code;
+                inseeComponent.__x.$data.population = commune.population || '';
+                inseeComponent.__x.$data.suggestPlan();
+            }
+        }
+    } catch (e) {
+        console.error('Erreur recherche INSEE auto:', e);
+    }
+}
 
 // Recherche INSEE via geo.api.gouv.fr
 function inseeSearch() {
