@@ -1,0 +1,101 @@
+<?php
+
+return [
+    'grapesjs' => [
+        'label' => 'Contenu libre',
+        'icon' => 'fas fa-pen-fancy',
+        'category' => 'content',
+        'editor' => 'grapesjs',
+        'description' => 'Bloc éditable avec l\'éditeur visuel GrapesJS',
+        'default_config' => [],
+    ],
+    'hero' => [
+        'label' => 'Bannière hero',
+        'icon' => 'fas fa-image',
+        'category' => 'content',
+        'editor' => 'form',
+        'description' => 'Grande bannière avec titre, sous-titre et image',
+        'default_config' => [
+            'title' => '',
+            'subtitle' => '',
+            'image_url' => '',
+            'cta_label' => '',
+            'cta_url' => '',
+        ],
+    ],
+    'cantine-menus' => [
+        'label' => 'Menus cantine',
+        'icon' => 'fas fa-utensils',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Menus de la cantine du mois en cours',
+        'default_config' => [
+            'month_offset' => 0,
+            'limit' => 10,
+            'show_image' => false,
+        ],
+    ],
+    'news-list' => [
+        'label' => 'Actualités',
+        'icon' => 'fas fa-newspaper',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Dernières actualités publiées',
+        'default_config' => [
+            'limit' => 4,
+            'layout' => 'grid',
+            'show_image' => true,
+        ],
+    ],
+    'events-upcoming' => [
+        'label' => 'Événements',
+        'icon' => 'fas fa-calendar-days',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Prochains événements de la commune',
+        'default_config' => [
+            'limit' => 4,
+            'show_image' => true,
+        ],
+    ],
+    'weather' => [
+        'label' => 'Météo',
+        'icon' => 'fas fa-cloud-sun',
+        'category' => 'widget',
+        'editor' => 'form',
+        'description' => 'Météo actuelle de la commune (Open-Meteo)',
+        'default_config' => [
+            'show_forecast' => true,
+        ],
+    ],
+    'social' => [
+        'label' => 'Réseaux sociaux',
+        'icon' => 'fas fa-share-nodes',
+        'category' => 'widget',
+        'editor' => 'form',
+        'description' => 'Boutons vers vos réseaux sociaux',
+        'default_config' => [
+            'facebook_url' => '',
+            'instagram_url' => '',
+            'twitter_url' => '',
+            'youtube_url' => '',
+            'style' => 'rounded',
+        ],
+    ],
+    'hours' => [
+        'label' => 'Horaires d\'ouverture',
+        'icon' => 'fas fa-clock',
+        'category' => 'widget',
+        'editor' => 'form',
+        'description' => 'Horaires d\'ouverture de la mairie',
+        'default_config' => [
+            'monday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
+            'tuesday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
+            'wednesday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
+            'thursday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
+            'friday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
+            'saturday' => null,
+            'sunday' => null,
+        ],
+    ],
+];

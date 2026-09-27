@@ -241,7 +241,15 @@
                                 <div class="border-t border-gray-100 my-1"></div>
                                 <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                                     <i class="fas fa-globe w-5"></i>
-                                    <span class="ml-3">Site public</span>
+                                    <span class="ml-3">Pages du site</span>
+                                </a>
+                                <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-newspaper w-5"></i>
+                                    <span class="ml-3">Actualités</span>
+                                </a>
+                                <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-calendar-days w-5"></i>
+                                    <span class="ml-3">Événements</span>
                                 </a>
                                 @endcan
                                 @can('manage_settings')
@@ -611,7 +619,15 @@
                                 @can('manage_public_site')
                                 <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
                                     <i class="fas fa-globe w-5"></i>
-                                    <span class="ml-3">Site public</span>
+                                    <span class="ml-3">Pages du site</span>
+                                </a>
+                                <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-newspaper w-5"></i>
+                                    <span class="ml-3">Actualités</span>
+                                </a>
+                                <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-calendar-days w-5"></i>
+                                    <span class="ml-3">Événements</span>
                                 </a>
                                 @endcan
                                 <a href="{{ route('support.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">

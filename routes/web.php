@@ -39,6 +39,8 @@ use App\Modules\Stock\Controllers\StockAlertController;
 use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\SiteNewsController;
+use App\Http\Controllers\SiteBlockController;
+use App\Http\Controllers\SiteEventController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +82,8 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
     Route::get('/actualites/{newsSlug}', [PublicSiteController::class, 'newsShow'])->name('public.site.news.show');
     Route::get('/menus', [PublicSiteController::class, 'menus'])->name('public.site.menus');
     Route::get('/ecoles', [PublicSiteController::class, 'schools'])->name('public.site.schools');
+    Route::get('/evenements', [PublicSiteController::class, 'events'])->name('public.site.events');
+    Route::get('/evenements/{eventSlug}', [PublicSiteController::class, 'eventShow'])->name('public.site.events.show');
 });
 
 Route::get('/cgv', function () {
@@ -306,10 +310,22 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
     Route::resource('schools', SchoolController::class);
     Route::post('/schools/select', [SchoolController::class, 'select'])->name('schools.select');
 
-    // Site public (pages + actualités)
+    // Site public (pages + actualités + événements + builder de blocs)
     Route::prefix('site')->name('site.')->middleware('can:manage_public_site')->group(function () {
         Route::resource('pages', SitePageController::class);
         Route::resource('news', SiteNewsController::class);
+        Route::resource('events', SiteEventController::class);
+
+        // Builder de blocs
+        Route::get('home/builder', [SiteBlockController::class, 'index'])->name('home.builder');
+        Route::post('home/blocks', [SiteBlockController::class, 'store'])->name('home.blocks.store');
+        Route::get('pages/{page}/builder', [SiteBlockController::class, 'index'])->name('pages.builder');
+        Route::post('pages/{page}/blocks', [SiteBlockController::class, 'store'])->name('blocks.store');
+        Route::put('blocks/{block}', [SiteBlockController::class, 'update'])->name('blocks.update');
+        Route::post('blocks/order', [SiteBlockController::class, 'updateOrder'])->name('blocks.order');
+        Route::post('blocks/{block}/grapesjs', [SiteBlockController::class, 'saveGrapesjs'])->name('blocks.grapesjs');
+        Route::get('blocks/{block}/grapesjs/load', [SiteBlockController::class, 'loadGrapesjs'])->name('blocks.grapesjs.load');
+        Route::delete('blocks/{block}', [SiteBlockController::class, 'destroy'])->name('blocks.destroy');
     });
 
     Route::get('/invitations', [FamilyInvitationController::class, 'index'])->name('invitations.index');

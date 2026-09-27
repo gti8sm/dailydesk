@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PublicSitePage;
 use App\Models\PublicSiteNews;
+use App\Models\PublicSiteBlock;
+use App\Models\PublicSiteEvent;
 use App\Models\School;
 use App\Modules\Cantine\Models\CantineMenu;
 use Illuminate\Http\Request;
@@ -19,23 +21,38 @@ class PublicSiteController extends Controller
         }
 
         $pages = PublicSitePage::published()->ordered()->get();
-        $news = PublicSiteNews::published()->latestFirst()->take(4)->get();
-        $schools = School::active()->orderBy('name')->get();
 
-        // Menus cantine publiés du mois en cours
-        $now = now();
-        $menus = CantineMenu::published()
-            ->withoutGlobalScope('tenant')
-            ->whereYear('menu_date', $now->year)
-            ->whereMonth('menu_date', $now->month)
-            ->orderBy('menu_date')
-            ->get()
-            ->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
+        // Blocs de la page d'accueil (page_id = null)
+        $blocks = PublicSiteBlock::whereNull('page_id')->published()->ordered()->get();
 
-        // Page d'accueil éditable (slug = accueil ou première page publiée)
-        $homePage = $pages->firstWhere('slug', 'accueil') ?? $pages->first();
+        // Fallback : si aucun bloc, on garde l'ancien rendu
+        $hasBlocks = $blocks->count() > 0;
 
-        return view('public-site.index', compact('tenant', 'pages', 'news', 'schools', 'menus', 'homePage'));
+        if (!$hasBlocks) {
+            $news = PublicSiteNews::published()->latestFirst()->take(4)->get();
+            $schools = School::active()->orderBy('name')->get();
+
+            $now = now();
+            $menus = CantineMenu::published()
+                ->withoutGlobalScope('tenant')
+                ->whereYear('menu_date', $now->year)
+                ->whereMonth('menu_date', $now->month)
+                ->orderBy('menu_date')
+                ->get()
+                ->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
+
+            $homePage = $pages->firstWhere('slug', 'accueil') ?? $pages->first();
+
+            return view('public-site.index', compact('tenant', 'pages', 'news', 'schools', 'menus', 'homePage'));
+        }
+
+        // Rendu par blocs
+        $renderedBlocks = $blocks->map(fn($block) => [
+            'html' => $block->render(),
+            'width_class' => $block->width_class,
+        ]);
+
+        return view('public-site.index-blocks', compact('tenant', 'pages', 'renderedBlocks'));
     }
 
     public function page(Request $request, string $pageSlug)
@@ -48,6 +65,18 @@ class PublicSiteController extends Controller
         $page = PublicSitePage::published()->where('slug', $pageSlug)->firstOrFail();
         $pages = PublicSitePage::published()->ordered()->get();
 
+        // Blocs de cette page
+        $blocks = PublicSiteBlock::forPage($page->id)->published()->ordered()->get();
+
+        if ($blocks->count() > 0) {
+            $renderedBlocks = $blocks->map(fn($block) => [
+                'html' => $block->render(),
+                'width_class' => $block->width_class,
+            ]);
+            return view('public-site.page-blocks', compact('tenant', 'page', 'pages', 'renderedBlocks'));
+        }
+
+        // Fallback : ancien rendu avec content TinyMCE
         return view('public-site.page', compact('tenant', 'page', 'pages'));
     }
 
@@ -112,5 +141,31 @@ class PublicSiteController extends Controller
         $pages = PublicSitePage::published()->ordered()->get();
 
         return view('public-site.schools', compact('tenant', 'schools', 'pages'));
+    }
+
+    public function events(Request $request)
+    {
+        $tenant = tenant();
+        if (!$tenant) {
+            abort(404);
+        }
+
+        $events = PublicSiteEvent::published()->upcoming()->paginate(9);
+        $pages = PublicSitePage::published()->ordered()->get();
+
+        return view('public-site.events', compact('tenant', 'events', 'pages'));
+    }
+
+    public function eventShow(Request $request, string $eventSlug)
+    {
+        $tenant = tenant();
+        if (!$tenant) {
+            abort(404);
+        }
+
+        $event = PublicSiteEvent::published()->where('slug', $eventSlug)->firstOrFail();
+        $pages = PublicSitePage::published()->ordered()->get();
+
+        return view('public-site.event-show', compact('tenant', 'event', 'pages'));
     }
 }

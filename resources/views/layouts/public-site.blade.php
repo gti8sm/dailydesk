@@ -68,6 +68,7 @@
                     <a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => $page->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">{{ $page->title }}</a>
                     @endforeach
                     <a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Actualités</a>
+                    <a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Événements</a>
                     <a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Menus</a>
                     <a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Écoles</a>
                 </nav>
@@ -87,6 +88,7 @@
                 <a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => $page->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">{{ $page->title }}</a>
                 @endforeach
                 <a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Actualités</a>
+                <a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Événements</a>
                 <a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Menus</a>
                 <a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Écoles</a>
             </div>
@@ -135,6 +137,7 @@
                     <ul class="space-y-1 text-sm">
                         <li><a href="{{ route('public.site', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Accueil</a></li>
                         <li><a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Actualités</a></li>
+                        <li><a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Événements</a></li>
                         <li><a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Menus cantine</a></li>
                         <li><a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Écoles</a></li>
                     </ul>

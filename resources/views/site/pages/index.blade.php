@@ -11,9 +11,14 @@
             </h1>
             <p class="mt-1 text-sm text-gray-600">Gérez les pages éditables de votre site web public.</p>
         </div>
-        <a href="{{ route('site.pages.create') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            <i class="fas fa-plus mr-2"></i>Nouvelle page
-        </a>
+        <div class="flex gap-2">
+            <a href="{{ route('site.home.builder') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <i class="fas fa-cubes mr-2"></i>Composer l'accueil
+            </a>
+            <a href="{{ route('site.pages.create') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <i class="fas fa-plus mr-2"></i>Nouvelle page
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -47,6 +52,9 @@
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ $page->sort_order }}</td>
                     <td class="px-6 py-4 text-right">
+                        <a href="{{ route('site.pages.builder', $page) }}" class="text-emerald-600 hover:text-emerald-800 mr-3" title="Builder de blocs">
+                            <i class="fas fa-cubes"></i>
+                        </a>
                         <a href="{{ route('public.site.page', ['tenant' => tenant()->slug, 'pageSlug' => $page->slug]) }}" target="_blank" class="text-gray-400 hover:text-gray-600 mr-3" title="Voir">
                             <i class="fas fa-eye"></i>
                         </a>
