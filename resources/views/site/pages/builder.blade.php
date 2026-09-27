@@ -3,6 +3,11 @@
 @section('title', 'Builder — ' . ($page ? $page->title : 'Page d\'accueil'))
 
 @section('content')
+@php
+    $previewUrl = $page
+        ? route('public.site.page', ['tenant' => tenant()->slug, 'pageSlug' => $page->slug])
+        : route('public.site', ['tenant' => tenant()->slug]);
+@endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="blockBuilder()">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
@@ -16,17 +21,10 @@
             <p class="mt-1 text-sm text-gray-600">Glissez-déposez les blocs pour composer votre page publique.</p>
         </div>
         <div class="flex gap-2">
-            @if($page)
-            <a href="{{ route('public.site.page', ['tenant' => tenant()->slug, 'pageSlug' => $page->slug]) ?>" target="_blank"
+            <a href="{{ $previewUrl }}" target="_blank"
                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium text-sm">
                 <i class="fas fa-eye mr-2"></i>Voir
             </a>
-            @else
-            <a href="{{ route('public.site', ['tenant' => tenant()->slug]) }}" target="_blank"
-               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium text-sm">
-                <i class="fas fa-eye mr-2"></i>Voir
-            </a>
-            @endif
             <button @click="showAddModal = true" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm">
                 <i class="fas fa-plus mr-2"></i>Ajouter un bloc
             </button>
