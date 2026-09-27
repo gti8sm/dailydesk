@@ -7,6 +7,9 @@
     $previewUrl = $page
         ? route('public.site.page', ['tenant' => tenant()->slug, 'pageSlug' => $page->slug])
         : route('public.site', ['tenant' => tenant()->slug]);
+    $storeUrl = $page
+        ? route('site.blocks.store', ['page' => $page->id])
+        : route('site.home.blocks.store');
 @endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="blockBuilder()">
     <!-- Header -->
@@ -138,7 +141,7 @@
                     <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3 mt-4 first:mt-0">{{ $catLabel }}</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                         @foreach($grouped[$catKey] as $type => $config)
-                        <form action="{{ route('site.blocks.store', ['pageId' => $page?->id]) }}" method="POST" class="block">
+                        <form action="{{ $storeUrl }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="block_type" value="{{ $type }}">
                             <button type="submit" class="w-full text-left bg-gray-50 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-300 rounded-xl p-4 transition-colors group">
