@@ -112,7 +112,7 @@
                         @endhasrole
 
                         @if($isTenantContext)
-                        @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine'))
+                        @if(auth()->user()->can('view_garderie') || auth()->user()->can('view_cantine') || auth()->user()->can('view_stock') || auth()->user()->can('manage_public_site'))
                         <div class="relative h-full flex items-center" x-data="{ open: false }">
                             <button @click="open = !open" @click.away="open = false"
                                     class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer h-full">
@@ -193,6 +193,36 @@
                                 </div>
                                 @endif
                                 @endcan
+                                @can('manage_public_site')
+                                @if(in_array('public_site', $tenantModules))
+                                <div class="relative" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
+                                    <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                                        <i class="fas fa-globe w-5"></i>
+                                        <span class="ml-3 flex-1">Site Public</span>
+                                        <i class="fas fa-chevron-right text-xs text-gray-400 ml-2"></i>
+                                    </a>
+                                    <div x-show="subOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                         class="absolute left-full top-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 -ml-1">
+                                        <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                                            <i class="fas fa-file-lines w-4"></i>
+                                            <span class="ml-3">Pages</span>
+                                        </a>
+                                        @if(in_array('public_site_news', $tenantModules))
+                                        <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                                            <i class="fas fa-newspaper w-4"></i>
+                                            <span class="ml-3">Actualités</span>
+                                        </a>
+                                        @endif
+                                        @if(in_array('public_site_events', $tenantModules))
+                                        <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                                            <i class="fas fa-calendar-days w-4"></i>
+                                            <span class="ml-3">Événements</span>
+                                        </a>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
+                                @endcan
                             </div>
                         </div>
                         @endif
@@ -237,21 +267,6 @@
                                     <span class="ml-3">Exports</span>
                                 </a>
                                 @endhasrole
-                                @can('manage_public_site')
-                                <div class="border-t border-gray-100 my-1"></div>
-                                <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-globe w-5"></i>
-                                    <span class="ml-3">Pages du site</span>
-                                </a>
-                                <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-newspaper w-5"></i>
-                                    <span class="ml-3">Actualités</span>
-                                </a>
-                                <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-calendar-days w-5"></i>
-                                    <span class="ml-3">Événements</span>
-                                </a>
-                                @endcan
                                 @can('manage_settings')
                                 <div class="border-t border-gray-100 my-1"></div>
                                 <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
@@ -578,6 +593,35 @@
                                 </div>
                                 @endif
                                 @endcan
+                                @can('manage_public_site')
+                                @if(in_array('public_site', $tenantModules))
+                                <div class="relative" x-data="{ subOpen: false }">
+                                    <button @click="subOpen = !subOpen" class="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">
+                                        <i class="fas fa-globe w-5"></i>
+                                        <span class="ml-3 flex-1 text-left">Site Public</span>
+                                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                                    </button>
+                                    <div x-show="subOpen" class="pl-8 space-y-1">
+                                        <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">
+                                            <i class="fas fa-file-lines w-4"></i>
+                                            <span class="ml-3">Pages</span>
+                                        </a>
+                                        @if(in_array('public_site_news', $tenantModules))
+                                        <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">
+                                            <i class="fas fa-newspaper w-4"></i>
+                                            <span class="ml-3">Actualités</span>
+                                        </a>
+                                        @endif
+                                        @if(in_array('public_site_events', $tenantModules))
+                                        <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">
+                                            <i class="fas fa-calendar-days w-4"></i>
+                                            <span class="ml-3">Événements</span>
+                                        </a>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
+                                @endcan
                             </div>
                         </div>
                         @endif
@@ -616,20 +660,6 @@
                                     <i class="fas fa-file-download w-5"></i>
                                     <span class="ml-3">Exports</span>
                                 </a>
-                                @can('manage_public_site')
-                                <a href="{{ route('site.pages.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-                                    <i class="fas fa-globe w-5"></i>
-                                    <span class="ml-3">Pages du site</span>
-                                </a>
-                                <a href="{{ route('site.news.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-                                    <i class="fas fa-newspaper w-5"></i>
-                                    <span class="ml-3">Actualités</span>
-                                </a>
-                                <a href="{{ route('site.events.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
-                                    <i class="fas fa-calendar-days w-5"></i>
-                                    <span class="ml-3">Événements</span>
-                                </a>
-                                @endcan
                                 <a href="{{ route('support.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
                                     <i class="fas fa-life-ring w-5"></i>
                                     <span class="ml-3">Support</span>

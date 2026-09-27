@@ -150,7 +150,24 @@ class PublicSiteController extends Controller
             abort(404);
         }
 
-        $events = PublicSiteEvent::published()->upcoming()->paginate(9);
+        $today = now()->startOfDay();
+
+        $events = PublicSiteEvent::published()
+            ->where(function ($q) use ($today) {
+                // Upcoming single events or first occurrence of recurring events
+                $q->where('starts_at', '>=', $today);
+                // Or recurring events that still have future occurrences
+                $q->orWhere(function ($q2) use ($today) {
+                    $q2->where('recurrence_type', '!=', 'none')
+                       ->where(function ($q3) use ($today) {
+                           $q3->whereNull('recurrence_end_date')
+                              ->orWhere('recurrence_end_date', '>=', $today);
+                       });
+                });
+            })
+            ->orderBy('starts_at')
+            ->paginate(9);
+
         $pages = PublicSitePage::published()->ordered()->get();
 
         return view('public-site.events', compact('tenant', 'events', 'pages'));

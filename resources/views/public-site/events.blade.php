@@ -31,6 +31,11 @@
                         @endif
                     </div>
                     <h3 class="font-bold text-gray-900 mb-1">{{ $event->title }}</h3>
+                    @if($event->isRecurring())
+                    <span class="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full mb-1">
+                        <i class="fas fa-repeat mr-1"></i>{{ $event->recurrence_label }}
+                    </span>
+                    @endif
                     @if($event->location)
                     <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>{{ $event->location }}</p>
                     @endif

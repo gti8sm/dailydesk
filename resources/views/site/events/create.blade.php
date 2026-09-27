@@ -63,6 +63,44 @@
                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">{{ old('description') }}</textarea>
             </div>
 
+            <!-- Récurrence -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4"><i class="fas fa-repeat mr-2"></i>Répétition</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Type de répétition</label>
+                        <select name="recurrence_type" id="recurrence_type"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                            <option value="none" {{ old('recurrence_type') === 'none' ? 'selected' : '' }}>Aucune (événement unique)</option>
+                            <option value="daily" {{ old('recurrence_type') === 'daily' ? 'selected' : '' }}>Quotidien</option>
+                            <option value="weekly" {{ old('recurrence_type') === 'weekly' ? 'selected' : '' }}>Hebdomadaire</option>
+                            <option value="monthly" {{ old('recurrence_type') === 'monthly' ? 'selected' : '' }}>Mensuel</option>
+                            <option value="yearly" {{ old('recurrence_type') === 'yearly' ? 'selected' : '' }}>Annuel</option>
+                        </select>
+                    </div>
+                    <div id="recurrence_interval_field" class="{{ old('recurrence_type', 'none') === 'none' ? 'hidden' : '' }}">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tous les</label>
+                        <input type="number" name="recurrence_interval" value="{{ old('recurrence_interval', 1) }}" min="1" max="365"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                        <p class="mt-1 text-xs text-gray-500">Ex: 2 = toutes les 2 semaines</p>
+                    </div>
+                    <div id="recurrence_end_field" class="{{ old('recurrence_type', 'none') === 'none' ? 'hidden' : '' }}">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Jusqu'au</label>
+                        <input type="date" name="recurrence_end_date" value="{{ old('recurrence_end_date') }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                        <p class="mt-1 text-xs text-gray-500">Laisser vide = 1 an par défaut</p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.getElementById('recurrence_type').addEventListener('change', function() {
+                    const show = this.value !== 'none';
+                    document.getElementById('recurrence_interval_field').classList.toggle('hidden', !show);
+                    document.getElementById('recurrence_end_field').classList.toggle('hidden', !show);
+                });
+            </script>
+
             <div>
                 <label class="flex items-center gap-2">
                     <input type="checkbox" name="is_published" value="1" {{ old('is_published') ? 'checked' : '' }}

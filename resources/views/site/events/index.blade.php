@@ -30,6 +30,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lieu</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Récurrence</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
@@ -48,6 +49,15 @@
                     <td class="px-6 py-4 text-sm text-gray-500">{{ $event->starts_at->format('d/m/Y') }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ $event->ends_at?->format('d/m/Y') ?? '—' }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ $event->location ?? '—' }}</td>
+                    <td class="px-6 py-4">
+                        @if($event->isRecurring())
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            <i class="fas fa-repeat mr-1"></i>{{ $event->recurrence_label }}
+                        </span>
+                        @else
+                        <span class="text-xs text-gray-400">Unique</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-4">
                         @if($event->is_published)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Publié</span>
@@ -69,7 +79,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-400">
                         <i class="fas fa-calendar-days text-4xl mb-3"></i>
                         <p>Aucun événement. Créez votre premier événement !</p>
                     </td>

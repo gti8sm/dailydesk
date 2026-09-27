@@ -38,10 +38,18 @@ class SiteEventController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'image' => 'nullable|image|max:2048',
             'is_published' => 'nullable|boolean',
+            'recurrence_type' => 'nullable|string|in:none,daily,weekly,monthly,yearly',
+            'recurrence_interval' => 'nullable|integer|min:1|max:365',
+            'recurrence_end_date' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
         $validated['is_published'] = $request->has('is_published');
+        $validated['recurrence_type'] = $validated['recurrence_type'] ?? 'none';
+        $validated['recurrence_interval'] = $validated['recurrence_interval'] ?? 1;
+        if ($validated['recurrence_type'] === 'none') {
+            $validated['recurrence_end_date'] = null;
+        }
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $request->file('image')->store('events', 'public');
@@ -73,10 +81,18 @@ class SiteEventController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'image' => 'nullable|image|max:2048',
             'is_published' => 'nullable|boolean',
+            'recurrence_type' => 'nullable|string|in:none,daily,weekly,monthly,yearly',
+            'recurrence_interval' => 'nullable|integer|min:1|max:365',
+            'recurrence_end_date' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
         $validated['is_published'] = $request->has('is_published');
+        $validated['recurrence_type'] = $validated['recurrence_type'] ?? 'none';
+        $validated['recurrence_interval'] = $validated['recurrence_interval'] ?? 1;
+        if ($validated['recurrence_type'] === 'none') {
+            $validated['recurrence_end_date'] = null;
+        }
 
         if ($request->hasFile('image')) {
             if ($event->image_path) {
