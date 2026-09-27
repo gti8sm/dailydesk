@@ -12,7 +12,7 @@ class InitializeTenancyBySlug
 {
     protected array $reservedSlugs = [
         'accueil', 'login', 'logout', 'password', 'cgv', 'mentions-legales', 'rgpd',
-        'central', 'api', 'up', 'onboarding',
+        'central', 'api', 'up', 'onboarding', 'presentation', 'sitemap.xml', 'invitation',
     ];
 
     public function handle(Request $request, Closure $next): Response

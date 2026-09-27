@@ -70,22 +70,6 @@ Route::get('/presentation', function () {
     return view('presentation.index', compact('plans'));
 })->name('presentation');
 
-/*
-|--------------------------------------------------------------------------
-| Public site routes (no auth, tenancy initialized by slug)
-|--------------------------------------------------------------------------
-*/
-Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
-    Route::get('/', [PublicSiteController::class, 'index'])->name('public.site');
-    Route::get('/page/{pageSlug}', [PublicSiteController::class, 'page'])->name('public.site.page');
-    Route::get('/actualites', [PublicSiteController::class, 'news'])->name('public.site.news');
-    Route::get('/actualites/{newsSlug}', [PublicSiteController::class, 'newsShow'])->name('public.site.news.show');
-    Route::get('/menus', [PublicSiteController::class, 'menus'])->name('public.site.menus');
-    Route::get('/ecoles', [PublicSiteController::class, 'schools'])->name('public.site.schools');
-    Route::get('/evenements', [PublicSiteController::class, 'events'])->name('public.site.events');
-    Route::get('/evenements/{eventSlug}', [PublicSiteController::class, 'eventShow'])->name('public.site.events.show');
-});
-
 Route::get('/cgv', function () {
     $plans = \App\Models\Central\SubscriptionPlan::active()->ordered()->get();
     return view('legal.cgv', compact('plans'));
@@ -106,6 +90,24 @@ Route::post('/password/reset', [LoginController::class, 'resetPassword'])->name(
 
 Route::get('/invitation/accept/{token}', [FamilyInvitationController::class, 'accept'])->name('invitation.accept');
 Route::post('/invitation/register/{token}', [FamilyInvitationController::class, 'register'])->name('invitation.register');
+
+/*
+||--------------------------------------------------------------------------
+|| Public site routes (no auth, tenancy initialized by slug)
+|| NOTE: Ces routes doivent rester APRÈS les routes fixes (login, password, etc.)
+|| pour éviter que {tenant} capture /login, /password, etc.
+||--------------------------------------------------------------------------
+*/
+Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
+    Route::get('/', [PublicSiteController::class, 'index'])->name('public.site');
+    Route::get('/page/{pageSlug}', [PublicSiteController::class, 'page'])->name('public.site.page');
+    Route::get('/actualites', [PublicSiteController::class, 'news'])->name('public.site.news');
+    Route::get('/actualites/{newsSlug}', [PublicSiteController::class, 'newsShow'])->name('public.site.news.show');
+    Route::get('/menus', [PublicSiteController::class, 'menus'])->name('public.site.menus');
+    Route::get('/ecoles', [PublicSiteController::class, 'schools'])->name('public.site.schools');
+    Route::get('/evenements', [PublicSiteController::class, 'events'])->name('public.site.events');
+    Route::get('/evenements/{eventSlug}', [PublicSiteController::class, 'eventShow'])->name('public.site.events.show');
+});
 
 /*
 |--------------------------------------------------------------------------
