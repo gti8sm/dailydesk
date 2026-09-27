@@ -134,7 +134,7 @@
                 <div class="p-6">
                     @php
                         $categories = ['content' => 'Contenu', 'module' => 'Modules', 'widget' => 'Widgets'];
-                        $grouped = collect($blockTypes)->groupBy('category');
+                        $grouped = collect($blockTypes)->groupBy("category", true);
                     @endphp
                     @foreach($categories as $catKey => $catLabel)
                     @if(isset($grouped[$catKey]))
