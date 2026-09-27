@@ -81,7 +81,7 @@
                 <p class="font-bold text-primary mb-2">{{ \Carbon\Carbon::parse($date)->locale('fr')->isoFormat('dddd D MMMM') }}</p>
                 @foreach($dayMenus as $menu)
                 <div class="border-t border-gray-100 pt-2 mt-2">
-                    <p class="text-xs font-medium text-gray-500 uppercase">{{ $menu->meal_type === 'midi' ? 'Déjeuner' : 'Goûter' }}</p>
+                    <p class="text-xs font-medium text-gray-500 uppercase">{{ $menu->meal_type === 'lunch' ? 'Déjeuner' : 'Goûter' }}</p>
                     @if($menu->title)<p class="font-semibold text-gray-800 text-sm">{{ $menu->title }}</p>@endif
                     @if($menu->main_course)<p class="text-xs text-gray-600">{{ $menu->main_course }}</p>@endif
                 </div>

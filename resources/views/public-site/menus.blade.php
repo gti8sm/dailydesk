@@ -34,7 +34,7 @@
                 <p class="font-bold text-primary mb-3 capitalize">{{ \Carbon\Carbon::parse($date)->locale('fr')->isoFormat('dddd D MMMM') }}</p>
                 @foreach($dayMenus as $menu)
                 <div class="border-t border-gray-100 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
-                    <p class="text-xs font-semibold text-gray-500 uppercase mb-1">{{ $menu->meal_type === 'midi' ? 'Déjeuner' : 'Goûter' }}</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase mb-1">{{ $menu->meal_type === 'lunch' ? 'Déjeuner' : 'Goûter' }}</p>
                     @if($menu->title)<p class="font-semibold text-gray-800 text-sm mb-1">{{ $menu->title }}</p>@endif
                     @if($menu->starter)<p class="text-xs text-gray-600"><i class="fas fa-circle text-gray-300 mr-1 text-[6px]"></i>{{ $menu->starter }}</p>@endif
                     @if($menu->main_course)<p class="text-xs text-gray-600"><i class="fas fa-circle text-gray-300 mr-1 text-[6px]"></i>{{ $menu->main_course }}</p>@endif
