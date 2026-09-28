@@ -40,6 +40,16 @@ class TenantModuleController extends Controller
         } else {
             $enabledModules[] = $module;
             $message = "Module '{$availableModules[$module]['label']}' activé.";
+
+            // Provisionnement des pages par défaut à la première activation du site public
+            if ($module === 'public_site') {
+                $created = app(\App\Services\PublicSiteProvisioner::class)
+                    ->provisionDefaultPages($tenant);
+
+                if (!empty($created)) {
+                    $message .= ' ' . count($created) . ' page(s) par défaut créée(s).';
+                }
+            }
         }
 
         $tenant->update(['modules_enabled' => $enabledModules]);

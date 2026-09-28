@@ -24,6 +24,12 @@ php -l <file>                                       # Vérifier la syntaxe PHP
 php artisan cantine:seed-dishes                     # Pré-charger le catalogue de plats pour tous les tenants
 ```
 
+### Site public
+```bash
+php artisan public-site:provision {tenant}           # Créer les pages par défaut (accueil, démarches, conseil, mentions légales...)
+php artisan public-site:provision {tenant} --force   # Forcer même si le module public_site n'est pas activé
+```
+
 ### Tests et vérification
 Avant de committer, vérifier :
 1. `php -l` sur les fichiers PHP modifiés
