@@ -32,7 +32,11 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @foreach($modules as $key => $module)
-        @php $enabled = in_array($key, $tenant->modules_enabled ?? []); @endphp
+        @php
+            $enabled = in_array($key, $tenant->modules_enabled ?? []);
+            $parentKey = $module['parent'] ?? null;
+            $parentEnabled = !$parentKey || in_array($parentKey, $tenant->modules_enabled ?? []);
+        @endphp
         <div class="bg-white shadow-lg rounded-xl overflow-hidden border {{ $enabled ? 'border-green-300' : 'border-gray-200' }}">
             <div class="p-6">
                 <div class="flex items-start justify-between">
@@ -56,6 +60,30 @@
                     </form>
                 </div>
                 <p class="text-sm text-gray-600 mt-4">{{ $module['description'] }}</p>
+                @if($parentKey)
+                <p class="text-xs mt-3 {{ $parentEnabled ? 'text-gray-400' : 'text-amber-600' }}">
+                    <i class="fas fa-diagram-project mr-1"></i>
+                    @if($parentEnabled)
+                    Complément du module {{ $modules[$parentKey]['label'] ?? $parentKey }}
+                    @else
+                    Activera aussi le module {{ $modules[$parentKey]['label'] ?? $parentKey }}
+                    @endif
+                </p>
+                @else
+                @php
+                    $children = array_keys(array_filter($modules, fn($m) => ($m['parent'] ?? null) === $key));
+                @endphp
+                @if(!empty($children))
+                <p class="text-xs mt-3 {{ $enabled ? 'text-gray-400' : 'text-amber-600' }}">
+                    <i class="fas fa-diagram-successor mr-1"></i>
+                    @if($enabled)
+                    Compléments : {{ collect($children)->map(fn($c) => $modules[$c]['label'] ?? $c)->implode(', ') }}
+                    @else
+                    Sa désactivation couperait aussi ses modules complémentaires
+                    @endif
+                </p>
+                @endif
+                @endif
             </div>
         </div>
         @endforeach

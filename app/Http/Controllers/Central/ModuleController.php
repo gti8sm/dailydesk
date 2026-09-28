@@ -69,16 +69,77 @@ class ModuleController extends Controller
         }
 
         $enabledModules = $tenant->modules_enabled ?? [];
+        $wasEnabled = in_array($module, $enabledModules);
 
-        if (in_array($module, $enabledModules)) {
-            $enabledModules = array_values(array_diff($enabledModules, [$module]));
-            $message = "Module '{$this->availableModules[$module]['label']}' désactivé pour {$tenant->name}.";
-        } else {
-            $enabledModules[] = $module;
-            $message = "Module '{$this->availableModules[$module]['label']}' activé pour {$tenant->name}.";
+        $result = \App\Services\ModuleToggleService::toggle($enabledModules, $module, !$wasEnabled);
+
+        $tenant->update(['modules_enabled' => $result['modules']]);
+
+        $action = $wasEnabled ? 'désactivé' : 'activé';
+        $message = "Module '{$this->availableModules[$module]['label']}' {$action} pour {$tenant->name}.";
+
+        if (!empty($result['cascaded'])) {
+            $cascadedLabels = array_map(
+                fn($key) => $this->availableModules[$key]['label'] ?? $key,
+                $result['cascaded']
+            );
+            $message .= ' (' . implode(', ', $cascadedLabels) . ' également touché)';
         }
 
-        $tenant->update(['modules_enabled' => $enabledModules]);
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Active ou désactive un module pour TOUS les tenants.
+     * La cascade parent/enfants s'applique pour chaque tenant.
+     */
+    public function toggleModuleForAll(Request $request, string $module)
+    {
+        if (!auth()->user()->hasRole('super_admin')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        if (!array_key_exists($module, $this->availableModules)) {
+            return back()->with('error', 'Module inconnu.');
+        }
+
+        $action = $request->input('action');
+
+        if (!in_array($action, ['enable', 'disable'])) {
+            return back()->with('error', 'Action invalide.');
+        }
+
+        $enable = $action === 'enable';
+        $count = 0;
+
+        Tenant::chunk(100, function ($tenants) use ($module, $enable, &$count) {
+            foreach ($tenants as $tenant) {
+                $enabledModules = $tenant->modules_enabled ?? [];
+                $alreadyEnabled = in_array($module, $enabledModules);
+
+                if ($enable === $alreadyEnabled) {
+                    continue; // déjà dans l'état voulu
+                }
+
+                $result = \App\Services\ModuleToggleService::toggle($enabledModules, $module, $enable);
+                $tenant->update(['modules_enabled' => $result['modules']]);
+                $count++;
+
+                // Provisionne les pages par défaut si le site public vient d'être activé
+                if ($enable && $module === 'public_site' && $tenant->slug) {
+                    tenancy()->initialize($tenant);
+                    app(\App\Services\PublicSiteProvisioner::class)->provisionDefaultPages($tenant);
+                }
+            }
+        });
+
+        $actionLabel = $enable ? 'activé' : 'désactivé';
+
+        if ($count === 0) {
+            $message = "Le module '{$this->availableModules[$module]['label']}' était déjà {$actionLabel} pour tous les tenants.";
+        } else {
+            $message = "Module '{$this->availableModules[$module]['label']}' {$actionLabel} pour {$count} tenant(s).";
+        }
 
         return back()->with('success', $message);
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\Services\ModuleToggleService;
 use Illuminate\Http\Request;
 
 class TenantModuleController extends Controller
@@ -33,26 +34,40 @@ class TenantModuleController extends Controller
 
         $tenant = Tenant::find(auth()->user()->tenant_id);
         $enabledModules = $tenant->modules_enabled ?? [];
+        $wasEnabled = in_array($module, $enabledModules);
 
-        if (in_array($module, $enabledModules)) {
-            $enabledModules = array_values(array_diff($enabledModules, [$module]));
-            $message = "Module '{$availableModules[$module]['label']}' désactivé.";
-        } else {
-            $enabledModules[] = $module;
-            $message = "Module '{$availableModules[$module]['label']}' activé.";
+        // Bascule avec cascade parent/enfants
+        $result = ModuleToggleService::toggle($enabledModules, $module, !$wasEnabled);
+        $newModules = $result['modules'];
 
-            // Provisionnement des pages par défaut à la première activation du site public
-            if ($module === 'public_site') {
-                $created = app(\App\Services\PublicSiteProvisioner::class)
-                    ->provisionDefaultPages($tenant);
+        $action = $wasEnabled ? 'désactivé' : 'activé';
+        $message = "Module '{$availableModules[$module]['label']}' {$action}.";
 
-                if (!empty($created)) {
-                    $message .= ' ' . count($created) . ' page(s) par défaut créée(s).';
-                }
+        if (!empty($result['cascaded'])) {
+            $cascadedLabels = array_map(
+                fn($key) => $availableModules[$key]['label'] ?? $key,
+                $result['cascaded']
+            );
+            $message .= $wasEnabled
+                ? ' (' . implode(', ', $cascadedLabels) . ' également désactivé' . (count($cascadedLabels) > 1 ? 's' : '') . ')'
+                : ' (' . implode(', ', $cascadedLabels) . ' également activé)';
+        }
+
+        // Provisionnement des pages par défaut à la première activation du site public
+        // (directe ou via l'activation d'un sous-module)
+        $publicSiteWasEnabled = in_array('public_site', $enabledModules);
+        $publicSiteNowEnabled = in_array('public_site', $newModules);
+
+        if (!$publicSiteWasEnabled && $publicSiteNowEnabled) {
+            $created = app(\App\Services\PublicSiteProvisioner::class)
+                ->provisionDefaultPages($tenant);
+
+            if (!empty($created)) {
+                $message .= ' ' . count($created) . ' page(s) par défaut créée(s).';
             }
         }
 
-        $tenant->update(['modules_enabled' => $enabledModules]);
+        $tenant->update(['modules_enabled' => $newModules]);
 
         return back()->with('success', $message);
     }

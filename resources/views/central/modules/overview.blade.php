@@ -98,19 +98,48 @@
         </table>
     </div>
 
-    <div class="mt-6 grid grid-cols-1 md:grid-cols-{{ count($modules) }} gap-4">
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         @foreach($modules as $key => $module)
+        @php
+            $enabledCount = $tenants->filter(fn($t) => in_array($key, $t->modules_enabled ?? []))->count();
+            $totalCount = $tenants->count();
+        @endphp
         <div class="bg-white shadow rounded-lg p-5">
             <div class="flex items-center mb-2">
                 <div class="bg-{{ $module['color'] }}-100 rounded-full p-2">
                     <i class="{{ $module['icon'] }} text-{{ $module['color'] }}-600 text-lg"></i>
                 </div>
                 <h3 class="ml-3 font-semibold text-gray-900">{{ $module['label'] }}</h3>
+                @if(isset($module['parent']))
+                <span class="ml-2 text-xs text-gray-400">
+                    <i class="fas fa-diagram-project"></i> {{ $modules[$module['parent']]['label'] ?? '' }}
+                </span>
+                @endif
             </div>
             <p class="text-sm text-gray-600 mb-3">{{ $module['description'] }}</p>
-            <p class="text-xs text-gray-500">
-                Activé pour <strong>{{ $tenants->filter(fn($t) => in_array($key, $t->modules_enabled ?? []))->count() }}</strong> tenant(s) sur {{ $tenants->count() }}
+            <p class="text-xs text-gray-500 mb-4">
+                Activé pour <strong>{{ $enabledCount }}</strong> tenant(s) sur {{ $totalCount }}
             </p>
+            <div class="flex gap-2">
+                <form action="{{ route('central.modules.toggle-all', $key) }}" method="POST"
+                      onsubmit="return confirm('Activer « {{ $module['label'] }} » pour tous les tenants ?')">
+                    @csrf
+                    <input type="hidden" name="action" value="enable">
+                    <button type="submit"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-100 text-green-700 hover:bg-green-200 transition-colors">
+                        <i class="fas fa-check-double mr-1"></i>Activer pour tous
+                    </button>
+                </form>
+                <form action="{{ route('central.modules.toggle-all', $key) }}" method="POST"
+                      onsubmit="return confirm('Désactiver « {{ $module['label'] }} » pour tous les tenants ?')">
+                    @csrf
+                    <input type="hidden" name="action" value="disable">
+                    <button type="submit"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors">
+                        <i class="fas fa-ban mr-1"></i>Désactiver pour tous
+                    </button>
+                </form>
+            </div>
         </div>
         @endforeach
     </div>

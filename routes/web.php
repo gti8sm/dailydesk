@@ -142,6 +142,7 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::get('modules/settings', [ModuleController::class, 'globalSettings'])->name('modules.settings');
     Route::post('modules/settings', [ModuleController::class, 'updateGlobalSettings'])->name('modules.settings.update');
     Route::post('modules/{tenant}/{module}/toggle', [ModuleController::class, 'toggleModule'])->name('modules.toggle');
+    Route::post('modules/{module}/toggle-all', [ModuleController::class, 'toggleModuleForAll'])->name('modules.toggle-all');
 
     Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
     Route::get('logs/{log}', [ActivityLogController::class, 'show'])->name('logs.show');
