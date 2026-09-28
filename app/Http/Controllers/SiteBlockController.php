@@ -20,7 +20,7 @@ class SiteBlockController extends Controller
             $blocks = PublicSiteBlock::whereNull('page_id')->ordered()->get();
         }
 
-        $blockTypes = config('public-site-blocks', []);
+        $blockTypes = $this->availableBlockTypes();
 
         return view('site.pages.builder', compact('blocks', 'page', 'blockTypes'));
     }
@@ -38,8 +38,8 @@ class SiteBlockController extends Controller
         $blockType = $validated['block_type'];
         $blockConfig = config("public-site-blocks.{$blockType}");
 
-        if (!$blockConfig) {
-            return back()->with('error', 'Type de bloc inconnu.');
+        if (!$blockConfig || !array_key_exists($blockType, $this->availableBlockTypes())) {
+            return back()->with('error', 'Type de bloc inconnu ou module requis non activé.');
         }
 
         $maxOrder = PublicSiteBlock::whereNull('page_id')
@@ -149,5 +149,23 @@ class SiteBlockController extends Controller
         if (!auth()->user()->can('manage_public_site')) {
             abort(403, 'Accès non autorisé');
         }
+    }
+
+    /**
+     * Types de blocs disponibles : filtrés selon les modules activés du tenant.
+     */
+    private function availableBlockTypes(): array
+    {
+        $tenant = tenant();
+        $enabledModules = $tenant ? ($tenant->modules_enabled ?? []) : [];
+
+        return collect(config('public-site-blocks', []))
+            ->filter(function ($blockConfig) use ($enabledModules) {
+                if (!isset($blockConfig['requires_module'])) {
+                    return true;
+                }
+                return in_array($blockConfig['requires_module'], $enabledModules);
+            })
+            ->toArray();
     }
 }

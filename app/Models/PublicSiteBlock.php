@@ -67,10 +67,34 @@ class PublicSiteBlock extends Model
     }
 
     /**
+     * Vérifie que le module requis par ce bloc est activé chez le tenant courant.
+     */
+    public function isModuleEnabled(): bool
+    {
+        $blockConfig = config("public-site-blocks.{$this->block_type}");
+
+        if (!$blockConfig) {
+            return false;
+        }
+
+        if (!isset($blockConfig['requires_module'])) {
+            return true;
+        }
+
+        $tenant = tenant();
+
+        return $tenant && in_array($blockConfig['requires_module'], $tenant->modules_enabled ?? []);
+    }
+
+    /**
      * Rend le bloc en appelant le partial Blade correspondant.
      */
     public function render(): string
     {
+        if (!$this->isModuleEnabled()) {
+            return '';
+        }
+
         $blockType = $this->block_type;
 
         if ($blockType === 'grapesjs') {

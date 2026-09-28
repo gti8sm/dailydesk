@@ -73,6 +73,9 @@
                         @php
                             $isTenantContext = function_exists('tenant') && tenant();
                             $tenantModules = $isTenantContext ? (tenant()->modules_enabled ?? array_keys(config('modules', []))) : array_keys(config('modules', []));
+                            $unreadMessages = ($isTenantContext && in_array('public_site', $tenantModules) && auth()->user()->can('manage_public_site'))
+                                ? \App\Models\PublicSiteContactMessage::unread()->count()
+                                : 0;
                             if (auth()->user()->hasRole('super_admin')) {
                                 $dashboardRoute = route('central.dashboard');
                             } elseif ($isTenantContext && tenant()->slug) {
@@ -219,6 +222,13 @@
                                             <span class="ml-3">Événements</span>
                                         </a>
                                         @endif
+                                        <a href="{{ route('site.messages.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600">
+                                            <i class="fas fa-envelope w-4"></i>
+                                            <span class="ml-3">Messages</span>
+                                            @if($unreadMessages > 0)
+                                            <span class="ml-auto inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-500 text-white">{{ $unreadMessages }}</span>
+                                            @endif
+                                        </a>
                                     </div>
                                 </div>
                                 @endif
@@ -618,6 +628,13 @@
                                             <span class="ml-3">Événements</span>
                                         </a>
                                         @endif
+                                        <a href="{{ route('site.messages.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">
+                                            <i class="fas fa-envelope w-4"></i>
+                                            <span class="ml-3">Messages</span>
+                                            @if($unreadMessages > 0)
+                                            <span class="ml-auto inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-500 text-white">{{ $unreadMessages }}</span>
+                                            @endif
+                                        </a>
                                     </div>
                                 </div>
                                 @endif

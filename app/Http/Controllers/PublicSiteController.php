@@ -22,8 +22,9 @@ class PublicSiteController extends Controller
 
         $pages = PublicSitePage::published()->ordered()->get();
 
-        // Blocs de la page d'accueil (page_id = null)
-        $blocks = PublicSiteBlock::whereNull('page_id')->published()->ordered()->get();
+        // Blocs de la page d'accueil (page_id = null), filtrés par modules activés
+        $blocks = PublicSiteBlock::whereNull('page_id')->published()->ordered()->get()
+            ->filter(fn($block) => $block->isModuleEnabled());
 
         // Fallback : si aucun bloc, on garde l'ancien rendu
         $hasBlocks = $blocks->count() > 0;
@@ -65,8 +66,9 @@ class PublicSiteController extends Controller
         $page = PublicSitePage::published()->where('slug', $pageSlug)->firstOrFail();
         $pages = PublicSitePage::published()->ordered()->get();
 
-        // Blocs de cette page
-        $blocks = PublicSiteBlock::forPage($page->id)->published()->ordered()->get();
+        // Blocs de cette page, filtrés par modules activés
+        $blocks = PublicSiteBlock::forPage($page->id)->published()->ordered()->get()
+            ->filter(fn($block) => $block->isModuleEnabled());
 
         if ($blocks->count() > 0) {
             $renderedBlocks = $blocks->map(fn($block) => [

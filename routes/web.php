@@ -37,10 +37,12 @@ use App\Modules\Stock\Controllers\StockItemController;
 use App\Modules\Stock\Controllers\StockMovementController;
 use App\Modules\Stock\Controllers\StockAlertController;
 use App\Http\Controllers\PublicSiteController;
+use App\Http\Controllers\PublicSiteContactController;
 use App\Http\Controllers\SitePageController;
 use App\Http\Controllers\SiteNewsController;
 use App\Http\Controllers\SiteBlockController;
 use App\Http\Controllers\SiteEventController;
+use App\Http\Controllers\SiteContactMessageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -107,6 +109,8 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
     Route::get('/ecoles', [PublicSiteController::class, 'schools'])->name('public.site.schools');
     Route::get('/evenements', [PublicSiteController::class, 'events'])->name('public.site.events');
     Route::get('/evenements/{eventSlug}', [PublicSiteController::class, 'eventShow'])->name('public.site.events.show');
+
+    Route::post('/contact', [PublicSiteContactController::class, 'submit'])->name('public.site.contact')->middleware('throttle:10,10');
 });
 
 /*
@@ -317,6 +321,11 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
         Route::resource('pages', SitePageController::class);
         Route::resource('news', SiteNewsController::class);
         Route::resource('events', SiteEventController::class);
+
+        // Messages du formulaire de contact public
+        Route::get('messages', [SiteContactMessageController::class, 'index'])->name('messages.index');
+        Route::get('messages/{message}', [SiteContactMessageController::class, 'show'])->name('messages.show');
+        Route::delete('messages/{message}', [SiteContactMessageController::class, 'destroy'])->name('messages.destroy');
 
         // Builder de blocs
         Route::get('home/builder', [SiteBlockController::class, 'index'])->name('home.builder');

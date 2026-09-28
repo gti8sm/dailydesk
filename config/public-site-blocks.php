@@ -29,6 +29,7 @@ return [
         'category' => 'module',
         'editor' => 'form',
         'description' => 'Menus de la cantine du mois en cours',
+        'requires_module' => 'cantine',
         'default_config' => [
             'month_offset' => 0,
             'limit' => 10,
@@ -41,6 +42,7 @@ return [
         'category' => 'module',
         'editor' => 'form',
         'description' => 'Dernières actualités publiées',
+        'requires_module' => 'public_site_news',
         'default_config' => [
             'limit' => 4,
             'layout' => 'grid',
@@ -53,9 +55,54 @@ return [
         'category' => 'module',
         'editor' => 'form',
         'description' => 'Prochains événements de la commune',
+        'requires_module' => 'public_site_events',
         'default_config' => [
             'limit' => 4,
             'show_image' => true,
+        ],
+    ],
+    'procedures' => [
+        'label' => 'Démarches',
+        'icon' => 'fas fa-list-check',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Liens vers les démarches administratives (service-public.fr, etc.)',
+        'default_config' => [
+            'items' => [
+                ['label' => 'Carte d\'identité', 'url' => 'https://www.service-public.fr/particuliers/vosdroits/N358', 'icon' => 'fas fa-id-card', 'category' => 'État civil'],
+                ['label' => 'Passeport', 'url' => 'https://www.service-public.fr/particuliers/vosdroits/N360', 'icon' => 'fas fa-passport', 'category' => 'État civil'],
+                ['label' => 'Recensement citoyen', 'url' => 'https://www.service-public.fr/particuliers/vosdroits/R2054', 'icon' => 'fas fa-person-military-pointing', 'category' => 'État civil'],
+                ['label' => 'Acte de naissance', 'url' => 'https://www.service-public.fr/particuliers/vosdroits/N359', 'icon' => 'fas fa-file-lines', 'category' => 'État civil'],
+                ['label' => 'Certificat de résidence', 'url' => '', 'icon' => 'fas fa-house', 'category' => 'État civil'],
+                ['label' => 'Inscription listes électorales', 'url' => 'https://www.service-public.fr/particuliers/vosdroits/R2057', 'icon' => 'fas fa-check-to-slot', 'category' => 'Élections'],
+            ],
+        ],
+    ],
+    'documents' => [
+        'label' => 'Documents',
+        'icon' => 'fas fa-folder-open',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Liste de documents téléchargeables (bulletins, arrêtés, comptes-rendus)',
+        'default_config' => [
+            'items' => [
+                ['label' => 'Bulletin municipal', 'url' => '', 'category' => 'Bulletins', 'date' => ''],
+                ['label' => 'Compte-rendu du conseil municipal', 'url' => '', 'category' => 'Conseil municipal', 'date' => ''],
+                ['label' => 'Arrêtés municipaux', 'url' => '', 'category' => 'Arrêtés', 'date' => ''],
+            ],
+        ],
+    ],
+    'council' => [
+        'label' => 'Conseil municipal',
+        'icon' => 'fas fa-people-group',
+        'category' => 'module',
+        'editor' => 'form',
+        'description' => 'Membres du conseil municipal avec leur fonction',
+        'default_config' => [
+            'members' => [
+                ['name' => '', 'role' => 'Maire', 'photo_url' => '', 'delegation' => ''],
+            ],
+            'deliberations_url' => '',
         ],
     ],
     'weather' => [
@@ -96,6 +143,20 @@ return [
             'friday' => ['open' => '08:30', 'close' => '12:00', 'open2' => '13:30', 'close2' => '17:00'],
             'saturday' => null,
             'sunday' => null,
+        ],
+    ],
+    'contact' => [
+        'label' => 'Contact',
+        'icon' => 'fas fa-envelope',
+        'category' => 'widget',
+        'editor' => 'form',
+        'description' => 'Coordonnées de la mairie avec formulaire de contact optionnel',
+        'default_config' => [
+            'address_override' => '',
+            'phone_override' => '',
+            'email_override' => '',
+            'show_form' => true,
+            'map_url' => '',
         ],
     ],
 ];
