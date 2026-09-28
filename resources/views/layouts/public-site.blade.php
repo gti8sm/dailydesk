@@ -67,9 +67,15 @@
                     @foreach($pages->where('slug', '!=', 'accueil') as $page)
                     <a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => $page->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">{{ $page->title }}</a>
                     @endforeach
+                    @if(in_array('public_site_news', $tenant->modules_enabled ?? []))
                     <a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Actualités</a>
+                    @endif
+                    @if(in_array('public_site_events', $tenant->modules_enabled ?? []))
                     <a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Événements</a>
+                    @endif
+                    @if(in_array('cantine', $tenant->modules_enabled ?? []))
                     <a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Menus</a>
+                    @endif
                     <a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary rounded-lg hover:bg-gray-100">Écoles</a>
                 </nav>
 
@@ -87,9 +93,15 @@
                 @foreach($pages->where('slug', '!=', 'accueil') as $page)
                 <a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => $page->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">{{ $page->title }}</a>
                 @endforeach
+                @if(in_array('public_site_news', $tenant->modules_enabled ?? []))
                 <a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Actualités</a>
+                @endif
+                @if(in_array('public_site_events', $tenant->modules_enabled ?? []))
                 <a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Événements</a>
+                @endif
+                @if(in_array('cantine', $tenant->modules_enabled ?? []))
                 <a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Menus</a>
+                @endif
                 <a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Écoles</a>
             </div>
         </div>
@@ -103,7 +115,7 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-12 px-4">
         <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         @if($tenant->logo_path)
@@ -136,10 +148,36 @@
                     <h4 class="font-semibold text-white mb-3">Navigation</h4>
                     <ul class="space-y-1 text-sm">
                         <li><a href="{{ route('public.site', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Accueil</a></li>
+                        @if(in_array('public_site_news', $tenant->modules_enabled ?? []))
                         <li><a href="{{ route('public.site.news', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Actualités</a></li>
+                        @endif
+                        @if(in_array('public_site_events', $tenant->modules_enabled ?? []))
                         <li><a href="{{ route('public.site.events', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Événements</a></li>
+                        @endif
+                        @if(in_array('cantine', $tenant->modules_enabled ?? []))
                         <li><a href="{{ route('public.site.menus', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Menus cantine</a></li>
+                        @endif
                         <li><a href="{{ route('public.site.schools', ['tenant' => $tenant->slug]) }}" class="text-gray-400 hover:text-white">Écoles</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Informations</h4>
+                    <ul class="space-y-1 text-sm">
+                        @php
+                            $mentionsPage = $pages->firstWhere('slug', 'mentions-legales');
+                            $accessibilityPage = $pages->firstWhere('slug', 'accessibilite');
+                            $rgpdPage = $pages->firstWhere('slug', 'rgpd');
+                        @endphp
+                        @if($mentionsPage)
+                        <li><a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => 'mentions-legales']) }}" class="text-gray-400 hover:text-white">Mentions légales</a></li>
+                        @endif
+                        @if($accessibilityPage)
+                        <li><a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => 'accessibilite']) }}" class="text-gray-400 hover:text-white">Accessibilité</a></li>
+                        @endif
+                        @if($rgpdPage)
+                        <li><a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => 'rgpd']) }}" class="text-gray-400 hover:text-white">Données personnelles</a></li>
+                        @endif
+                        <li><a href="{{ route('legal.rgpd') }}" class="text-gray-400 hover:text-white">Politique de confidentialité DailyDesk</a></li>
                     </ul>
                 </div>
             </div>
@@ -148,5 +186,26 @@
             </div>
         </div>
     </footer>
+
+    <!-- Bannière cookies (RGPD) -->
+    <div x-data="{ show: !localStorage.getItem('cookie_consent') }" x-show="show" x-cloak
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         class="fixed bottom-0 inset-x-0 z-50" role="dialog" aria-label="Information cookies">
+        <div class="bg-gray-900/95 backdrop-blur text-white px-4 py-4 shadow-2xl border-t border-gray-700">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-300">
+                    <i class="fas fa-cookie-bite mr-2"></i>
+                    Ce site ne dépose que des cookies techniques nécessaires à son fonctionnement — aucun cookie publicitaire ni de suivi.
+                    @if($mentionsPage)
+                    <a href="{{ route('public.site.page', ['tenant' => $tenant->slug, 'pageSlug' => 'mentions-legales']) }}" class="underline hover:text-white">En savoir plus</a>.
+                    @endif
+                </p>
+                <button @click="localStorage.setItem('cookie_consent', 'accepted'); show = false"
+                        class="shrink-0 bg-white text-gray-900 px-5 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors">
+                    J'ai compris
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

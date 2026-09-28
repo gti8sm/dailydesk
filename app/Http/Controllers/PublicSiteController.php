@@ -12,8 +12,30 @@ use Illuminate\Http\Request;
 
 class PublicSiteController extends Controller
 {
+    /**
+     * 404 si le module requis n'est pas activé chez le tenant.
+     */
+    private function requireModule(string ...$modules): void
+    {
+        $tenant = tenant();
+
+        if (!$tenant) {
+            abort(404);
+        }
+
+        $enabled = $tenant->modules_enabled ?? [];
+
+        foreach ($modules as $module) {
+            if (!in_array($module, $enabled)) {
+                abort(404);
+            }
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->requireModule('public_site');
+
         $tenant = tenant();
 
         if (!$tenant) {
@@ -35,7 +57,6 @@ class PublicSiteController extends Controller
 
             $now = now();
             $menus = CantineMenu::published()
-                ->withoutGlobalScope('tenant')
                 ->whereYear('menu_date', $now->year)
                 ->whereMonth('menu_date', $now->month)
                 ->orderBy('menu_date')
@@ -58,6 +79,8 @@ class PublicSiteController extends Controller
 
     public function page(Request $request, string $pageSlug)
     {
+        $this->requireModule('public_site');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
@@ -84,6 +107,8 @@ class PublicSiteController extends Controller
 
     public function news(Request $request)
     {
+        $this->requireModule('public_site', 'public_site_news');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
@@ -97,6 +122,8 @@ class PublicSiteController extends Controller
 
     public function newsShow(Request $request, string $newsSlug)
     {
+        $this->requireModule('public_site', 'public_site_news');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
@@ -110,6 +137,8 @@ class PublicSiteController extends Controller
 
     public function menus(Request $request)
     {
+        $this->requireModule('public_site', 'cantine');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
@@ -119,7 +148,6 @@ class PublicSiteController extends Controller
         $month = (int) $request->get('month', now()->month);
 
         $menus = CantineMenu::published()
-            ->withoutGlobalScope('tenant')
             ->whereYear('menu_date', $year)
             ->whereMonth('menu_date', $month)
             ->orderBy('menu_date')
@@ -134,6 +162,8 @@ class PublicSiteController extends Controller
 
     public function schools(Request $request)
     {
+        $this->requireModule('public_site');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
@@ -147,6 +177,8 @@ class PublicSiteController extends Controller
 
     public function events(Request $request)
     {
+        $this->requireModule('public_site', 'public_site_events');
+
         $tenant = tenant();
         if (!$tenant) {
             abort(404);
