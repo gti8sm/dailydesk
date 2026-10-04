@@ -37,6 +37,7 @@
                  class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
             @endif
         </div>
+        @endforeach
     </div>
     @else
     <div class="bg-white rounded-xl shadow-md p-8 text-center text-gray-400">

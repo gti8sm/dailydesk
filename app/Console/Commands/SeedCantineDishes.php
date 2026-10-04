@@ -48,7 +48,7 @@ class SeedCantineDishes extends Command
         $this->info('Terminé pour tous les tenants.');
     }
 
-    private function getDishes(): array
+    public function getDishes(): array
     {
         return [
             // === ENTRÉES ===

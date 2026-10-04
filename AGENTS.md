@@ -30,6 +30,15 @@ php artisan public-site:provision {tenant}           # Créer les pages par déf
 php artisan public-site:provision {tenant} --force   # Forcer même si le module public_site n'est pas activé
 ```
 
+### Mairie de démonstration
+```bash
+php artisan demo:mairie                               # Crée la mairie de démo complète « Beauville » (agents, écoles, familles, menus, stock, site public)
+php artisan demo:mairie --refresh                      # Supprime et recrée la mairie de démo
+php artisan demo:mairie --slug=ma-ville                # Avec un autre slug
+# Comptes : marie.dupont@beauville.fr (admin), sophie.martin@ (personnel), jean.rocher@ (cantine), nathalie.dupont@famille.fr (parent)...
+# Mot de passe commun : Demo-2026!
+```
+
 ### Tests et vérification
 Avant de committer, vérifier :
 1. `php -l` sur les fichiers PHP modifiés
