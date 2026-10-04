@@ -11,6 +11,9 @@
 !storage/framework/sessions/.gitkeep
 !storage/framework/views/.gitkeep
 /vendor
+# Manifests générés par composer/artisan — régénérés à la volée,
+# ne jamais les versionner (conflits git à chaque déploiement)
+/bootstrap/cache/*.php
 .env
 .env.backup
 .env.production
