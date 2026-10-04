@@ -297,7 +297,7 @@ function familyAddressAutocomplete() {
             }
             this.loading = true;
             try {
-                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.query)}&limit=5`);
+                const res = await fetch(`https://data.geopf.fr/geocodage/search/?q=${encodeURIComponent(this.query)}&limit=5`);
                 const data = await res.json();
                 this.results = (data.features || []).map(f => ({
                     id: f.properties.id,

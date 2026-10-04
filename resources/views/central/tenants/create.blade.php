@@ -443,7 +443,7 @@ document.getElementById('name').addEventListener('input', function(e) {
     document.getElementById('slug').value = slug;
 });
 
-// Autocomplétion d'adresse via api.adresse.data.gouv.fr (gratuit, sans clé)
+// Autocomplétion d'adresse via la Géoplateforme data.geopf.fr (gratuit, sans clé)
 function addressAutocomplete(addressId, postalId, cityId) {
     return {
         query: document.getElementById(addressId)?.value || '',
@@ -457,7 +457,7 @@ function addressAutocomplete(addressId, postalId, cityId) {
             }
             this.loading = true;
             try {
-                const res = await fetch(`https://api.adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.query)}&limit=5`);
+                const res = await fetch(`https://data.geopf.fr/geocodage/search/?q=${encodeURIComponent(this.query)}&limit=5`);
                 const data = await res.json();
                 this.results = (data.features || []).map(f => ({
                     id: f.properties.id,
