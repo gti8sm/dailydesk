@@ -22,6 +22,9 @@ php -l <file>                                       # Vérifier la syntaxe PHP
 ### Module cantine
 ```bash
 php artisan cantine:seed-dishes                     # Pré-charger le catalogue de plats pour tous les tenants
+php artisan cantine:seed-menus {tenant}              # Créer les menus des 4 prochaines semaines (lundi-vendredi, publiés)
+php artisan cantine:seed-menus {tenant} --weeks=6    # Sur 6 semaines (idempotent, ne touche pas aux menus existants)
+php artisan cantine:seed-menus {tenant} --unpublished # En brouillon au lieu de publiés
 ```
 
 ### Site public
