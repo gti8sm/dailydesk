@@ -91,25 +91,57 @@
         </div>
     </div>
 
+    <!-- Clavier alphabétique (pleine largeur, au-dessus de la liste, sous les boutons d'action) -->
+    <div class="mb-4 bg-white shadow-lg rounded-xl p-3 sm:p-4">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Recherche par lettre</span>
+                <span x-show="searchString" x-cloak
+                      class="text-sm font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                    <i class="fas fa-search mr-1"></i><span x-text="searchString"></span>
+                </span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button x-show="searchString" @click="searchString = searchString.slice(0, -1); filterChildren()"
+                        class="text-sm px-2.5 py-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Effacer la dernière lettre">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button x-show="searchString" @click="reset()"
+                        class="text-sm px-3 py-1.5 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                        title="Réinitialiser la recherche">
+                    <i class="fas fa-redo mr-1"></i>Effacer
+                </button>
+            </div>
+        </div>
+        <div class="grid gap-1 sm:gap-1.5" style="grid-template-columns: repeat(13, minmax(0, 1fr));">
+            <template x-for="letter in availableLetters" :key="letter">
+                <button
+                    @click="addLetter(letter)"
+                    :disabled="!isLetterAvailable(letter)"
+                    :class="isLetterAvailable(letter) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' : 'bg-gray-100 text-gray-300 cursor-not-allowed'"
+                    class="aspect-square rounded-lg text-base sm:text-xl font-bold transition-all active:scale-90 touch-manipulation flex items-center justify-center">
+                    <span x-text="letter"></span>
+                </button>
+            </template>
+        </div>
+    </div>
+
     <!-- Layout principal -->
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-        <!-- Colonne principale : liste enfants + clavier -->
+        <!-- Colonne principale : liste des enfants -->
         <div class="lg:col-span-3 flex flex-col gap-4">
 
             <!-- Liste des enfants (zone centrale) -->
             <div class="bg-white shadow-lg rounded-xl p-4">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-lg font-bold text-gray-900">
-                        <i class="fas fa-search mr-2 text-blue-600"></i>
-                        <span x-show="!searchString">Tous les enfants</span>
-                        <span x-show="searchString" x-text="'Recherche : ' + searchString" class="text-blue-600"></span>
+                        <i class="fas fa-children mr-2 text-blue-600"></i>
+                        <span>Tous les enfants</span>
                     </h3>
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-gray-500" x-text="filteredChildren.length + ' trouvé(s)'"></span>
-                        <button x-show="searchString" @click="reset()" class="text-sm px-3 py-1.5 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-                            <i class="fas fa-redo mr-1"></i>Effacer
-                        </button>
                     </div>
                 </div>
 
@@ -141,27 +173,6 @@
                         <i class="fas fa-search text-3xl text-gray-300 mb-2"></i>
                         <p>Aucun enfant trouvé</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Clavier alphabétique (en bas, accessible au pouce sur tablette/téléphone) -->
-            <div class="bg-white shadow-lg rounded-xl p-3 sm:p-4 lg:sticky lg:bottom-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Recherche par lettre</span>
-                    <button x-show="searchString" @click="searchString = searchString.slice(0, -1); filterChildren()" class="text-sm px-2 py-1 text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-backspace"></i>
-                    </button>
-                </div>
-                <div class="grid gap-1 sm:gap-1.5" style="grid-template-columns: repeat(13, minmax(0, 1fr));">
-                    <template x-for="letter in availableLetters" :key="letter">
-                        <button
-                            @click="addLetter(letter)"
-                            :disabled="!isLetterAvailable(letter)"
-                            :class="isLetterAvailable(letter) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' : 'bg-gray-100 text-gray-300 cursor-not-allowed'"
-                            class="aspect-square rounded-lg text-base sm:text-lg font-bold transition-all active:scale-90 touch-manipulation flex items-center justify-center">
-                            <span x-text="letter"></span>
-                        </button>
-                    </template>
                 </div>
             </div>
         </div>
