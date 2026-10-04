@@ -155,7 +155,10 @@ class ModuleController extends Controller
 
         foreach ($settingsGroups as $group => $settings) {
             foreach ($settings as $key => $config) {
-                $currentValues[$key] = Setting::whereNull('tenant_id')->where('key', $key)->value('value') ?? $config['default'];
+                $currentValues[$key] = Setting::withoutGlobalScope('tenant')
+                    ->whereNull('tenant_id')
+                    ->where('key', $key)
+                    ->value('value') ?? $config['default'];
             }
         }
 
@@ -178,14 +181,17 @@ class ModuleController extends Controller
                     $value = $request->has($key) ? '1' : '0';
                 }
 
-                Setting::whereNull('tenant_id')->where('key', $key)->delete();
-                Setting::create([
+                Setting::withoutGlobalScope('tenant')->whereNull('tenant_id')->where('key', $key)->delete();
+                Setting::withoutGlobalScope('tenant')->create([
                     'key' => $key,
                     'value' => $value,
                     'type' => $config['type'],
                     'group' => $group,
                     'tenant_id' => null,
                 ]);
+
+                // Invalide le cache (global + fallback des tenants)
+                Setting::flush($key);
             }
         }
 
