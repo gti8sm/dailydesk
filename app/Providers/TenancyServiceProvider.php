@@ -18,7 +18,10 @@ class TenancyServiceProvider extends ServiceProvider
         return [
             // Tenant events
             Events\CreatingTenant::class => [],
-            Events\TenantCreated::class => [],
+            Events\TenantCreated::class => [
+                // Catalogue de plats cantine + pages du site public par défaut
+                \App\Listeners\SeedNewTenantDefaults::class,
+            ],
             Events\SavingTenant::class => [],
             Events\TenantSaved::class => [],
             Events\UpdatingTenant::class => [],
