@@ -132,7 +132,7 @@
         .stat-card-footer { background: #f9fafb; padding: 10px 20px; font-size: 12px; }
     </style>
 </head>
-<body class="bg-gray-900" x-data="{ current: 0, total: 14 }" x-init="window.addEventListener('keydown', (e) => {
+<body class="bg-gray-900" x-data="{ current: 0, total: 15 }" x-init="window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (current < total - 1) current++; }
     if (e.key === 'ArrowLeft') { e.preventDefault(); if (current > 0) current--; }
     if (e.key === 'Home') { current = 0; }
@@ -149,9 +149,10 @@
             </div>
             <h1 class="text-5xl sm:text-7xl font-bold mb-4">DailyDesk</h1>
             <p class="text-xl sm:text-2xl text-blue-300 mb-2">La suite administrative de votre commune</p>
-            <p class="text-lg text-gray-400 mb-12">Garderie · Cantine · Stock · Multi-écoles · Portail parent</p>
+            <p class="text-lg text-gray-400 mb-12">Garderie · Cantine · Stock · Site web public · Multi-écoles · Portail parent</p>
             <div class="flex flex-wrap justify-center gap-3 mb-12">
                 <span class="px-4 py-2 bg-blue-600/20 border border-blue-500 rounded-full text-sm text-blue-300"><i class="fas fa-check mr-1"></i> 100% web</span>
+                <span class="px-4 py-2 bg-blue-600/20 border border-blue-500 rounded-full text-sm text-blue-300"><i class="fas fa-check mr-1"></i> Site web de la commune</span>
                 <span class="px-4 py-2 bg-blue-600/20 border border-blue-500 rounded-full text-sm text-blue-300"><i class="fas fa-check mr-1"></i> Multi-écoles</span>
                 <span class="px-4 py-2 bg-blue-600/20 border border-blue-500 rounded-full text-sm text-blue-300"><i class="fas fa-check mr-1"></i> Portail parent</span>
                 <span class="px-4 py-2 bg-blue-600/20 border border-blue-500 rounded-full text-sm text-blue-300"><i class="fas fa-check mr-1"></i> Support inclus</span>
@@ -200,7 +201,7 @@
                 <h2 class="text-3xl sm:text-5xl font-bold mt-4">Une plateforme unique pour toute la commune</h2>
                 <p class="text-gray-400 mt-4">Tout le périscolaire et l'administratif dans un seul outil, accessible à chaque acteur</p>
             </div>
-            <div class="grid sm:grid-cols-3 gap-6">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-center">
                     <i class="fas fa-child text-4xl mb-3"></i>
                     <h3 class="text-lg font-semibold">Garderie</h3>
@@ -215,6 +216,11 @@
                     <i class="fas fa-boxes-stacked text-4xl mb-3"></i>
                     <h3 class="text-lg font-semibold">Stock</h3>
                     <p class="text-indigo-100 text-sm mt-1">Lieux, mouvements, seuils d'alerte</p>
+                </div>
+                <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-6 text-center">
+                    <i class="fas fa-globe text-4xl mb-3"></i>
+                    <h3 class="text-lg font-semibold">Site public</h3>
+                    <p class="text-emerald-100 text-sm mt-1">Site web de la commune, menus, actualités, événements</p>
                 </div>
             </div>
             <div class="mt-8 grid sm:grid-cols-4 gap-4 text-center">
@@ -564,8 +570,84 @@
         </div>
     </div>
 
-    <!-- SLIDE 6 : Multi-écoles -->
+    <!-- SLIDE 6 : Module Site Public -->
     <div class="slide" :class="{ 'active': current === 6 }">
+        <div class="max-w-6xl w-full text-white">
+            <div class="text-center mb-8">
+                <span class="px-4 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium">Module 4</span>
+                <h2 class="text-3xl sm:text-5xl font-bold mt-4"><i class="fas fa-globe text-emerald-500 mr-3"></i>Site web public de la commune</h2>
+                <p class="text-gray-400 mt-3">Votre site officiel — sans développeur ni prestataire</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0"><i class="fas fa-cubes text-white"></i></div>
+                        <div><h3 class="font-semibold">Constructeur de pages</h3><p class="text-sm text-gray-400">Composez vos pages par glisser-déposer de blocs : bannière, démarches, conseil municipal, documents, contact, météo...</p></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0"><i class="fas fa-utensils text-white"></i></div>
+                        <div><h3 class="font-semibold">Menus cantine publiés</h3><p class="text-sm text-gray-400">Les menus saisis dans la cantine apparaissent automatiquement sur le site — parents toujours informés.</p></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0"><i class="fas fa-newspaper text-white"></i></div>
+                        <div><h3 class="font-semibold">Actualités & événements</h3><p class="text-sm text-gray-400">Publiez vos communiqués et votre agenda. Les événements récurrents (marchés, permanences) se répètent automatiquement.</p></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0"><i class="fas fa-scale-balanced text-white"></i></div>
+                        <div><h3 class="font-semibold">Conformité incluse</h3><p class="text-sm text-gray-400">Mentions légales générées depuis vos données, déclaration d'accessibilité RGAA, mentions RGPD — obligations légales couvertes.</p></div>
+                    </div>
+                </div>
+                <div class="browser-mock">
+                    <div class="browser-bar">
+                        <div class="browser-dot bg-red-400"></div>
+                        <div class="browser-dot bg-yellow-400"></div>
+                        <div class="browser-dot bg-green-400"></div>
+                        <div class="browser-url">www.beauville.fr</div>
+                    </div>
+                    <div class="app-header">
+                        <div class="app-logo">
+                            <div class="app-logo-icon" style="background:#10b981;"><i class="fas fa-building text-white text-xs"></i></div>
+                            <span class="text-xl font-bold text-gray-900">Beauville</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="app-nav-item active" style="color:#10b981;border-bottom-color:#10b981;">Accueil</span>
+                            <span class="app-nav-item">La commune</span>
+                            <span class="app-nav-item">Démarches</span>
+                            <span class="app-nav-item">Conseil</span>
+                            <span class="app-nav-item">Menus</span>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-6 mb-4 text-center text-white">
+                            <h3 class="text-lg font-bold">Bienvenue à Beauville</h3>
+                            <p class="text-xs text-emerald-100 mt-1">Site officiel de la commune</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white rounded-lg p-3 shadow">
+                                <p class="text-xs font-semibold text-emerald-700 mb-2"><i class="fas fa-utensils mr-1"></i> Menu du jour</p>
+                                <p class="text-xs text-gray-600">Rôti de bœuf au jus<br>Haricots verts<br>Yaourt bio</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 shadow">
+                                <p class="text-xs font-semibold text-emerald-700 mb-2"><i class="fas fa-calendar-days mr-1"></i> Prochains événements</p>
+                                <p class="text-xs text-gray-600">Marché hebdomadaire<br>Conseil municipal<br>Forum des associations</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow">
+                            <p class="text-xs font-semibold text-emerald-700 mb-2"><i class="fas fa-list-check mr-1"></i> Démarches</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">Carte d'identité</span>
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">Recensement</span>
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">Inscription électorale</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7 : Multi-écoles -->
+    <div class="slide" :class="{ 'active': current === 7 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">Architecture</span>
@@ -616,8 +698,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 7 : Rôles & Permissions -->
-    <div class="slide" :class="{ 'active': current === 7 }">
+    <!-- SLIDE 8 : Rôles & Permissions -->
+    <div class="slide" :class="{ 'active': current === 8 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm font-medium">Sécurité</span>
@@ -660,8 +742,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 8 : Portail Parent -->
-    <div class="slide" :class="{ 'active': current === 8 }">
+    <!-- SLIDE 9 : Portail Parent -->
+    <div class="slide" :class="{ 'active': current === 9 }">
         <div class="max-w-6xl w-full text-white">
             <div class="text-center mb-8">
                 <span class="px-4 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-sm font-medium">Communication</span>
@@ -758,8 +840,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 9 : Dashboard -->
-    <div class="slide" :class="{ 'active': current === 9 }">
+    <!-- SLIDE 10 : Dashboard -->
+    <div class="slide" :class="{ 'active': current === 10 }">
         <div class="max-w-6xl w-full text-white">
             <div class="text-center mb-8">
                 <span class="px-4 py-1 bg-gray-500/20 text-gray-400 rounded-full text-sm font-medium">Vue d'ensemble</span>
@@ -878,8 +960,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 10 : Sécurité & RGPD -->
-    <div class="slide" :class="{ 'active': current === 10 }">
+    <!-- SLIDE 11 : Sécurité & RGPD -->
+    <div class="slide" :class="{ 'active': current === 11 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">Conformité</span>
@@ -921,8 +1003,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 11 : Support -->
-    <div class="slide" :class="{ 'active': current === 11 }">
+    <!-- SLIDE 12 : Support -->
+    <div class="slide" :class="{ 'active': current === 12 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-medium">Accompagnement</span>
@@ -962,8 +1044,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 12 : Tarification (prix dynamiques depuis la BDD) -->
-    <div class="slide" :class="{ 'active': current === 12 }">
+    <!-- SLIDE 13 : Tarification (prix dynamiques depuis la BDD) -->
+    <div class="slide" :class="{ 'active': current === 13 }">
         <div class="max-w-5xl text-white">
             <div class="text-center mb-10">
                 <span class="px-4 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">Tarification</span>
@@ -1009,8 +1091,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 13 : Contact / CTA -->
-    <div class="slide" :class="{ 'active': current === 13 }">
+    <!-- SLIDE 14 : Contact / CTA -->
+    <div class="slide" :class="{ 'active': current === 14 }">
         <div class="max-w-3xl text-center text-white">
             <div class="mb-8 inline-flex items-center justify-center w-24 h-24 bg-blue-600 rounded-2xl shadow-2xl">
                 <i class="fas fa-rocket text-5xl text-white"></i>

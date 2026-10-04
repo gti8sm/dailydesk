@@ -74,7 +74,11 @@ class ParentPortalController extends Controller
             ->whereYear('menu_date', $year)
             ->whereMonth('menu_date', $month);
         if ($schoolIds->isNotEmpty()) {
-            $menusQuery->whereIn('school_id', $schoolIds);
+            // Menus globaux (school_id NULL, mode une cuisine) + menus des écoles des enfants
+            $menusQuery->where(function ($q) use ($schoolIds) {
+                $q->whereNull('school_id')
+                    ->orWhereIn('school_id', $schoolIds);
+            });
         }
         $menus = $menusQuery->get()->groupBy(fn($m) => $m->menu_date->format('Y-m-d'));
 
@@ -300,7 +304,11 @@ class ParentPortalController extends Controller
             ->orderBy('menu_date')
             ->orderBy('meal_type');
         if ($schoolIds->isNotEmpty()) {
-            $query->whereIn('school_id', $schoolIds);
+            // Menus globaux (school_id NULL, mode une cuisine) + menus des écoles des enfants
+            $query->where(function ($q) use ($schoolIds) {
+                $q->whereNull('school_id')
+                    ->orWhereIn('school_id', $schoolIds);
+            });
         }
         $menus = $query->get();
 
@@ -328,7 +336,11 @@ class ParentPortalController extends Controller
             ->orderBy('menu_date')
             ->orderBy('meal_type');
         if ($schoolIds->isNotEmpty()) {
-            $query->whereIn('school_id', $schoolIds);
+            // Menus globaux (school_id NULL, mode une cuisine) + menus des écoles des enfants
+            $query->where(function ($q) use ($schoolIds) {
+                $q->whereNull('school_id')
+                    ->orWhereIn('school_id', $schoolIds);
+            });
         }
         $menus = $query->get();
 
@@ -355,7 +367,11 @@ class ParentPortalController extends Controller
             ->orderBy('menu_date')
             ->orderBy('meal_type');
         if ($schoolIds->isNotEmpty()) {
-            $query->whereIn('school_id', $schoolIds);
+            // Menus globaux (school_id NULL, mode une cuisine) + menus des écoles des enfants
+            $query->where(function ($q) use ($schoolIds) {
+                $q->whereNull('school_id')
+                    ->orWhereIn('school_id', $schoolIds);
+            });
         }
         $menus = $query->get();
 
