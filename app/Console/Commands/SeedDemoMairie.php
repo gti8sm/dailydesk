@@ -91,6 +91,10 @@ class SeedDemoMairie extends Command
 
     private function createTenant(string $slug): Tenant
     {
+        // Plan « petite commune » si disponible, sinon le premier plan actif
+        $plan = \App\Models\Central\SubscriptionPlan::where('slug', 'petite-commune')->first()
+            ?? \App\Models\Central\SubscriptionPlan::active()->ordered()->first();
+
         $tenant = Tenant::create([
             'name' => 'Mairie de Beauville',
             'slug' => $slug,
@@ -102,7 +106,7 @@ class SeedDemoMairie extends Command
             'insee_code' => '33033',
             'population' => 2500,
             'status' => 'active',
-            'subscription_plan' => 'petite-commune',
+            'subscription_plan' => $plan?->slug ?? 'petite-commune',
             'subscription_starts_at' => now(),
             'subscription_expires_at' => now()->addYear(),
             'primary_color' => '#3B82F6',
