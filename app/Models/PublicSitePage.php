@@ -43,8 +43,10 @@ class PublicSitePage extends Model
         return $query->orderBy('sort_order')->orderBy('title');
     }
 
-    protected static function bootPublicSitePage(): void
+    protected static function boot(): void
     {
+        parent::boot();
+
         static::saving(function ($model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);

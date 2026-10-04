@@ -46,27 +46,6 @@
     </div>
     @endif
 
-    @if($maxChildren !== null)
-    <div class="mb-6 bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded">
-        <div class="flex items-center">
-            <i class="fas fa-info-circle text-indigo-500 mr-3 text-xl"></i>
-            <div class="flex-1">
-                <p class="text-indigo-900 font-medium">
-                    Limite du plan : <strong>{{ $maxChildren }} enfants</strong>
-                </p>
-                <p class="text-sm text-indigo-700 mt-1">
-                    Actuellement : {{ $currentChildren }} enfant(s) enregistré(s) —
-                    @if($remainingSlots > 0)
-                    il vous reste <strong>{{ $remainingSlots }} place(s)</strong> disponible(s)
-                    @else
-                    <strong class="text-red-600">limite atteinte</strong> — mettez à niveau votre abonnement pour importer plus d'enfants
-                    @endif
-                </p>
-            </div>
-        </div>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Import Familles -->
         <div class="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -106,7 +85,12 @@
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-4">
                         <p class="text-sm text-blue-800">
                             <i class="fas fa-info-circle mr-1"></i>
-                            <strong>Format attendu :</strong> Nom Famille, Email, Téléphone, Adresse, Code Postal, Ville
+                            <strong>Format attendu :</strong> Nom Famille, Email, Téléphone, Adresse, Code Postal, Ville,
+                            Prénom Parent, Nom Parent, Mobile Parent, Relation (mere/pere/tuteur)
+                        </p>
+                        <p class="text-xs text-blue-700 mt-1">
+                            Les colonnes parent créent la fiche premier contact (utile pour les invitations portail).
+                            Laissez-les vides pour ne créer que la famille.
                         </p>
                     </div>
 
@@ -157,7 +141,12 @@
                     <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded mb-4">
                         <p class="text-sm text-green-800">
                             <i class="fas fa-info-circle mr-1"></i>
-                            <strong>Format attendu :</strong> Prénom, Nom, Date Naissance (YYYY-MM-DD), Genre (M/F), Email Famille
+                            <strong>Format attendu :</strong> Prénom, Nom, Date Naissance (YYYY-MM-DD), Genre (M/F),
+                            Email Famille, École, Classe, Cantine (oui/non), Garderie (oui/non), Allergies
+                        </p>
+                        <p class="text-xs text-green-700 mt-1">
+                            École et classe sont reconnues par nom (sans casse ni accents) — un message liste
+                            les noms disponibles si l'un est introuvable.
                         </p>
                         <p class="text-sm text-green-800 mt-2">
                             <i class="fas fa-exclamation-triangle mr-1"></i>
@@ -237,7 +226,10 @@
                         <li>Les emails des familles doivent être uniques</li>
                         <li>Le format de date doit être <strong>YYYY-MM-DD</strong> (ex: 2018-05-15)</li>
                         <li>Le genre doit être <strong>M</strong> ou <strong>F</strong></li>
+                        <li>Écoles et classes : écrivez le nom comme dans l'application (ex: « École Élémentaire Jean Moulin », « CP »)</li>
+                        <li>Cantine/garderie : <strong>oui</strong> ou <strong>non</strong> (vide = non)</li>
                         <li>Importez d'abord les familles, puis les enfants</li>
+                        <li>Après l'import des familles avec parents : envoyez les invitations portail depuis la fiche famille</li>
                     </ul>
                 </div>
             </div>

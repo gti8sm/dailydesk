@@ -29,9 +29,13 @@ class School extends Model
     /**
      * Pas de BelongsToTenant global scope classique :
      * on gère un scope custom qui inclut les écoles de l'intercommunality.
+     * NB: doit être dans boot() — une méthode bootSchool() n'est jamais
+     * appelée par Laravel (seuls les hooks de traits le sont).
      */
-    protected static function bootSchool(): void
+    protected static function boot(): void
     {
+        parent::boot();
+
         static::addGlobalScope('tenant_or_interco', function (Builder $builder) {
             $tenancy = app(Tenancy::class);
             if ($tenancy->initialized && $tenancy->tenant) {

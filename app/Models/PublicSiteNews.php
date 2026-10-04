@@ -48,8 +48,10 @@ class PublicSiteNews extends Model
         return $query->orderByDesc('published_at')->orderByDesc('created_at');
     }
 
-    protected static function bootPublicSiteNews(): void
+    protected static function boot(): void
     {
+        parent::boot();
+
         static::saving(function ($model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);

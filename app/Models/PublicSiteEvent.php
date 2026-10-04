@@ -127,8 +127,10 @@ class PublicSiteEvent extends Model
         };
     }
 
-    protected static function bootPublicSiteEvent(): void
+    protected static function boot(): void
     {
+        parent::boot();
+
         static::saving(function ($model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);

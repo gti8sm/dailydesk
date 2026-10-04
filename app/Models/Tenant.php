@@ -113,38 +113,6 @@ class Tenant extends BaseTenant
     }
 
     /**
-     * Check if tenant can add more children
-     */
-    public function canAddChild(): bool
-    {
-        if ($this->max_children === null) {
-            return true; // Unlimited
-        }
-
-        $currentCount = $this->run(function () {
-            return \App\Models\Child::count();
-        });
-
-        return $currentCount < $this->max_children;
-    }
-
-    /**
-     * Get remaining children slots
-     */
-    public function getRemainingChildrenSlots(): ?int
-    {
-        if ($this->max_children === null) {
-            return null; // Unlimited
-        }
-
-        $currentCount = $this->run(function () {
-            return \App\Models\Child::count();
-        });
-
-        return max(0, $this->max_children - $currentCount);
-    }
-
-    /**
      * Get primary domain
      */
     public function getPrimaryDomain(): ?string

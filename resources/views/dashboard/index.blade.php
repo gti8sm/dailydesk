@@ -40,7 +40,7 @@
                         <p class="text-sm text-indigo-100 mt-1">
                             @if($plan)
                                 {{ number_format($plan->price_monthly, 2) }} €/mois
-                                · Limite : {{ $tenant->max_children ?? '∞' }} enfants
+                                · Enfants illimités
                             @else
                                 Plan : {{ ucfirst($tenant->subscription_plan ?? '-') }}
                             @endif
