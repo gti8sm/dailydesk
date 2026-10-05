@@ -21,31 +21,39 @@ class DashboardController extends Controller
             return $this->superAdminDashboard();
         }
         
-        // Redirection intelligente pour les rôles ALSH et Cantine selon l'heure
-        if ($user->hasRole(['alsh', 'cantine'])) {
+        // Redirection intelligente pour les agents ALSH/Cantine selon l'heure.
+        // NB : un admin/admin_mairie (même avec un rôle cantine ou alsh en
+        // plus) garde son dashboard complet — priorité au rôle d'administration.
+        if ($user->hasRole(['alsh', 'cantine']) && !$user->hasRole(['admin', 'admin_mairie'])) {
             $currentHour = now()->hour;
-            
+
+            // Un agent cantine sans accès garderie (rôle cantine seul) va
+            // toujours sur la cantine — la garderie lui renverrait un 403
+            if (!$user->can('view_garderie')) {
+                return redirect()->route('cantine.index');
+            }
+
             // 7h-10h : Garderie matin
             if ($currentHour >= 7 && $currentHour < 10) {
                 return redirect()->route('garderie.index');
             }
-            
+
             // 10h-14h : Cantine
             if ($currentHour >= 10 && $currentHour < 14) {
                 return redirect()->route('cantine.index');
             }
-            
+
             // 14h-19h : Garderie soir
             if ($currentHour >= 14 && $currentHour < 19) {
                 return redirect()->route('garderie.index');
             }
-            
+
             // Hors horaires : redirection vers garderie par défaut
             return redirect()->route('garderie.index');
         }
 
-        // Redirection parent vers son portail
-        if ($user->hasRole('parent')) {
+        // Redirection parent vers son portail (sauf admins : dashboard prioritaire)
+        if ($user->hasRole('parent') && !$user->hasRole(['admin', 'admin_mairie'])) {
             return redirect()->route('parent.dashboard');
         }
 
