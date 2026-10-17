@@ -22,6 +22,7 @@ use App\Http\Controllers\Central\ActivityLogController;
 use App\Http\Controllers\Central\StatisticsController;
 use App\Http\Controllers\Central\ExportController as CentralExportController;
 use App\Http\Controllers\Central\SupportTicketController;
+use App\Http\Controllers\Central\SystemUpdateController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\TenantSupportController;
@@ -146,6 +147,11 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
 
     Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
     Route::get('logs/{log}', [ActivityLogController::class, 'show'])->name('logs.show');
+
+    // Mise à jour de la plateforme (super admin)
+    Route::get('system', [SystemUpdateController::class, 'index'])->name('system.index');
+    Route::post('system/check', [SystemUpdateController::class, 'check'])->name('system.check');
+    Route::post('system/update', [SystemUpdateController::class, 'update'])->name('system.update');
 
     Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::get('support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
