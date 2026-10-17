@@ -18,7 +18,12 @@ class GarderiePresenceController extends Controller
 
         $childrenQuery = Child::active()
             ->with(['family', 'schoolClass'])
-            ->where('garderie_subscribed', true);
+            ->where(function ($q) use ($date) {
+                // Inscrits garderie + enfants non inscrits ayant une présence
+                // ce jour-là (enregistrés ponctuellement par l'agent)
+                $q->where('garderie_subscribed', true)
+                    ->orWhereHas('garderiePresences', fn($p) => $p->whereDate('date', $date));
+            });
 
         if ($schoolId) {
             // Cross-tenant: école partagée peut avoir des enfants d'autres communes

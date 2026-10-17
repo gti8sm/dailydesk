@@ -62,8 +62,20 @@
         if ($user && $user->can('view_garderie')) {
             $helpContent['garderie.index'] = [
                 'title' => 'Garderie',
-                'text' => 'Gérez les présences des enfants à la garderie (matin et soir).',
-                'tips' => ['Cliquez sur un enfant pour enregistrer son arrivée ou son départ', 'Utilisez le filtre date pour voir l\'historique'],
+                'text' => 'Enregistrez les arrivées et départs des enfants, matin et soir.',
+                'tips' => [
+                    'Utilisez le pavé alphabétique en haut pour retrouver un enfant (la liste se filtre à chaque lettre)',
+                    'Tapez les premières lettres : si un seul enfant correspond, il est sélectionné automatiquement',
+                    'Un enfant non inscrit à la garderie peut être recherché et pointé ponctuellement — il apparaît alors dans les présences du jour',
+                    'Le bouton ARRIVÉE ou DÉPART s\'adapte à l\'heure (avant/après 13h), l\'autre option reste disponible en exception',
+                    'Changez la date pour consulter ou corriger un autre jour',
+                ],
+                'roles' => null,
+            ];
+            $helpContent['garderie.reports.monthly'] = [
+                'title' => 'Rapport mensuel garderie',
+                'text' => 'Synthèse par enfant : jours de présence, jours complets et total d\'heures pour le mois choisi.',
+                'tips' => ['Les heures sont calculées à partir des horaires de garderie configurés', 'Exportez en CSV pour la facturation ou vos archives'],
                 'roles' => null,
             ];
         }
@@ -71,23 +83,51 @@
         if ($user && $user->can('view_cantine')) {
             $helpContent['cantine.index'] = [
                 'title' => 'Cantine',
-                'text' => 'Gérez les présences des enfants à la cantine et le type de repas. Les enfants affichés sont filtrés selon votre école.',
-                'tips' => ['Marquez les présents/absents d\'un clic', 'Consultez les événements (allergies, refus) dans l\'onglet dédié', 'La saisie des présences est assurée par les agents ALSH'],
+                'text' => 'Les enfants inscrits cantine sont pré-cochés présents — cliquez pour marquer les absents. Les enfants non inscrits apparaissent dans leur classe avec un badge « Non inscrit » : marquez-les présents s\'ils déjeunent exceptionnellement.',
+                'tips' => [
+                    'Absents : cliquez sur le bouton vert « Présent » de l\'enfant pour l\'enregistrer absent',
+                    'Non inscrit : cliquez sur « + Présent » pour un déjeuner exceptionnel',
+                    'Le liseré rouge signale les allergies / restrictions alimentaires — cliquez pour les détails',
+                    'Utilisez le sélecteur de type de repas (déjeuner / goûter) et de date en haut de page',
+                ],
                 'roles' => null,
             ];
             $helpContent['cantine.menus.index'] = [
                 'title' => 'Menus cantine',
-                'text' => 'Créez et publiez les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents sur leur agenda.',
-                'tips' => ['En mode "par école", chaque école a son propre menu', 'En mode "global", un seul menu sert toutes les écoles', 'Le mode est configurable dans Paramètres globaux', 'Réservé au profil Cuisinier / Gestion menus'],
+                'text' => 'Créez et publiez les menus (entrée, plat, garniture, dessert). Les menus publiés sont visibles par les parents et sur le site public de la commune.',
+                'tips' => [
+                    'La case « Publier » est cochée par défaut — décochez-la pour garder un brouillon',
+                    'En mode "par école", chaque école a son propre menu',
+                    'En mode "global", un seul menu sert toutes les écoles',
+                    'Le mode est configurable dans Paramètres → Modules / Paramètres globaux',
+                ],
+                'roles' => null,
+            ];
+            $helpContent['cantine.reports.monthly'] = [
+                'title' => 'Rapport mensuel cantine',
+                'text' => 'Nombre de repas pris par enfant sur le mois (déjeuners et goûters).',
+                'tips' => ['Seuls les repas réellement pris sont comptés (présences enregistrées)', 'Exportez en CSV pour la facturation familiale'],
                 'roles' => null,
             ];
         }
 
         if ($user && $user->can('view_stock')) {
             $helpContent['stock.items.index'] = [
-                'title' => 'Stock',
-                'text' => 'Gérez les lieux de stockage, les articles et les mouvements (entrées/sorties).',
+                'title' => 'Stock — Articles',
+                'text' => 'Gérez les articles et leurs seuils d\'alerte par lieu de stockage.',
                 'tips' => ['Définissez un seuil minimum par article pour générer des alertes', 'Les droits stock sont attribués individuellement par utilisateur'],
+                'roles' => null,
+            ];
+            $helpContent['stock.movements.index'] = [
+                'title' => 'Stock — Mouvements',
+                'text' => 'Historique des entrées, sorties et ajustements. Chaque mouvement est horodaté et attribué à son auteur.',
+                'tips' => ['Un mouvement d\'entrée ajoute, une sortie retire, un ajustement fixe la quantité exacte'],
+                'roles' => null,
+            ];
+            $helpContent['stock.alerts.index'] = [
+                'title' => 'Stock — Alertes',
+                'text' => 'Articles sous le seuil minimum. Faites vos réapprovisionnements en priorité.',
+                'tips' => ['Une fois réapprovisionné (mouvement d\'entrée), l\'article quitte la liste automatiquement'],
                 'roles' => null,
             ];
         }
@@ -96,7 +136,49 @@
             $helpContent['families.index'] = [
                 'title' => 'Familles',
                 'text' => 'Gérez les familles inscrites : coordonnées, enfants, contacts.',
-                'tips' => ['Cliquez sur une famille pour voir le détail', 'Utilisez le bouton "Importer" pour ajouter plusieurs familles en masse'],
+                'tips' => ['Cliquez sur une famille pour voir le détail', 'Utilisez la page Imports pour ajouter plusieurs familles en masse'],
+                'roles' => null,
+            ];
+            $helpContent['imports.index'] = [
+                'title' => 'Import CSV',
+                'text' => 'Importez en masse familles et enfants depuis un fichier CSV (séparateur point-virgule).',
+                'tips' => [
+                    'Téléchargez le modèle pour voir les colonnes attendues (10 par fichier)',
+                    'Importez d\'abord les familles, puis les enfants (rattachement par email)',
+                    'Écoles et classes sont reconnues par nom, sans casse ni accents',
+                    'Ré-importer le même fichier ne crée aucun doublon',
+                ],
+                'roles' => null,
+            ];
+            $helpContent['exports.index'] = [
+                'title' => 'Exports',
+                'text' => 'Exportez sur une plage de dates des rapports agrégés par enfant : nombre de repas (cantine) ou jours et heures de présence (garderie).',
+                'tips' => ['Le fichier CSV s\'ouvre directement dans Excel', 'La ligne TOTAUX en fin de fichier facilite la facturation'],
+                'roles' => null,
+            ];
+        }
+
+        if ($user && $user->can('manage_public_site')) {
+            $helpContent['site.pages.index'] = [
+                'title' => 'Site public — Pages',
+                'text' => 'Composez le site web de votre commune : pages, constructeur de blocs, actualités, événements.',
+                'tips' => [
+                    '« Composer l\'accueil » ouvre le constructeur de blocs (glisser-déposer)',
+                    'Les blocs dépendant d\'un module (menus cantine, actualités...) n\'apparaissent que si le module est activé',
+                    'Les messages reçus via le bloc Contact arrivent dans « Messages »',
+                ],
+                'roles' => null,
+            ];
+        }
+
+        if ($user && $user->hasRole(['admin', 'admin_mairie'])) {
+            $helpContent['tenant.modules.index'] = [
+                'title' => 'Paramètres — Modules',
+                'text' => 'Activez ou désactivez les modules de votre mairie (garderie, cantine, stock, site public et ses compléments).',
+                'tips' => [
+                    'Désactiver le Site Public coupe aussi ses compléments (actualités, événements)',
+                    'Activer un complément (Actualités, Événements) active automatiquement le Site Public',
+                ],
                 'roles' => null,
             ];
         }
@@ -267,18 +349,5 @@
             closeHelpBubble();
         }
     });
-
-    setTimeout(function() {
-        if (!localStorage.getItem(STORAGE_KEY)) {
-            const bubble = document.getElementById('help-bubble');
-            bubble.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                bubble.classList.remove('opacity-0', 'translate-y-2');
-            });
-            setTimeout(function() {
-                closeHelpBubble();
-            }, 5000);
-        }
-    }, 2000);
 })();
 </script>

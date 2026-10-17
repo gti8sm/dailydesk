@@ -52,11 +52,11 @@
             <p class="text-xs text-gray-500">Présents</p>
         </div>
         <div class="bg-white shadow rounded-lg p-3 text-center">
-            <p class="text-2xl font-bold text-red-500">{{ $groupedChildren->flatten()->count() - $presences->where('is_present', true)->count() }}</p>
+            <p class="text-2xl font-bold text-red-500">{{ $presences->where('is_present', false)->count() }}</p>
             <p class="text-xs text-gray-500">Absents</p>
         </div>
         <div class="bg-white shadow rounded-lg p-3 text-center">
-            <p class="text-2xl font-bold text-gray-700">{{ $groupedChildren->flatten()->count() }}</p>
+            <p class="text-2xl font-bold text-gray-700">{{ $subscribedCount }}</p>
             <p class="text-xs text-gray-500">Inscrits</p>
         </div>
     </div>
@@ -78,16 +78,22 @@
                 @php
                     $presence = $presenceByChildId->get($child->id);
                     $isPresent = $presence && $presence->is_present;
+                    $notEnrolled = !$child->cantine_subscribed && !$presence;
                 @endphp
-                <div class="rounded-xl border-2 transition-all {{ $isPresent ? 'border-green-300 bg-green-50' : 'border-red-200 bg-red-50' }} {{ ($child->allergies || $child->dietary_restrictions) ? 'ring-1 ring-red-200' : '' }}"
+                <div class="rounded-xl border-2 transition-all {{ $isPresent ? 'border-green-300 bg-green-50' : ($presence ? 'border-red-200 bg-red-50' : ($child->cantine_subscribed ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50')) }} {{ ($child->allergies || $child->dietary_restrictions) ? 'ring-1 ring-red-200' : '' }}"
                      x-data="{ showDetails: false }">
                     <div class="p-3 flex items-center justify-between">
                         <div class="flex items-center gap-2 min-w-0 flex-1">
-                            <div class="rounded-full w-9 h-9 flex items-center justify-center font-bold text-sm flex-shrink-0 {{ $isPresent ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
+                            <div class="rounded-full w-9 h-9 flex items-center justify-center font-bold text-sm flex-shrink-0 {{ $isPresent ? 'bg-green-200 text-green-800' : ($child->cantine_subscribed ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-600') }}">
                                 <span>{{ strtoupper(substr($child->first_name, 0, 1)) }}</span>
                             </div>
                             <div class="min-w-0">
-                                <div class="font-medium text-sm text-gray-900 truncate">{{ $child->full_name }}</div>
+                                <div class="font-medium text-sm text-gray-900 truncate">
+                                    {{ $child->full_name }}
+                                    @if($notEnrolled)
+                                    <span class="inline-block ml-1 px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-medium align-middle">Non inscrit</span>
+                                    @endif
+                                </div>
                                 @if($child->allergies || $child->dietary_restrictions)
                                     <button type="button" @click="showDetails = !showDetails"
                                             class="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5 touch-manipulation">
@@ -113,10 +119,17 @@
                             @endif
                         @else
                             {{-- Aucune présence générée : création directe via record --}}
+                            @if($notEnrolled)
+                            <button onclick="createCantinePresence({{ $child->id }}, true)"
+                                    class="flex-shrink-0 ml-2 px-3 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-lg text-xs font-medium hover:border-green-400 hover:bg-green-50 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>Présent
+                            </button>
+                            @else
                             <button onclick="createCantinePresence({{ $child->id }}, true)"
                                     class="flex-shrink-0 ml-2 px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600 transition-colors">
                                 <i class="fas fa-times mr-1"></i>Absent
                             </button>
+                            @endif
                         @endif
                         @endcan
                     </div>

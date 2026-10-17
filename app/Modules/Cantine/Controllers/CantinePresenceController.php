@@ -34,8 +34,7 @@ class CantinePresenceController extends Controller
         $presenceByChildId = $presences->keyBy('child_id');
 
         $childrenQuery = Child::active()
-            ->with(['family', 'schoolClass'])
-            ->where('cantine_subscribed', true);
+            ->with(['family', 'schoolClass']);
 
         if ($schoolId) {
             $childrenQuery->withoutGlobalScope('tenant')->where('school_id', $schoolId);
@@ -46,11 +45,15 @@ class CantinePresenceController extends Controller
             ->orderBy('first_name')
             ->get();
 
+        // Les non-inscrits sont listés dans leur classe (marquables présents
+        // à la demande) mais ne comptent pas comme inscrits cantine
+        $subscribedCount = $children->where('cantine_subscribed', true)->count();
+
         $groupedChildren = $children->groupBy(function ($child) {
             return $child->schoolClass?->name ?? 'Sans classe';
         });
 
-        return view('cantine.presences.index', compact('presences', 'date', 'mealType', 'groupedChildren', 'presenceByChildId'));
+        return view('cantine.presences.index', compact('presences', 'date', 'mealType', 'groupedChildren', 'presenceByChildId', 'subscribedCount'));
     }
 
     private function autoGeneratePresences($date, $mealType, $schoolId = null)

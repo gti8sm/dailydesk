@@ -160,7 +160,11 @@
                                     <span x-text="child.first_name.charAt(0).toUpperCase()"></span>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="font-bold text-base sm:text-lg text-gray-900 truncate" x-text="child.first_name + ' ' + child.last_name"></div>
+                                    <div class="font-bold text-base sm:text-lg text-gray-900 truncate">
+                                        <span x-text="child.first_name + ' ' + child.last_name"></span>
+                                        <span x-show="!child.garderie_subscribed" x-cloak
+                                              class="inline-block ml-1 px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-medium align-middle">Non inscrit</span>
+                                    </div>
                                     <div class="text-xs sm:text-sm text-gray-500 truncate">
                                         <span x-text="child.class"></span> · <span x-text="child.family?.family_name"></span>
                                     </div>
