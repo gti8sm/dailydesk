@@ -99,13 +99,21 @@
                             </div>
                         </div>
                         @can('record_cantine_presence')
-                        @if($isPresent)
-                            <button onclick="toggleCantinePresence({{ $presence->id }}, false)"
-                                    class="flex-shrink-0 ml-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors">
-                                <i class="fas fa-check mr-1"></i>Présent
-                            </button>
+                        @if($presence)
+                            @if($isPresent)
+                                <button onclick="toggleCantinePresence({{ $presence->id }}, false)"
+                                        class="flex-shrink-0 ml-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-check mr-1"></i>Présent
+                                </button>
+                            @else
+                                <button onclick="toggleCantinePresence({{ $presence->id }}, true)"
+                                        class="flex-shrink-0 ml-2 px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Absent
+                                </button>
+                            @endif
                         @else
-                            <button onclick="toggleCantinePresence({{ $presence->id }}, true)"
+                            {{-- Aucune présence générée : création directe via record --}}
+                            <button onclick="createCantinePresence({{ $child->id }}, true)"
                                     class="flex-shrink-0 ml-2 px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600 transition-colors">
                                 <i class="fas fa-times mr-1"></i>Absent
                             </button>
@@ -164,6 +172,19 @@ async function toggleCantinePresence(presenceId, makePresent) {
         window.location.reload();
     } catch (error) {
         alert('Erreur lors de la modification');
+    }
+}
+
+async function createCantinePresence(childId, isPresent) {
+    try {
+        await window.axios.post(`{{ route('cantine.record', ['__CHILD_ID__']) }}`.replace('__CHILD_ID__', childId), {
+            date: document.getElementById('date-selector').value,
+            meal_type: document.getElementById('meal-type-selector').value,
+            is_present: isPresent
+        });
+        window.location.reload();
+    } catch (error) {
+        alert('Erreur lors de l\'enregistrement');
     }
 }
 </script>

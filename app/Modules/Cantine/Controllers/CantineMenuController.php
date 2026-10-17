@@ -60,6 +60,8 @@ class CantineMenuController extends Controller
         $menu = new CantineMenu();
         $menu->menu_date = $request->get('date', now()->format('Y-m-d'));
         $menu->meal_type = $request->get('meal_type', 'lunch');
+        // Visible des parents par défaut — la mairie décoche si brouillon
+        $menu->is_published = true;
 
         $dishes = CantineDish::orderBy('category')->orderBy('name')->get()->groupBy('category');
 
