@@ -11,6 +11,17 @@
         </a>
     </div>
 
+    @if($errors->any())
+    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+        <p class="font-semibold text-red-800 mb-2"><i class="fas fa-exclamation-circle mr-2"></i>Le formulaire contient des erreurs :</p>
+        <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-purple-600">
             <h1 class="text-2xl font-bold text-white">

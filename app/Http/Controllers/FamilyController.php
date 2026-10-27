@@ -20,6 +20,8 @@ class FamilyController extends Controller
 
     public function store(Request $request)
     {
+        $this->filterEmptyParentRows($request);
+
         $validated = $request->validate([
             'family_name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
@@ -80,6 +82,8 @@ class FamilyController extends Controller
 
     public function update(Request $request, Family $family)
     {
+        $this->filterEmptyParentRows($request);
+
         $validated = $request->validate([
             'family_name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
@@ -146,5 +150,31 @@ class FamilyController extends Controller
 
         return redirect()->route('families.index')
             ->with('success', 'Famille supprimée avec succès !');
+    }
+    /**
+     * Retire les lignes parents entièrement vides du formulaire.
+     * Le formulaire envoie toujours une ligne par défaut (vide) : sans ce
+     * filtre, required_with:parents la rejette et la création de famille
+     * échoue silencieusement (aucune famille créée).
+     * Les lignes vidées sur un parent existant conservent leur suppression
+     * implicite (id absent de la synchronisation).
+     */
+    private function filterEmptyParentRows(Request $request): void
+    {
+        $parents = $request->input('parents');
+
+        if (!is_array($parents)) {
+            return;
+        }
+
+        $filtered = array_values(array_filter($parents, function ($parent) {
+            if (!is_array($parent)) {
+                return false;
+            }
+            return trim((string) ($parent['first_name'] ?? '')) !== ''
+                || trim((string) ($parent['last_name'] ?? '')) !== '';
+        }));
+
+        $request->merge(['parents' => $filtered]);
     }
 }
