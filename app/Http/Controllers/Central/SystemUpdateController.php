@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use App\Services\BackupService;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
 
@@ -21,7 +22,12 @@ class SystemUpdateController extends Controller
             $remoteInfo = session('remote_info');
         }
 
-        return view('central.system.update', compact('current', 'updateAvailable', 'remoteInfo'));
+        $backupService = app(BackupService::class);
+        $backups = $backupService->list();
+        $maintenanceOn = app()->isDownForMaintenance();
+        $maintenanceSecret = $this->maintenanceSecret();
+
+        return view('central.system.update', compact('current', 'updateAvailable', 'remoteInfo', 'backups', 'maintenanceOn', 'maintenanceSecret'));
     }
 
     public function check()
@@ -64,7 +70,24 @@ class SystemUpdateController extends Controller
                 ->with('error', 'proc_open est désactivé sur cet hébergement — la mise à jour doit passer par le terminal.');
         }
 
-        $dryRun = $request->boolean('dry_run');
+        // Sauvegarde avant mise à jour (cochée par défaut)
+        $backupResult = null;
+
+        if ($request->boolean('backup_before', true)) {
+            [$ok, $details, $errors] = app(BackupService::class)->create();
+            $backupResult = [
+                'success' => $ok,
+                'output' => ($ok ? "Sauvegarde créée.\n" : "Échec de sauvegarde.\n")
+                    . implode("\n", $details)
+                    . (!empty($errors) ? "\n" . implode("\n", $errors) : ''),
+            ];
+
+            // Échec de la sauvegarde base de données = on ne met pas à jour
+            if (!$ok) {
+                return redirect()->route('central.system.index')
+                    ->with('error', 'Mise à jour annulée : la sauvegarde a échoué. ' . implode(' ', $errors));
+            }
+        }
 
         // Étapes de la mise à jour (PHP_BINARY = même binaire que le site)
         $php = PHP_BINARY;
@@ -80,19 +103,12 @@ class SystemUpdateController extends Controller
             ['Fin de maintenance', "{$php} artisan up", true],
         ];
 
-        if ($dryRun) {
-            $local = trim($this->runCommand('git rev-parse --short HEAD')['output']);
-            $remote = trim($this->runCommand('git rev-parse --short origin/main')['output']);
-            return redirect()->route('central.system.index')
-                ->with('dry_run', [
-                    'local' => $local,
-                    'remote' => $remote,
-                    'steps' => array_column($steps, 'label'),
-                ]);
-        }
-
         @set_time_limit(600);
         $results = [];
+
+        if ($backupResult) {
+            $results[] = ['label' => 'Sauvegarde avant mise à jour', 'success' => $backupResult['success'], 'output' => $backupResult['output']];
+        }
         $failed = false;
 
         foreach ($steps as $i => [$label, $command, $critical]) {
@@ -102,7 +118,8 @@ class SystemUpdateController extends Controller
             // Composer peut être absent du PATH web : non bloquant si le
             // code n'a pas changé de dépendances, on l'indique clairement
             if (!$result['success'] && $i === 2 && str_contains($result['output'], 'command not found')) {
-                $results[2]['output'] .= "\n→ Composer introuvable dans le PATH web. Si vendor/ est à jour dans le dépôt, ce n'est pas bloquant.";
+                $lastIndex = count($results) - 1;
+                $results[$lastIndex]['output'] .= "\n→ Composer introuvable dans le PATH web. Si vendor/ est à jour dans le dépôt, ce n'est pas bloquant.";
                 continue;
             }
 
@@ -130,6 +147,109 @@ class SystemUpdateController extends Controller
             ->with('update_results', $results)
             ->with('update_failed', $failed)
             ->with('new_version', $newVersion);
+    }
+
+    /**
+     * Crée une sauvegarde complète à la demande.
+     */
+    public function backup()
+    {
+        $this->authorizeSuperAdmin();
+
+        if (!function_exists('proc_open')) {
+            return redirect()->route('central.system.index')
+                ->with('error', 'proc_open est désactivé sur cet hébergement — la sauvegarde doit passer par le terminal.');
+        }
+
+        [$ok, $details, $errors] = app(BackupService::class)->create();
+
+        if ($ok) {
+            return redirect()->route('central.system.index')
+                ->with('backup_success', 'Sauvegarde créée : ' . implode(' · ', $details));
+        }
+
+        return redirect()->route('central.system.index')
+            ->with('error', 'Échec de la sauvegarde : ' . implode(' · ', $errors));
+    }
+
+    /**
+     * Télécharge un fichier de sauvegarde (super admin uniquement).
+     */
+    public function downloadBackup(Request $request, string $backup, string $file)
+    {
+        $this->authorizeSuperAdmin();
+
+        $path = app(BackupService::class)->filePath($backup, $file);
+
+        if (!$path) {
+            abort(404, 'Fichier de sauvegarde introuvable.');
+        }
+
+        return response()->download($path, "dailydesk_{$backup}_{$file}");
+    }
+
+    /**
+     * Supprime une sauvegarde.
+     */
+    public function deleteBackup(Request $request, string $backup)
+    {
+        $this->authorizeSuperAdmin();
+
+        if (!app(BackupService::class)->delete($backup)) {
+            return redirect()->route('central.system.index')
+                ->with('error', "Impossible de supprimer la sauvegarde {$backup}.");
+        }
+
+        return redirect()->route('central.system.index')
+            ->with('backup_success', "Sauvegarde {$backup} supprimée.");
+    }
+
+    /**
+     * Active/désactive le mode maintenance manuellement.
+     * À l'activation, un secret est généré et l'admin est redirigé
+     * vers son lien de contournement : il garde accès à l'interface
+     * et peut désactiver la maintenance depuis la même page.
+     */
+    public function toggleMaintenance(Request $request)
+    {
+        $this->authorizeSuperAdmin();
+
+        $php = PHP_BINARY;
+
+        if (app()->isDownForMaintenance()) {
+            $this->runCommand("{$php} artisan up");
+            return redirect()->route('central.system.index')
+                ->with('backup_success', 'Mode maintenance désactivé — le site est de nouveau accessible.');
+        }
+
+        $secret = bin2hex(random_bytes(8));
+        $this->runCommand("{$php} artisan down --secret=" . escapeshellarg($secret));
+
+        // Le lien /{secret} pose le cookie de contournement puis ramène
+        // à la racine — l'admin retrouve l'accès immédiatement
+        return redirect()->to(url('/') . '/' . $secret)
+            ->with('backup_success', 'Mode maintenance activé. Ce lien admin (avec votre secret de contournement) vous donne accès.');
+    }
+
+    /**
+     * Secret de contournement courant (lu depuis le fichier down),
+     * pour afficher le lien admin sur la page système.
+     */
+    private function maintenanceSecret(): ?string
+    {
+        if (!app()->isDownForMaintenance()) {
+            return null;
+        }
+
+        $downFile = storage_path('framework/down');
+
+        if (!is_file($downFile)) {
+            return null;
+        }
+
+        $data = json_decode((string) file_get_contents($downFile), true);
+
+        return $data['secret'] ?? null;
     }
 
     private function currentVersion(): ?string
