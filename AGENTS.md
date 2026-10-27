@@ -1,7 +1,7 @@
 # DailyDesk — Guide de développement
 
 ## Stack technique
-- Laravel 11.54, PHP 8.3
+- Laravel 12.70, PHP 8.3+ (8.5 en dev)
 - Multi-tenant path-based (`/{tenant}/...`), base centrale unique, scoping via trait `BelongsToTenant`
 - Spatie Permission (rôles + permissions)
 - Tailwind CSS (via CDN), Alpine.js, Font Awesome

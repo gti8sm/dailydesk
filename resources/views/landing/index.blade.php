@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="{{ asset('og-image.png') }}">
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "{{ $appName }}",
         "applicationCategory": "BusinessApplication",
@@ -48,7 +48,7 @@
     </script>
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "Organization",
         "name": "SmallWebConcept",
         "url": "https://smallwebconcept.fr",
