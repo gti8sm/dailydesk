@@ -16,8 +16,15 @@ class SettingsController extends Controller
             'smtp' => Setting::getGroup('smtp'),
             'notifications' => Setting::getGroup('notifications'),
         ];
-        
-        return view('settings.index', compact('settings'));
+
+        // Bandeau abonnement (page paramètres)
+        $tenant = \App\Models\Tenant::find(auth()->user()->tenant_id);
+        $plan = null;
+        if ($tenant) {
+            $plan = \App\Models\Central\SubscriptionPlan::where('slug', $tenant->subscription_plan)->first();
+        }
+
+        return view('settings.index', compact('settings', 'tenant', 'plan'));
     }
 
     public function update(Request $request)

@@ -293,10 +293,16 @@
 
             <div class="pt-2 border-t border-gray-100">
                 @unless(auth()->user()->hasRole('super_admin'))
-                <a href="#" onclick="window.open('{{ route('help') }}', '_blank', 'width=800,height=600'); return false;"
-                   class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
-                    <i class="fas fa-book mr-2"></i>Aide complète
-                </a>
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="#" onclick="window.open('{{ route('help') }}', '_blank', 'width=800,height=600'); return false;"
+                       class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-book mr-2"></i>Aide complète
+                    </a>
+                    <a href="{{ route('support.create') }}"
+                       class="flex items-center justify-center w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-life-ring mr-2"></i>Créer un ticket
+                    </a>
+                </div>
                 @endunless
             </div>
         </div>

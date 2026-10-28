@@ -23,6 +23,10 @@
     </div>
     @endif
 
+    @if(auth()->user()->hasRole(['admin', 'admin_mairie']) && isset($tenant) && $tenant)
+    @include('settings.partials.subscription-banner')
+    @endif
+
     @if(session('success'))
     <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded">
         <div class="flex">
