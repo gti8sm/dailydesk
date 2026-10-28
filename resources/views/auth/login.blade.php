@@ -58,7 +58,7 @@
                         <i class="fas fa-key text-gray-400 mr-2"></i>
                         Mot de passe ou Code PIN
                     </label>
-                    <input id="credential" name="credential" type="password" required
+                    <input id="credential" name="credential" type="password" autocomplete="current-password" required
                            class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition-all"
                            placeholder="Entrez votre mot de passe ou code PIN">
                     @error('credential')

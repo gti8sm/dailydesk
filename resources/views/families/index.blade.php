@@ -105,9 +105,9 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($families as $family)
-                    <tr x-data="{ open: false }" class="hover:bg-gray-50 family-row" data-name="{{ strtolower($family->family_name) }}" data-city="{{ strtolower($family->city ?? '') }}">
+                @forelse($families as $family)
+                <tbody x-data="{ open: false }" class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50 family-row" data-name="{{ strtolower($family->family_name) }}" data-city="{{ strtolower($family->city ?? '') }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <button @click="open = !open" class="text-gray-400 hover:text-purple-600 transition-colors">
                                 <i class="fas fa-chevron-right transition-transform duration-200" :class="{ 'rotate-90': open }"></i>
@@ -247,7 +247,9 @@
                             </div>
                         </td>
                     </tr>
+                </tbody>
                     @empty
+                    <tbody class="bg-white">
                     <tr>
                         <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
                             <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
@@ -257,8 +259,8 @@
                             </a>
                         </td>
                     </tr>
+                    </tbody>
                     @endforelse
-                </tbody>
             </table>
         </div>
     </div>
