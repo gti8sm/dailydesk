@@ -164,7 +164,7 @@
                     @csrf
                     @method('PUT')
                     <div class="flex items-center">
-                        <input type="checkbox" name="ip_whitelist_enabled" id="ip_whitelist_enabled"
+                        <input type="checkbox" name="ip_whitelist_enabled" id="ip_whitelist_enabled" value="1"
                                {{ Auth::user()->ip_whitelist_enabled ? 'checked' : '' }}
                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="ip_whitelist_enabled" class="ml-2 text-sm text-gray-700">Activer la whitelist IP</label>

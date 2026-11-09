@@ -175,6 +175,17 @@ class FamilyController extends Controller
                 || trim((string) ($parent['last_name'] ?? '')) !== '';
         }));
 
+        // Normalise les booléens : une checkbox cochée sans attribut value
+        // envoie "on", que la règle de validation boolean rejette.
+        foreach ($filtered as &$parent) {
+            foreach (['is_primary_contact', 'can_pickup', 'is_legal_guardian'] as $boolField) {
+                if (array_key_exists($boolField, $parent)) {
+                    $parent[$boolField] = in_array($parent[$boolField], [true, 1, '1', 'on'], true);
+                }
+            }
+        }
+        unset($parent);
+
         $request->merge(['parents' => $filtered]);
     }
 }

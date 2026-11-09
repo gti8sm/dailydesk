@@ -187,15 +187,15 @@
                             </div>
                             <div class="mt-3 flex flex-wrap gap-4">
                                 <label class="flex items-center text-sm text-gray-700">
-                                    <input type="checkbox" :name="'parents[' + index + '][is_primary_contact]'" x-model="parent.is_primary_contact" @change="parents.forEach((p, i) => { if (i !== index) p.is_primary_contact = false; })" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <input type="checkbox" :name="'parents[' + index + '][is_primary_contact]'" value="1" x-model="parent.is_primary_contact" @change="parents.forEach((p, i) => { if (i !== index) p.is_primary_contact = false; })" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                                     Contact principal
                                 </label>
                                 <label class="flex items-center text-sm text-gray-700">
-                                    <input type="checkbox" :name="'parents[' + index + '][can_pickup]'" x-model="parent.can_pickup" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <input type="checkbox" :name="'parents[' + index + '][can_pickup]'" value="1" x-model="parent.can_pickup" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                                     Autorisé à récupérer l'enfant
                                 </label>
                                 <label class="flex items-center text-sm text-gray-700">
-                                    <input type="checkbox" :name="'parents[' + index + '][is_legal_guardian]'" x-model="parent.is_legal_guardian" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <input type="checkbox" :name="'parents[' + index + '][is_legal_guardian]'" value="1" x-model="parent.is_legal_guardian" class="mr-2 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                                     Tuteur légal
                                 </label>
                             </div>
