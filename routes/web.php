@@ -153,6 +153,7 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::post('system/check', [SystemUpdateController::class, 'check'])->name('system.check');
     Route::post('system/update', [SystemUpdateController::class, 'update'])->name('system.update');
     Route::post('system/backup', [SystemUpdateController::class, 'backup'])->name('system.backup');
+    Route::post('system/backup/{backup}/restore', [SystemUpdateController::class, 'restore'])->name('system.backup.restore');
     Route::get('system/backup/{backup}/{file}', [SystemUpdateController::class, 'downloadBackup'])->name('system.backup.download');
     Route::delete('system/backup/{backup}', [SystemUpdateController::class, 'deleteBackup'])->name('system.backup.delete');
     Route::post('system/maintenance', [SystemUpdateController::class, 'toggleMaintenance'])->name('system.maintenance');

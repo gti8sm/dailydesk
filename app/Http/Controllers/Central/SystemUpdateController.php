@@ -39,7 +39,7 @@ class SystemUpdateController extends Controller
                 ->with('error', 'proc_open est désactivé sur cet hébergement — la mise à jour doit passer par le terminal.');
         }
 
-        $fetch = $this->runCommand('git fetch origin main 2>&1');
+        $fetch = $this->gitFetch();
 
         if (!$fetch['success']) {
             return redirect()->route('central.system.index')
@@ -70,11 +70,19 @@ class SystemUpdateController extends Controller
                 ->with('error', 'proc_open est désactivé sur cet hébergement — la mise à jour doit passer par le terminal.');
         }
 
+        // Contact du dépôt (avec bascule 443 si port 22 bloqué)
+        $fetch = $this->gitFetch();
+
+        if (!$fetch['success']) {
+            return redirect()->route('central.system.index')
+                ->with('error', 'Impossible de contacter le dépôt Git : ' . mb_substr($fetch['output'], 0, 300));
+        }
+
         // Sauvegarde avant mise à jour (cochée par défaut)
         $backupResult = null;
 
         if ($request->boolean('backup_before', true)) {
-            [$ok, $details, $errors] = app(BackupService::class)->create();
+            [$ok, $details, $errors] = app(BackupService::class)->create('Sauvegarde automatique avant mise à jour');
             $backupResult = [
                 'success' => $ok,
                 'output' => ($ok ? "Sauvegarde créée.\n" : "Échec de sauvegarde.\n")
@@ -150,9 +158,9 @@ class SystemUpdateController extends Controller
     }
 
     /**
-     * Crée une sauvegarde complète à la demande.
+     * Crée une sauvegarde complète à la demande (avec commentaire facultatif).
      */
-    public function backup()
+    public function backup(Request $request)
     {
         $this->authorizeSuperAdmin();
 
@@ -161,7 +169,11 @@ class SystemUpdateController extends Controller
                 ->with('error', 'proc_open est désactivé sur cet hébergement — la sauvegarde doit passer par le terminal.');
         }
 
-        [$ok, $details, $errors] = app(BackupService::class)->create();
+        $validated = $request->validate([
+            'comment' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        [$ok, $details, $errors] = app(BackupService::class)->create($validated['comment'] ?? null);
 
         if ($ok) {
             return redirect()->route('central.system.index')
@@ -170,6 +182,75 @@ class SystemUpdateController extends Controller
 
         return redirect()->route('central.system.index')
             ->with('error', 'Échec de la sauvegarde : ' . implode(' · ', $errors));
+    }
+
+    /**
+     * Restaure une sauvegarde complète (code, uploads, base de données).
+     * Confirmation renforcée : le nom exact de la sauvegarde doit être saisi.
+     */
+    public function restore(Request $request, string $backup)
+    {
+        $this->authorizeSuperAdmin();
+
+        if (!function_exists('proc_open')) {
+            return redirect()->route('central.system.index')
+                ->with('error', 'proc_open est désactivé sur cet hébergement — la restauration doit passer par le terminal.');
+        }
+
+        $service = app(BackupService::class);
+
+        if (!$service->exists($backup)) {
+            return redirect()->route('central.system.index')
+                ->with('error', "Sauvegarde {$backup} introuvable.");
+        }
+
+        // Double confirmation : saisie du nom exact de la sauvegarde
+        if ($request->input('confirm') !== $backup) {
+            return redirect()->route('central.system.index')
+                ->with('error', 'Restauration annulée : vous devez saisir le nom exact de la sauvegarde (' . $backup . ') pour confirmer.');
+        }
+
+        $php = PHP_BINARY;
+        @set_time_limit(900);
+
+        // 1. Maintenance pendant toute l'opération
+        $this->runCommand("{$php} artisan down");
+
+        $results = [
+            ['label' => 'Mise en maintenance', 'success' => true, 'output' => 'Site en maintenance pendant la restauration.'],
+        ];
+
+        // 2. Restauration (code + config, uploads, base de données)
+        [$ok, $logs] = $service->restore($backup);
+        $results = array_merge($results, $logs);
+
+        if ($ok) {
+            // 3. Dépendances + caches pour la version restaurée
+            foreach ([
+                ['Dépendances (composer install)', 'composer install --no-dev --optimize-autoloader 2>&1'],
+                ['Vidage des caches', "{$php} artisan optimize:clear 2>&1"],
+                ['Cache des routes', "{$php} artisan route:cache 2>&1"],
+                ['Cache des vues', "{$php} artisan view:cache 2>&1"],
+                ['Cache de configuration', "{$php} artisan config:cache 2>&1"],
+            ] as [$label, $command]) {
+                $r = $this->runCommand($command);
+                $results[] = ['label' => $label, 'success' => $r['success'], 'output' => $r['output']];
+            }
+        }
+
+        // 4. Retour en ligne quoi qu'il arrive
+        $this->runCommand("{$php} artisan up");
+        $results[] = ['label' => 'Fin de maintenance', 'success' => true, 'output' => 'Site remis en ligne.'];
+
+        $newVersion = $this->currentVersion();
+
+        return redirect()->route('central.system.index')
+            ->with('update_results', $results)
+            ->with('update_failed', !$ok)
+            ->with('new_version', $newVersion)
+            ->with('backup_success', $ok
+                ? "Sauvegarde {$backup} restaurée."
+                : "Échec de la restauration de {$backup} — le site a été remis en ligne dans son état antérieur (consultez le détail ci-dessous).");
     }
 
     /**
@@ -272,6 +353,60 @@ class SystemUpdateController extends Controller
     private function runCommand(string $command): array
     {
         $process = Process::fromShellCommandline($command, base_path(), null, null, 480);
+        $process->run();
+
+        return [
+            'success' => $process->isSuccessful(),
+            'output' => trim($process->getOutput() . "\n" . $process->getErrorOutput()),
+        ];
+    }
+
+    /**
+     * Fetch depuis origin, avec bascule automatique vers GitHub en SSH
+     * sur le port 443 si le port 22 est bloqué par l'hébergeur (cas
+     * o2switch et hébergeurs mutualisés). Le remote est corrigé pour
+     * que les opérations suivantes (pull, terminal) fonctionnent aussi.
+     */
+    private function gitFetch(): array
+    {
+        $result = $this->runGitCommand('git fetch origin main 2>&1');
+
+        if ($result['success'] || $this->gitRemote443() === null) {
+            return $result;
+        }
+
+        // Remote en SSH port 22 + échec → basculer sur ssh.github.com:443
+        $this->runGitCommand('git remote set-url origin ' . escapeshellarg($this->gitRemote443()));
+        $retry = $this->runGitCommand('git fetch origin main 2>&1');
+
+        if ($retry['success']) {
+            $retry['output'] = "Port 22 bloqué — dépôt Git reconfiguré en SSH sur le port 443 (ssh.github.com), réservé pour les futures opérations.\n" . $retry['output'];
+        }
+
+        return $retry;
+    }
+
+    /**
+     * URL équivalente du remote en SSH sur 443, ou null si le remote
+     * n'est pas un SSH GitHub standard (HTTPS, autre forge...).
+     */
+    private function gitRemote443(): ?string
+    {
+        $url = trim($this->runGitCommand('git remote get-url origin')['output']);
+
+        if (preg_match('#^git@github\.com:([^/]+)/([^/]+?)(?:\.git)?$#', $url, $m)) {
+            return 'ssh://git@ssh.github.com:443/' . $m[1] . '/' . $m[2] . '.git';
+        }
+
+        return null;
+    }
+
+    private function runGitCommand(string $command): array
+    {
+        // accept-new : accepte la clé hôte de ssh.github.com au premier contact
+        $process = Process::fromShellCommandline($command, base_path(), [
+            'GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new',
+        ], null, 120);
         $process->run();
 
         return [

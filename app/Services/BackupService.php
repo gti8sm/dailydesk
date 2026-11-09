@@ -21,8 +21,9 @@ class BackupService
 
     /**
      * Crée une sauvegarde complète. Retourne [succès, détails, erreurs].
+     * $comment : note libre stockée avec la sauvegarde (ex: "avant migration").
      */
-    public function create(): array
+    public function create(?string $comment = null): array
     {
         if (!function_exists('proc_open')) {
             return [false, [], 'proc_open est désactivé sur cet hébergement.'];
@@ -65,6 +66,13 @@ class BackupService
         );
         $details[] = 'Code + configuration : ' . $this->sizeLabel(filesize($codeFile) ?: 0);
 
+        // 4. Commentaire (sauvegarde manuelle)
+        $comment = trim((string) $comment);
+        if ($comment !== '') {
+            file_put_contents($dir . '/comment.txt', $comment);
+            $details[] = 'Note : « ' . $comment . ' »';
+        }
+
         // Rotation : ne garder que les N dernières
         $pruned = $this->prune(self::KEEP);
         if (!empty($pruned)) {
@@ -72,6 +80,101 @@ class BackupService
         }
 
         return [empty($errors), $details, $errors];
+    }
+
+    /**
+     * Restaure une sauvegarde complète : code, uploads puis base de
+     * données (ordre cohérent — le schéma correspond au code restauré).
+     * Retourne [succès, logs].
+     */
+    public function restore(string $name): array
+    {
+        if (!$this->isValidName($name)) {
+            return [false, ['Nom de sauvegarde invalide.']];
+        }
+
+        $dir = $this->backupsDir() . '/' . $name;
+
+        if (!is_dir($dir)) {
+            return [false, ["Sauvegarde {$name} introuvable."]];
+        }
+
+        @set_time_limit(900);
+        $logs = [];
+
+        // 1. Code + configuration (.env) — untar à la racine
+        $codeFile = $dir . '/code.tar.gz';
+        if (is_file($codeFile)) {
+            $r = $this->run('tar -xzf ' . escapeshellarg($codeFile) . ' -C ' . escapeshellarg(base_path()));
+            $logs[] = ['label' => 'Restauration du code et de la configuration', 'success' => $r['success'], 'output' => $r['output']];
+            if (!$r['success']) {
+                return [false, $logs];
+            }
+        }
+
+        // 2. Fichiers uploadés — retar dans storage/app
+        $uploadsFile = $dir . '/uploads.tar.gz';
+        if (is_file($uploadsFile)) {
+            $r = $this->run('tar -xzf ' . escapeshellarg($uploadsFile) . ' -C ' . escapeshellarg(storage_path('app')));
+            $logs[] = ['label' => 'Restauration des fichiers uploadés', 'success' => $r['success'], 'output' => $r['output']];
+        }
+
+        // 3. Base de données
+        $dbFile = $dir . '/database.sql.gz';
+        if (is_file($dbFile)) {
+            $r = $this->restoreDatabase($dbFile);
+            $logs[] = ['label' => 'Restauration de la base de données', 'success' => $r === true, 'output' => $r === true ? 'Import terminé.' : $r];
+            if ($r !== true) {
+                return [false, $logs];
+            }
+        }
+
+        return [true, $logs];
+    }
+
+    private function restoreDatabase(string $dumpFile)
+    {
+        $connection = config('database.connections.mysql');
+
+        if (!$this->commandExists('mysql')) {
+            return 'client mysql introuvable sur cet hébergement';
+        }
+
+        $command = sprintf(
+            'zcat %s | mysql --host=%s --port=%s --user=%s %s',
+            escapeshellarg($dumpFile),
+            escapeshellarg($connection['host']),
+            escapeshellarg($connection['port'] ?? 3306),
+            escapeshellarg($connection['username']),
+            escapeshellarg($connection['database'])
+        );
+
+        $process = Process::fromShellCommandline($command, null, [
+            'MYSQL_PWD' => $connection['password'] ?? '',
+        ], null, 600);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            return mb_substr(trim($process->getErrorOutput() ?: $process->getOutput()), 0, 300) ?: 'échec de l\'import';
+        }
+
+        return true;
+    }
+
+    public function comment(string $name): ?string
+    {
+        if (!$this->isValidName($name)) {
+            return null;
+        }
+
+        $file = $this->backupsDir() . '/' . $name . '/comment.txt';
+
+        return is_file($file) ? trim((string) file_get_contents($file)) : null;
+    }
+
+    public function exists(string $name): bool
+    {
+        return $this->isValidName($name) && is_dir($this->backupsDir() . '/' . $name);
     }
 
     /**
@@ -106,6 +209,7 @@ class BackupService
                 'name' => $entry,
                 'total_size' => $this->sizeLabel($total),
                 'files' => $files,
+                'comment' => $this->comment($entry),
             ];
         }
 

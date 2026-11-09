@@ -104,9 +104,14 @@
             <form action="{{ route('central.system.backup') }}" method="POST"
                   onsubmit="return confirm('Créer une sauvegarde complète maintenant ? (base de données, fichiers uploadés, code)')">
                 @csrf
-                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
-                    <i class="fas fa-download mr-2"></i>Sauvegarder maintenant
-                </button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <input type="text" name="comment" maxlength="500"
+                           placeholder="Commentaire (optionnel) — ex : avant modification des écoles"
+                           class="w-56 text-sm border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap">
+                        <i class="fas fa-download mr-2"></i>Sauvegarder maintenant
+                    </button>
+                </div>
             </form>
         </div>
         <p class="text-xs text-gray-500 mb-4">
@@ -121,21 +126,32 @@
         @else
         <div class="space-y-3">
             @foreach($backups as $backup)
-            <div class="border border-gray-200 rounded-lg p-4">
+            <div class="border border-gray-200 rounded-lg p-4" x-data="{ restoring: false }">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div>
                         <p class="font-mono font-semibold text-sm text-gray-900">
                             <i class="fas fa-archive text-gray-400 mr-2"></i>{{ $backup['name'] }}
                         </p>
                         <p class="text-xs text-gray-500">Taille totale : {{ $backup['total_size'] }}</p>
+                        @if($backup['comment'])
+                        <p class="text-xs text-blue-700 mt-1 italic">
+                            <i class="fas fa-comment-dots mr-1"></i>{{ $backup['comment'] }}
+                        </p>
+                        @endif
                     </div>
-                    <form action="{{ route('central.system.backup.delete', $backup['name']) }}" method="POST"
-                          onsubmit="return confirm('Supprimer la sauvegarde {{ $backup['name'] }} ?')">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:text-red-700 text-sm px-2 py-1">
-                            <i class="fas fa-trash"></i> Supprimer
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="restoring = !restoring"
+                                class="text-orange-600 hover:text-orange-800 text-sm px-2 py-1 font-medium">
+                            <i class="fas fa-clock-rotate-left"></i> Restaurer
                         </button>
-                    </form>
+                        <form action="{{ route('central.system.backup.delete', $backup['name']) }}" method="POST"
+                              onsubmit="return confirm('Supprimer la sauvegarde {{ $backup['name'] }} ?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-700 text-sm px-2 py-1">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div class="mt-2 flex flex-wrap gap-2">
                     @foreach($backup['files'] as $file)
@@ -145,6 +161,35 @@
                         <span class="text-gray-400">({{ $file['size'] }})</span>
                     </a>
                     @endforeach
+                </div>
+
+                <!-- Confirmation de restauration -->
+                <div x-show="restoring" x-cloak class="mt-3 border-t border-gray-200 pt-3">
+                    <form action="{{ route('central.system.backup.restore', $backup['name']) }}" method="POST">
+                        @csrf
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                            <p class="text-xs text-orange-800 leading-relaxed">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                <strong>Restauration complète</strong> — le code, les fichiers uploadés et la
+                                <strong>base de données</strong> seront remplacés par l'état enregistré dans cette sauvegarde.
+                                Le site passera brièvement en maintenance.
+                                <strong>Action irréversible</strong> : toute donnée saisie depuis cette sauvegarde sera perdue.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <label class="text-xs text-gray-600">
+                                Pour confirmer, recopiez <span class="font-mono font-semibold text-gray-900">{{ $backup['name'] }}</span> :
+                            </label>
+                            <input type="text" name="confirm" required autocomplete="off" spellcheck="false"
+                                   class="font-mono text-sm border-gray-300 rounded-lg w-52"
+                                   placeholder="{{ $backup['name'] }}">
+                            <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium text-sm transition-colors">
+                                <i class="fas fa-clock-rotate-left mr-1"></i>Restaurer cette sauvegarde
+                            </button>
+                            <button type="button" @click="restoring = false"
+                                    class="text-sm text-gray-500 hover:text-gray-700 underline">Annuler</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             @endforeach
@@ -228,8 +273,9 @@
         <p class="font-semibold mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Prérequis sur cet hébergement</p>
         <ul class="list-disc list-inside space-y-1">
             <li>Le dépôt Git doit être cloné avec une clé SSH accessible à l'utilisateur web (o2switch : oui, même compte)</li>
+            <li>Si le port 22 est bloqué par l'hébergeur, la connexion bascule automatiquement sur GitHub en SSH via le port 443</li>
             <li>Composer optionnel : s'il est absent du PATH web, l'étape est signalée sans bloquer</li>
-            <li>Faites une <strong>sauvegarde</strong> avant la mise à jour (cp -r du dossier + dump SQL)</li>
+            <li>La case « sauvegarde avant mise à jour » est cochée par défaut — la mise à jour est annulée si la sauvegarde échoue</li>
         </ul>
     </div>
 </div>
