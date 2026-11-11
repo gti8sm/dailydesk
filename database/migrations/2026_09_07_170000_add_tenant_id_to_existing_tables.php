@@ -32,38 +32,48 @@ return new class extends Migration
 
         // Users: add tenant_id + fix unique constraint
         if (Schema::hasTable('users') && !Schema::hasColumn('users', 'tenant_id')) {
-            $indexes = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_email_unique'");
-            if (!empty($indexes)) {
-                Schema::table('users', function (Blueprint $table) {
-                    $table->dropUnique('users_email_unique');
-                });
+            // SHOW INDEX est spécifique MySQL — ignoré sur sqlite (tests) :
+            // l'unique simple coexiste alors avec le composite sans impact
+            $compositeAlreadyExists = false;
+
+            if (\DB::connection()->getDriverName() === 'mysql') {
+                $indexes = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_email_unique'");
+                if (!empty($indexes)) {
+                    Schema::table('users', function (Blueprint $table) {
+                        $table->dropUnique('users_email_unique');
+                    });
+                }
+
+                $compositeAlreadyExists = !empty(
+                    \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_tenant_id_email_unique'")
+                );
             }
 
-            $compositeExists = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_tenant_id_email_unique'");
-            if (empty($compositeExists)) {
-                Schema::table('users', function (Blueprint $table) {
-                    $table->string('tenant_id')->nullable()->after('id');
-                    $table->index('tenant_id');
+            Schema::table('users', function (Blueprint $table) use ($compositeAlreadyExists) {
+                $table->string('tenant_id')->nullable()->after('id');
+                $table->index('tenant_id');
+                if (!$compositeAlreadyExists) {
                     $table->unique(['tenant_id', 'email']);
-                });
-            } else {
-                Schema::table('users', function (Blueprint $table) {
-                    $table->string('tenant_id')->nullable()->after('id');
-                    $table->index('tenant_id');
-                });
-            }
+                }
+            });
         }
 
         // Settings: drop unique on key, replace with composite (tenant_id, key)
         if (Schema::hasTable('settings') && Schema::hasColumn('settings', 'tenant_id')) {
-            $indexes = \DB::select("SHOW INDEX FROM settings WHERE Key_name = 'settings_key_unique'");
-            if (!empty($indexes)) {
-                Schema::table('settings', function (Blueprint $table) {
-                    $table->dropUnique('settings_key_unique');
-                });
-            }
-            $compositeExists = \DB::select("SHOW INDEX FROM settings WHERE Key_name = 'settings_tenant_id_key_unique'");
-            if (empty($compositeExists)) {
+            if (\DB::connection()->getDriverName() === 'mysql') {
+                $indexes = \DB::select("SHOW INDEX FROM settings WHERE Key_name = 'settings_key_unique'");
+                if (!empty($indexes)) {
+                    Schema::table('settings', function (Blueprint $table) {
+                        $table->dropUnique('settings_key_unique');
+                    });
+                }
+                $compositeExists = \DB::select("SHOW INDEX FROM settings WHERE Key_name = 'settings_tenant_id_key_unique'");
+                if (empty($compositeExists)) {
+                    Schema::table('settings', function (Blueprint $table) {
+                        $table->unique(['tenant_id', 'key']);
+                    });
+                }
+            } elseif (!collect(\DB::select("PRAGMA index_list('settings')"))->contains(fn ($i) => $i->name === 'settings_tenant_id_key_unique')) {
                 Schema::table('settings', function (Blueprint $table) {
                     $table->unique(['tenant_id', 'key']);
                 });

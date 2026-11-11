@@ -346,6 +346,10 @@
                                     <i class="fas fa-rocket w-5"></i>
                                     <span class="ml-3">Système</span>
                                 </a>
+                                <a href="{{ route('central.rgpd.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                    <i class="fas fa-shield-halved w-5"></i>
+                                    <span class="ml-3">RGPD</span>
+                                </a>
                                 <a href="{{ route('central.support.index') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
                                     <i class="fas fa-life-ring w-5"></i>
                                     <span class="ml-3">Support</span>
@@ -749,6 +753,10 @@
                         <a href="{{ route('central.system.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-rocket w-6"></i>
                             <span class="ml-3">Système</span>
+                        </a>
+                        <a href="{{ route('central.rgpd.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-shield-halved w-6"></i>
+                            <span class="ml-3">RGPD</span>
                         </a>
                         <a href="{{ route('central.support.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
                             <i class="fas fa-life-ring w-6"></i>

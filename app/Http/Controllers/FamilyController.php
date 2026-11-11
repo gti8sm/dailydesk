@@ -151,6 +151,79 @@ class FamilyController extends Controller
         return redirect()->route('families.index')
             ->with('success', 'Famille supprimée avec succès !');
     }
+
+    /**
+     * Export RGPD (droit d'accès / portabilité) — toutes les données
+     * détenues sur la famille au format JSON.
+     */
+    public function exportRgpd(Family $family)
+    {
+        $family->load(['parents', 'children']);
+
+        $data = [
+            'export' => [
+                'date' => now()->toIso8601String(),
+                'objet' => 'Droit d\'accès — export des données famille (RGPD art. 15)',
+                'logiciel' => 'DailyDesk',
+            ],
+            'famille' => $family->only(['id', 'family_name', 'address', 'postal_code', 'city', 'phone', 'email', 'notes', 'is_active', 'created_at', 'updated_at']),
+            'parents' => $family->parents->map(fn ($p) => $p->only(['first_name', 'last_name', 'email', 'phone', 'mobile', 'address', 'postal_code', 'city', 'relationship', 'is_primary_contact', 'can_pickup', 'is_legal_guardian', 'created_at'])),
+            'enfants' => $family->children->map(function ($c) {
+                return [
+                    'enfant' => $c->only(['first_name', 'last_name', 'birth_date', 'gender', 'allergies', 'medical_notes', 'cantine_subscribed', 'garderie_subscribed', 'created_at']),
+                    'presences_cantine' => $c->cantinePresences()->select('date', 'is_present', 'meal_type')->orderBy('date')->get(),
+                    'presences_garderie' => $c->garderiePresences()->select('date', 'arrival_time', 'departure_time')->orderBy('date')->get(),
+                ];
+            }),
+        ];
+
+        return response()->streamDownload(
+            function () use ($data) {
+                echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            },
+            "rgpd_famille_{$family->id}.json",
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    /**
+     * Purge RGPD (droit à l'effacement — art. 17) : suppression
+     * définitive de la famille et de toutes ses données liées.
+     * Confirmation renforcée : saisie du nom de la famille.
+     */
+    public function purgeRgpd(Request $request, Family $family)
+    {
+        if ($request->input('confirm') !== $family->family_name) {
+            return redirect()->route('families.show', $family)
+                ->with('error', 'Purge annulée : vous devez saisir le nom exact de la famille (' . $family->family_name . ') pour confirmer.');
+        }
+
+        $family->load(['parents', 'children']);
+        $childIds = $family->children->pluck('id');
+        $parentIds = $family->parents->pluck('id');
+        $familyName = $family->family_name;
+
+        \DB::transaction(function () use ($family, $childIds, $parentIds) {
+            // Présences et événements des enfants
+            \App\Modules\Cantine\Models\CantinePresence::whereIn('child_id', $childIds)->delete();
+            \App\Modules\Cantine\Models\CantineEvent::whereIn('child_id', $childIds)->delete();
+            \App\Modules\Garderie\Models\GarderiePresence::whereIn('child_id', $childIds)->delete();
+            \App\Modules\Garderie\Models\GarderieEvent::whereIn('child_id', $childIds)->delete();
+
+            // Invitations en cours
+            \App\Models\FamilyInvitation::where('family_id', $family->id)->delete();
+
+            // Comptes portail parent liés, puis parents et enfants
+            \App\Models\User::whereIn('id', \App\Models\ParentModel::whereIn('id', $parentIds)->pluck('user_id'))->delete();
+            \App\Models\ParentModel::whereIn('id', $parentIds)->forceDelete();
+            \App\Models\Child::whereIn('id', $childIds)->forceDelete();
+
+            $family->forceDelete();
+        });
+
+        return redirect()->route('families.index')
+            ->with('success', "Famille « {$familyName} » et toutes ses données associées ont été définitivement supprimées (purge RGPD).");
+    }
     /**
      * Retire les lignes parents entièrement vides du formulaire.
      * Le formulaire envoie toujours une ligne par défaut (vide) : sans ce

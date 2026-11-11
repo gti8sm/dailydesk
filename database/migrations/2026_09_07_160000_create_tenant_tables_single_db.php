@@ -218,11 +218,14 @@ return new class extends Migration
         // Add tenant_id to users table
         if (!Schema::hasColumn('users', 'tenant_id')) {
             // Drop unique on email if it exists, replace with composite unique (tenant_id, email)
-            $indexes = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_email_unique'");
-            if (!empty($indexes)) {
-                Schema::table('users', function (Blueprint $table) {
-                    $table->dropUnique('users_email_unique');
-                });
+            // (Vérification SHOW INDEX spécifique MySQL — ignorée sur sqlite/tests)
+            if (\DB::connection()->getDriverName() === 'mysql') {
+                $indexes = \DB::select("SHOW INDEX FROM users WHERE Key_name = 'users_email_unique'");
+                if (!empty($indexes)) {
+                    Schema::table('users', function (Blueprint $table) {
+                        $table->dropUnique('users_email_unique');
+                    });
+                }
             }
 
             Schema::table('users', function (Blueprint $table) {

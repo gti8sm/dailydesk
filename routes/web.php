@@ -23,6 +23,7 @@ use App\Http\Controllers\Central\StatisticsController;
 use App\Http\Controllers\Central\ExportController as CentralExportController;
 use App\Http\Controllers\Central\SupportTicketController;
 use App\Http\Controllers\Central\SystemUpdateController;
+use App\Http\Controllers\Central\RgpdController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\TenantSupportController;
@@ -80,10 +81,23 @@ Route::get('/cgv', function () {
 Route::get('/mentions-legales', fn() => view('legal.mentions'))->name('legal.mentions');
 Route::get('/rgpd', fn() => view('legal.rgpd'))->name('legal.rgpd');
 
+// Sonde de supervision (UptimeRobot & co) — publique, sans authentification
+Route::get('/health', function () {
+    try {
+        \DB::select('SELECT 1');
+    } catch (\Throwable $e) {
+        return response()->json(['status' => 'error', 'database' => 'unreachable'], 503);
+    }
+
+    return response()->json(['status' => 'ok', 'database' => 'ok', 'checked_at' => now()->toIso8601String()]);
+})->name('health');
+
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('web');
 Route::post('/login', [LoginController::class, 'login'])->middleware(['web', 'throttle:5,1']);
+Route::get('/login/2fa', [LoginController::class, 'showTwoFactorForm'])->name('login.twofactor');
+Route::post('/login/2fa/verify', [LoginController::class, 'verifyTwoFactor'])->middleware('throttle:10,1')->name('login.twofactor.verify');
 Route::get('/login/pin', fn() => redirect()->route('login'));
 
 Route::get('/password/request', [LoginController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -158,6 +172,10 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::delete('system/backup/{backup}', [SystemUpdateController::class, 'deleteBackup'])->name('system.backup.delete');
     Route::post('system/maintenance', [SystemUpdateController::class, 'toggleMaintenance'])->name('system.maintenance');
 
+    // RGPD (super admin)
+    Route::get('rgpd', [RgpdController::class, 'index'])->name('rgpd.index');
+    Route::post('rgpd/purge-presences', [RgpdController::class, 'purgePresences'])->name('rgpd.purge-presences');
+
     Route::get('support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::get('support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('support/{ticket}/comment', [SupportTicketController::class, 'comment'])->name('support.comment');
@@ -168,6 +186,7 @@ Route::middleware('auth')->prefix('central')->name('central.')->group(function (
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin');
     Route::put('/profile/whitelist', [ProfileController::class, 'updateIpWhitelist'])->name('profile.whitelist');
+    Route::put('/profile/twofactor', [ProfileController::class, 'updateTwoFactor'])->name('profile.twofactor');
 });
 
 /*
@@ -202,6 +221,7 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin');
     Route::put('/profile/whitelist', [ProfileController::class, 'updateIpWhitelist'])->name('profile.whitelist');
+    Route::put('/profile/twofactor', [ProfileController::class, 'updateTwoFactor'])->name('profile.twofactor');
 
     Route::get('/help', fn() => view('help.index'))->name('help');
 
@@ -312,6 +332,8 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug', 'auth'])->group(function 
     });
 
     Route::resource('families', FamilyController::class)->middleware('can:manage_families');
+    Route::get('/families/{family}/export-rgpd', [FamilyController::class, 'exportRgpd'])->name('families.export-rgpd')->middleware('can:manage_families');
+    Route::post('/families/{family}/purge-rgpd', [FamilyController::class, 'purgeRgpd'])->name('families.purge-rgpd')->middleware('can:manage_families');
 
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::resource('users', UserController::class);

@@ -14,6 +14,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Correctif spécifique MySQL : sans effet sur les autres drivers
+        // (sqlite en tests, où la table est déjà créée avec le bon type)
+        if (DB::connection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
         if (!Schema::hasTable('public_site_pages')) {
             return;
         }

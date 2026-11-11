@@ -45,9 +45,13 @@ php artisan demo:mairie --slug=ma-ville                # Avec un autre slug
 ### Tests et vérification
 Avant de committer, vérifier :
 1. `php -l` sur les fichiers PHP modifiés
-2. `php artisan view:cache` (compile les Blade)
-3. `php artisan route:list` (routes enregistrées)
-4. `php artisan migrate` si nouvelles migrations
+2. `vendor/bin/phpunit` (suite de tests — sqlite en mémoire, base de dev préservée)
+3. `php artisan view:cache` (compile les Blade)
+4. `php artisan route:list` (routes enregistrées)
+5. `php artisan migrate` si nouvelles migrations
+
+⚠️ Ne pas lancer les tests si la config est cachée (`php artisan config:clear` d'abord) —
+sinon les variables d'environnement de phpunit.xml sont ignorées.
 
 ## Conventions de code
 
@@ -115,6 +119,15 @@ php artisan event:cache
 - **Jamais** de migrations destructives (drop column/table) sans backup
 - Toujours tester en local avant de pousser
 - Ne jamais committer de secrets (.env, mots de passe, tokens)
+
+### Sauvegardes automatiques (cron serveur)
+```bash
+# o2switch / cPanel → Tâches Cron → toutes les minutes :
+cd /path/to/dailydesk && php artisan schedule:run >> /dev/null 2>&1
+```
+- Sauvegarde complète automatique chaque nuit à 02h30 (`backup:nightly`)
+- Rétention : les 14 sauvegardes les plus récentes dans `storage/app/backups/`
+- Sauvegardes manuelles + restauration disponibles dans l'admin centrale (page Système)
 
 ## Processus de release (tags GitHub)
 

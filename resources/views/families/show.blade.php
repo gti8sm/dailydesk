@@ -12,6 +12,9 @@
             <a href="{{ route('families.edit', $family) }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
                 <i class="fas fa-edit mr-1"></i>Modifier
             </a>
+            <a href="{{ route('families.export-rgpd', $family) }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" title="Export RGPD — droit d'accès (JSON)">
+                <i class="fas fa-shield-halved mr-1"></i>Export RGPD
+            </a>
             <form action="{{ route('families.destroy', $family) }}" method="POST" onsubmit="return confirm('Supprimer cette famille ?')">
                 @csrf
                 @method('DELETE')
@@ -175,6 +178,44 @@
                 </a>
             </div>
             @endforelse
+        </div>
+    </div>
+
+    <!-- Zone RGPD — suppression définitive -->
+    <div class="bg-white shadow rounded-lg p-6 border border-red-100" x-data="{ purging: false }">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+            <i class="fas fa-shield-halved text-gray-400 mr-2"></i>RGPD — effacement définitif
+        </h3>
+        <p class="text-sm text-gray-500 mb-3">
+            Réponse à un droit à l'effacement (RGPD art. 17) : supprime <strong>définitivement</strong> la famille,
+            ses parents, ses enfants, leurs présences (cantine et garderie), les invitations et les comptes portail parent associés.
+            Contrairement à la suppression classique (corbeille), cette action est irrécupérable.
+        </p>
+        <button type="button" @click="purging = !purging" class="text-red-600 hover:text-red-800 text-sm font-medium">
+            <i class="fas fa-triangle-exclamation mr-1"></i>Purger définitivement cette famille...
+        </button>
+        <div x-show="purging" x-cloak class="mt-3 border-t border-gray-200 pt-3">
+            <form action="{{ route('families.purge-rgpd', $family) }}" method="POST">
+                @csrf
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                    <p class="text-xs text-red-800 leading-relaxed">
+                        <strong>Action irréversible</strong> — toutes les données de cette famille seront effacées
+                        sans possibilité de récupération. Un export RGPD préalable est recommandé si la mairie doit
+                        conserver une trace.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <label class="text-xs text-gray-600">
+                        Pour confirmer, recopiez le nom de la famille <span class="font-semibold">{{ $family->family_name }}</span> :
+                    </label>
+                    <input type="text" name="confirm" required autocomplete="off" spellcheck="false"
+                           class="text-sm border-red-300 rounded-lg w-44" placeholder="{{ $family->family_name }}">
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm">
+                        <i class="fas fa-eraser mr-1"></i>Effacer définitivement
+                    </button>
+                    <button type="button" @click="purging = false" class="text-sm text-gray-500 hover:text-gray-700 underline">Annuler</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

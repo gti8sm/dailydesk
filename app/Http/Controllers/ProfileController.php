@@ -84,4 +84,22 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Whitelist IP mise à jour avec succès.');
     }
+
+    /**
+     * Active/désactive la double authentification par email.
+     */
+    public function updateTwoFactor(Request $request)
+    {
+        $request->validate([
+            'two_factor_enabled' => 'nullable|boolean',
+        ]);
+
+        auth()->user()->update([
+            'two_factor_enabled' => $request->boolean('two_factor_enabled'),
+        ]);
+
+        return back()->with('success', $request->boolean('two_factor_enabled')
+            ? 'Double authentification activée — un code vous sera envoyé par email à chaque connexion.'
+            : 'Double authentification désactivée.');
+    }
 }

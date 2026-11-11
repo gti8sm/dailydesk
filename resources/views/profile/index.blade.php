@@ -185,6 +185,32 @@
                     </div>
                 </form>
             </div>
+
+            <!-- Double authentification (2FA email) -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-shield-halved text-gray-600 mr-2"></i>Double authentification
+                </h3>
+                <p class="text-sm text-gray-500 mb-3">
+                    À chaque connexion, un code à 6 chiffres vous est envoyé par email — indispensable pour
+                    les comptes avec accès aux données des enfants. <strong>Recommandé pour les administrateurs.</strong>
+                </p>
+                <form action="{{ route("{$routePrefix}.twofactor") }}" method="POST" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+                    <div class="flex items-center">
+                        <input type="checkbox" name="two_factor_enabled" id="two_factor_enabled" value="1"
+                               {{ Auth::user()->two_factor_enabled ? 'checked' : '' }}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="two_factor_enabled" class="ml-2 text-sm text-gray-700">Activer la double authentification par email</label>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                            <i class="fas fa-save mr-1"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

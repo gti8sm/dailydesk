@@ -82,6 +82,26 @@ class LoginController extends Controller
             ]);
         }
 
+        // Double authentification par email : un code à 6 chiffres est
+        // envoyé et doit être saisi avant de terminer la connexion
+        if ($user->two_factor_enabled) {
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            \Cache::put(
+                '2fa_code_' . $user->id,
+                ['hash' => hash('sha256', $code), 'attempts' => 0],
+                now()->addMinutes(10)
+            );
+
+            \Mail::to($user->email)->send(new \App\Mail\TwoFactorCodeMail($code, $user));
+
+            $request->session()->regenerate();
+            $request->session()->put('2fa_user_id', $user->id);
+            $request->session()->put('2fa_remember', $request->filled('remember'));
+
+            return redirect()->route('login.twofactor');
+        }
+
         // Remember me pour 30 jours si demandé
         $remember = $request->filled('remember');
         if ($remember) {
@@ -105,6 +125,92 @@ class LoginController extends Controller
         }
 
         $tenant = \App\Models\Tenant::find($user->tenant_id);
+        if ($tenant) {
+            return redirect()->intended(route('dashboard', ['tenant' => $tenant->slug]));
+        }
+
+        return redirect()->intended(route('login'));
+    }
+
+    /**
+     * Formulaire de saisie du code de vérification (2FA email).
+     */
+    public function showTwoFactorForm(Request $request)
+    {
+        if (!$request->session()->has('2fa_user_id')) {
+            return redirect()->route('login');
+        }
+
+        return view('auth.two-factor');
+    }
+
+    /**
+     * Vérifie le code de vérification et termine la connexion.
+     */
+    public function verifyTwoFactor(Request $request)
+    {
+        $userId = $request->session()->get('2fa_user_id');
+
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $request->validate([
+            'code' => ['required', 'digits:6'],
+        ], [
+            'code.required' => 'Veuillez saisir le code reçu par email.',
+            'code.digits' => 'Le code doit comporter 6 chiffres.',
+        ]);
+
+        $cached = \Cache::get('2fa_code_' . $userId);
+
+        if (!$cached) {
+            return redirect()->route('login')
+                ->with('error', 'Le code a expiré — reconnectez-vous pour en recevoir un nouveau.');
+        }
+
+        // Anti-brute force : 5 tentatives maximum, puis invalidation
+        if (($cached['attempts'] ?? 0) >= 5) {
+            \Cache::forget('2fa_code_' . $userId);
+            $request->session()->forget(['2fa_user_id', '2fa_remember']);
+
+            return redirect()->route('login')
+                ->with('error', 'Trop de tentatives — reconnectez-vous pour recevoir un nouveau code.');
+        }
+
+        if (!hash_equals($cached['hash'], hash('sha256', $request->input('code')))) {
+            $cached['attempts'] = ($cached['attempts'] ?? 0) + 1;
+            \Cache::put('2fa_code_' . $userId, $cached, now()->addMinutes(10));
+
+            throw ValidationException::withMessages([
+                'code' => 'Code incorrect — ' . (5 - $cached['attempts']) . ' tentative(s) restante(s).',
+            ]);
+        }
+
+        $user = User::find($userId);
+
+        if (!$user || !$user->is_active) {
+            $request->session()->forget(['2fa_user_id', '2fa_remember']);
+
+            return redirect()->route('login');
+        }
+
+        // Code valide : on termine la connexion normalement
+        \Cache::forget('2fa_code_' . $userId);
+
+        $remember = (bool) $request->session()->pull('2fa_remember', false);
+        $request->session()->forget('2fa_user_id');
+
+        Auth::login($user, $remember);
+        $user->update(['last_login_at' => now()]);
+        $request->session()->regenerate();
+
+        if ($user->hasRole('super_admin')) {
+            return redirect()->intended(route('central.dashboard'));
+        }
+
+        $tenant = \App\Models\Tenant::find($user->tenant_id);
+
         if ($tenant) {
             return redirect()->intended(route('dashboard', ['tenant' => $tenant->slug]));
         }

@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
  */
 class BackupService
 {
-    public const KEEP = 3;
+    public const KEEP = 14;
 
     public function backupsDir(): string
     {
