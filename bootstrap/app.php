@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'log.activity' => LogUserActivity::class,
             'tenancy.slug' => InitializeTenancyBySlug::class,
+            'super.admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
         ]);
         $middleware->append(LogUserActivity::class);
         $middleware->append(SecurityHeaders::class);

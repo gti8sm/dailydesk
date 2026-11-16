@@ -137,7 +137,7 @@ Route::prefix('{tenant}')->middleware(['tenancy.slug'])->group(function () {
 | Central admin routes (auth, no tenancy — super admin)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->prefix('central')->name('central.')->group(function () {
+Route::middleware(['auth', 'super.admin'])->prefix('central')->name('central.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 
