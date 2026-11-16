@@ -13,6 +13,15 @@ abstract class TestCase extends BaseTestCase
      */
     public function createApplication()
     {
+        // Une config cachée (php artisan config:cache) écraserait les
+        // variables de phpunit.xml et les tests frapperaient la base de
+        // dev — on la supprime systématiquement avant de booter.
+        $cachedConfig = dirname(__DIR__) . '/bootstrap/cache/config.php';
+
+        if (is_file($cachedConfig)) {
+            @unlink($cachedConfig);
+        }
+
         $app = parent::createApplication();
 
         $app->config->set('database.default', 'central');

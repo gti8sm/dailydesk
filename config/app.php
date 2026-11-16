@@ -10,6 +10,10 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     'timezone' => env('APP_TIMEZONE', 'Europe/Paris'),
     'locale' => env('APP_LOCALE', 'fr'),
+
+    // Notification email des erreurs en production (App\Services\ErrorReporter)
+    'error_report_email' => env('ERROR_REPORT_EMAIL', 'contact@dailydesk.fr'),
+    'error_report_force' => env('ERROR_REPORT_FORCE', false),
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'fr'),
     'faker_locale' => env('APP_FAKER_LOCALE', 'fr_FR'),
     'cipher' => 'AES-256-CBC',

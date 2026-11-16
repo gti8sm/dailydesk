@@ -298,6 +298,10 @@
                        class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i class="fas fa-book mr-2"></i>Aide complète
                     </a>
+                    <a href="{{ route('guide.download') }}" target="_blank"
+                       class="flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-file-pdf mr-2"></i>Guide utilisateur (PDF)
+                    </a>
                     <a href="{{ route('support.create') }}"
                        class="flex items-center justify-center w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
                         <i class="fas fa-life-ring mr-2"></i>Créer un ticket

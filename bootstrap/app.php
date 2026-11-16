@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        // Notifie par email les erreurs en production (throttle 15 min
+        // par erreur) — voir App\Services\ErrorReporter
+        $exceptions->report(function (\Throwable $e) {
+            app(\App\Services\ErrorReporter::class)->report($e);
+        });
+
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
             if ($request->is('logout') || $request->routeIs('logout')) {
                 auth()->logout();

@@ -81,6 +81,10 @@ Route::get('/cgv', function () {
 Route::get('/mentions-legales', fn() => view('legal.mentions'))->name('legal.mentions');
 Route::get('/rgpd', fn() => view('legal.rgpd'))->name('legal.rgpd');
 
+// Guide utilisateur (consultation HTML + téléchargement PDF)
+Route::get('/guide', fn() => view('guide.index'))->name('guide');
+Route::get('/guide/download', fn() => \Barryvdh\DomPDF\Facade\Pdf::loadView('guide.index', ['pdf' => true])->setPaper('a4')->download('Guide-DailyDesk.pdf'))->name('guide.download');
+
 // Sonde de supervision (UptimeRobot & co) — publique, sans authentification
 Route::get('/health', function () {
     try {

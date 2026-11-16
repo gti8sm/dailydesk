@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class InitializeTenancyBySlug
 {
     protected array $reservedSlugs = [
-        'accueil', 'login', 'logout', 'password', 'cgv', 'mentions-legales', 'rgpd',
+        'accueil', 'login', 'logout', 'password', 'cgv', 'mentions-legales', 'rgpd', 'guide',
         'central', 'api', 'up', 'onboarding', 'presentation', 'sitemap.xml', 'invitation',
     ];
 
