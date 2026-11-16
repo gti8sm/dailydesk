@@ -45,4 +45,10 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->with('success', 'Vous avez été déconnecté.');
             }
         });
+
+        // Asset tenant introuvable sur le domaine central (tenancy par
+        // domaine, non utilisée ici) : simple 404, pas une erreur serveur
+        $exceptions->render(function (\Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException $e, Request $request) {
+            return response()->view('errors.404', [], 404);
+        });
     })->create();

@@ -11,6 +11,13 @@ return [
 
     'domain_model' => Domain::class,
 
+    /*
+     * Les routes internes du package (/tenancy/assets) ne servent qu'à
+     * l'identification par domaine — inutilisables en tenancy par chemin
+     * (elles provoquent une erreur sur le domaine central). Désactivées.
+     */
+    'routes' => false,
+
     /**
      * The list of domains hosting your central app.
      *

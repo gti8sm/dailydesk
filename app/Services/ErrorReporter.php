@@ -83,6 +83,7 @@ class ErrorReporter
             NotFoundHttpException::class,
             TooManyRequestsHttpException::class,
             ThrottleRequestsException::class,
+            \Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException::class,
         ] as $ignored) {
             if ($e instanceof $ignored) {
                 return false;
